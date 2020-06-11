@@ -1,3 +1,5 @@
+import datetime
+
 import cv2
 import time
 import numpy as np
@@ -45,7 +47,7 @@ def trigger(h_list, o_list, f_list, threshold, use_diff):
         s3_list = np.multiply(np.array(s1_list), np.array(s2_list)).tolist()
         o_list = h_list
         signal = max(s3_list)
-        print(signal)
+        # print(signal)
         if signal < threshold:
             pos = -1
         else:
@@ -58,6 +60,7 @@ def trigger(h_list, o_list, f_list, threshold, use_diff):
 
 
 def start_test():
+    # region Initialize variables
     old1 = None
     old2 = None
     old3 = None
@@ -72,18 +75,42 @@ def start_test():
     first6 = None
     record = []
     old_frame = None
-    url = "http://admin:admin@10.80.84.47:8081"
-    # sample = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
+    # url = "http://admin:admin@10.80.84.47:8081"
+    sample = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
     # sample = cv2.VideoCapture("Sample.mp4")
-    sample = cv2.VideoCapture(url)
-    # plt.ion()  # 开启interactive mode 成功的关键函数
-    # plt.figure(1)
-    record = []
+    # sample = cv2.VideoCapture(url)
     th_line = []
+    record = []
     count = 0
     th = 2e5
     use_diff = True
+    # endregion
+
+    # plt.ion()  # 开启interactive mode 成功的关键函数
+    # plt.figure(1)
+
+    # region Initialize VideoWriter
+    fps = 15
+    size = (
+        int(sample.get(cv2.CAP_PROP_FRAME_WIDTH)),
+        int(sample.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    )
+    video_writer = None
+    # endregion
+
+    file_count = 0
+    next_move = 101
     while sample.isOpened():
+
+        if next_move == 101:
+            video_writer = cv2.VideoWriter(
+                str(file_count) + '.avi',
+                cv2.VideoWriter_fourcc(*'MJPG'),
+                fps,
+                size
+            )
+            file_count += 1
+
         sig = 0
         plt.clf()
         position = -1
@@ -91,6 +118,8 @@ def start_test():
         th_line = [th] * 200
         if frame is not None:
             # frame = enhance(frame)
+            # region get Differential Frame
+            src_frame = frame.copy()
             frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
             if old_frame is not None and use_diff:
                 diff = frame.astype(np.int16) - old_frame.astype(np.int16)
@@ -102,12 +131,15 @@ def start_test():
                 diff = frame.astype(np.int16) - old_frame.astype(np.int16)
                 diff = np.abs(diff).astype(np.uint8)
                 frame = diff
+            # endregion
 
+            # region get Sizes
             h = frame.shape[0]
             w = frame.shape[1]
             x1 = int(0.3 * w)
             x2 = int(0.7 * w)
             y = int(0.5 * h)
+            # endregion
 
             # region get Histogram
             img_mask = np.zeros((h, w), np.uint8)
@@ -141,6 +173,8 @@ def start_test():
             # cv2.imshow("hist3", hist_img3)
 
             # endregion
+
+            print(next_move)
             count += 1
             first_hist = first1 is None and first2 is None and first3 is None and first4 is None and first5 is None and first6 is None
             if first_hist or count > 200:
@@ -168,31 +202,64 @@ def start_test():
             # plt.pause(0.005)
             position = p
 
+            if position in [0, 1, 2, 3, 4, 5]:
+                if next_move == 0:
+                    next_move = 101
+                else:
+                    next_move = 100
+            else:
+                next_move -= 1
+                if next_move < 0:
+                    next_move = 0
+                    video_writer.release()
+
+            if next_move > 0 and video_writer:
+                video_writer.write(src_frame)
+
+            # region write Rectangles
             if position == 0:
+                # src_frame = cv2.rectangle(src_frame, (0, 0), (x1, y), (255, 0, 0), 5, cv2.LINE_AA)
                 frame = cv2.rectangle(frame, (0, 0), (x1, y), (255, 255, 255), 5, cv2.LINE_AA)
             elif position == 1:
+                # src_frame = cv2.rectangle(src_frame, (x1, 0), (x2, y), (255, 0, 0), 5, cv2.LINE_AA)
                 frame = cv2.rectangle(frame, (x1, 0), (x2, y), (255, 255, 255), 5, cv2.LINE_AA)
             elif position == 2:
+                # src_frame = cv2.rectangle(src_frame, (x2, 0), (w, y), (255, 0, 0), 5, cv2.LINE_AA)
                 frame = cv2.rectangle(frame, (x2, 0), (w, y), (255, 255, 255), 5, cv2.LINE_AA)
             elif position == 3:
+                # src_frame = cv2.rectangle(src_frame, (0, y), (x1, h), (255, 0, 0), 5, cv2.LINE_AA)
                 frame = cv2.rectangle(frame, (0, y), (x1, h), (255, 255, 255), 5, cv2.LINE_AA)
             elif position == 4:
+                # src_frame = cv2.rectangle(src_frame, (x1, y), (x2, h), (255, 0, 0), 5, cv2.LINE_AA)
                 frame = cv2.rectangle(frame, (x1, y), (x2, h), (255, 255, 255), 5, cv2.LINE_AA)
             elif position == 5:
+                # src_frame = cv2.rectangle(src_frame, (x2, y), (w, h), (255, 0, 0), 5, cv2.LINE_AA)
                 frame = cv2.rectangle(frame, (x2, y), (w, h), (255, 255, 255), 5, cv2.LINE_AA)
             else:
                 pass
-            cv2.imshow("image", frame)
+            # endregion
+
+            cv2.imshow("detect", frame)
+            cv2.imshow("origin", src_frame)
         else:
             break
+
+        # region key interface
         k = cv2.waitKey(50)
-        # q键退出
         if k & 0xff == ord('q'):
             print("redefine threshold")
             th = th * 1.05
         if k & 0xff == ord('e'):
             print("redefine threshold")
             th = th * 0.95
+        if k & 0xff == ord('w'):
+            break
+        # endregion
 
     sample.release()
+    if video_writer:
+        video_writer.release()
     cv2.destroyAllWindows()
+
+
+start_test()
