@@ -244,7 +244,6 @@ def start_test(show_diff=False, file_path="Samples\\Sample.mp4", output_path="Ou
             if show_diff:
                 cv2.imshow("diff", frame)
                 cv2.imshow("origin", src_frame)
-
         else:
             break
 
