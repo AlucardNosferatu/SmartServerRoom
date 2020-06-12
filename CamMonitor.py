@@ -1,8 +1,7 @@
-import datetime
 import os
-
+import sys
 import cv2
-import time
+import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -245,8 +244,8 @@ def start_test(file_path="Samples\\Sample.mp4", output_path="Outputs", file_name
                 pass
             # endregion
 
-            cv2.imshow("detect", frame)
-            cv2.imshow("origin", src_frame)
+            # cv2.imshow("detect", frame)
+            # cv2.imshow("origin", src_frame)
         else:
             break
 
@@ -277,4 +276,4 @@ def process_dir(dir_path="Samples", output_path="Outputs"):
                 print("src video file has been deleted")
 
 
-process_dir()
+process_dir(sys.argv[1], sys.argv[2])
