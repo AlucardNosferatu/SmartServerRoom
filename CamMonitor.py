@@ -4,6 +4,7 @@ import cv2
 import datetime
 import numpy as np
 import matplotlib.pyplot as plt
+from MostDifferentFrame import snap_shot
 
 
 def enhance(f):
@@ -61,6 +62,7 @@ def trigger(h_list, o_list, f_list, threshold, use_diff):
 
 def start_test(show_diff=False, file_path="Samples\\Sample.mp4", output_path="Outputs", file_name="Sample.mp4"):
     file_name = file_name.split(".")[0]
+
     # region Initialize variables
     old1 = None
     old2 = None
@@ -265,13 +267,23 @@ def start_test(show_diff=False, file_path="Samples\\Sample.mp4", output_path="Ou
 
 
 def process_dir(dir_path="Samples", output_path="Outputs"):
+    start = datetime.datetime.now()
     for e, i in enumerate(os.listdir(dir_path)):
         if i.endswith('mp4') or i.endswith('MP4'):
             file_path = os.path.join(dir_path, i)
-            start_test(True, file_path, output_path, i)
-            # if os.path.exists(os.path.join(dir_path, i)):
-            #     os.remove(os.path.join(dir_path, i))
-            #     print("src video file has been deleted")
+            start_test(False, file_path, output_path, i)
+    for e, i in enumerate(os.listdir(output_path)):
+        if i.endswith('avi'):
+            file_path = os.path.join(output_path, i)
+            snap_shot(calcAndDrawHist, file_path=file_path)
+    end = datetime.datetime.now()
+    print(str(end - start))
+
+
+def delete_file(dir_path, i):
+    if os.path.exists(os.path.join(dir_path, i)):
+        os.remove(os.path.join(dir_path, i))
+        print("src video file has been deleted")
 
 
 process_dir()
