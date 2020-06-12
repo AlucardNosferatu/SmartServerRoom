@@ -1,4 +1,5 @@
 import datetime
+import os
 
 import cv2
 import time
@@ -21,13 +22,13 @@ def enhance(f):
 
 def calcAndDrawHist(image, color, mask=None):
     hist = cv2.calcHist([image], [0], mask, [256], [0.0, 255.0])
-    minVal, maxVal, minLoc, maxLoc = cv2.minMaxLoc(hist)
-    histImg = np.zeros([256, 256, 3], np.uint8)
+    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(hist)
+    hist_img = np.zeros([256, 256, 3], np.uint8)
     hpt = int(0.9 * 256)
     for h in range(256):
-        intensity = int(hist[h] * hpt / maxVal)
-        cv2.line(histImg, (h, 256), (h, 256 - intensity), color)
-    return histImg, hist
+        intensity = int(hist[h] * hpt / max_val)
+        cv2.line(hist_img, (h, 256), (h, 256 - intensity), color)
+    return hist_img, hist
 
 
 def trigger(h_list, o_list, f_list, threshold, use_diff):
@@ -59,7 +60,8 @@ def trigger(h_list, o_list, f_list, threshold, use_diff):
     return pos, o_list, signal
 
 
-def start_test():
+def start_test(file_path="Samples\\Sample.mp4", output_path="Outputs", file_name="Sample.mp4"):
+    file_name = file_name.split(".")[0]
     # region Initialize variables
     old1 = None
     old2 = None
@@ -76,8 +78,8 @@ def start_test():
     record = []
     old_frame = None
     # url = "http://admin:admin@10.80.84.47:8081"
-    sample = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
-    # sample = cv2.VideoCapture("Sample.mp4")
+    # sample = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
+    sample = cv2.VideoCapture(file_path)
     # sample = cv2.VideoCapture(url)
     th_line = []
     record = []
@@ -90,7 +92,9 @@ def start_test():
     # plt.figure(1)
 
     # region Initialize VideoWriter
-    fps = 15
+    fps = sample.get(cv2.CAP_PROP_FPS)
+    if fps == 0:
+        fps = 15
     size = (
         int(sample.get(cv2.CAP_PROP_FRAME_WIDTH)),
         int(sample.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -99,12 +103,12 @@ def start_test():
     # endregion
 
     file_count = 0
-    next_move = 101
+    next_move = 100
     while sample.isOpened():
 
         if next_move == 101:
             video_writer = cv2.VideoWriter(
-                str(file_count) + '.avi',
+                output_path + "\\" + file_name + "_" + str(file_count) + '.avi',
                 cv2.VideoWriter_fourcc(*'MJPG'),
                 fps,
                 size
@@ -211,10 +215,12 @@ def start_test():
                 next_move -= 1
                 if next_move < 0:
                     next_move = 0
-                    video_writer.release()
+                    if video_writer:
+                        video_writer.release()
 
             if next_move > 0 and video_writer:
-                video_writer.write(src_frame)
+                if video_writer:
+                    video_writer.write(src_frame)
 
             # region write Rectangles
             if position == 0:
@@ -255,11 +261,20 @@ def start_test():
         if k & 0xff == ord('w'):
             break
         # endregion
-
     sample.release()
     if video_writer:
         video_writer.release()
     cv2.destroyAllWindows()
 
 
-start_test()
+def process_dir(dir_path="Samples", output_path="Outputs"):
+    for e, i in enumerate(os.listdir(dir_path)):
+        if i.endswith('mp4') or i.endswith('MP4'):
+            file_path = os.path.join(dir_path, i)
+            start_test(file_path, output_path, i)
+            if os.path.exists(os.path.join(dir_path, i)):
+                os.remove(os.path.join(dir_path, i))
+                print("src video file has been deleted")
+
+
+process_dir()
