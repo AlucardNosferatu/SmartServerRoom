@@ -5,6 +5,7 @@ import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 from MostDifferentFrame import snap_shot
+from HTTPInterface import post_result, MyRequestHandler, HTTPServer, ProcessThread
 
 
 def enhance(f):
@@ -266,16 +267,21 @@ def start_test(show_diff=False, file_path="Samples\\Sample.mp4", output_path="Ou
     cv2.destroyAllWindows()
 
 
-def process_dir(dir_path="Samples", output_path="Outputs"):
+def process_dir(_, request_id, dir_path="Samples", output_path="Outputs"):
     start = datetime.datetime.now()
+    src_num = 0
+    dst_num = 0
     for e, i in enumerate(os.listdir(dir_path)):
         if i.endswith('mp4') or i.endswith('MP4'):
             file_path = os.path.join(dir_path, i)
             start_test(False, file_path, output_path, i)
+            src_num += 1
     for e, i in enumerate(os.listdir(output_path)):
         if i.endswith('avi'):
             file_path = os.path.join(output_path, i)
             snap_shot(calcAndDrawHist, file_path=file_path)
+            dst_num += 1
+    post_result(request_id, src_num, src_num)
     end = datetime.datetime.now()
     print(str(end - start))
 
@@ -286,5 +292,8 @@ def delete_file(dir_path, i):
         print("src video file has been deleted")
 
 
-process_dir()
+MyRequestHandler.process = process_dir
+server = HTTPServer(("", 8080), MyRequestHandler)
+print("pythonic-simple-http-server started, serving at http://localhost:8080")
+server.serve_forever()
 # process_dir(sys.argv[1], sys.argv[2])
