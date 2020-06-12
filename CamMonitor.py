@@ -59,7 +59,7 @@ def trigger(h_list, o_list, f_list, threshold, use_diff):
     return pos, o_list, signal
 
 
-def start_test(file_path="Samples\\Sample.mp4", output_path="Outputs", file_name="Sample.mp4"):
+def start_test(show_diff=False, file_path="Samples\\Sample.mp4", output_path="Outputs", file_name="Sample.mp4"):
     file_name = file_name.split(".")[0]
     # region Initialize variables
     old1 = None
@@ -85,6 +85,8 @@ def start_test(file_path="Samples\\Sample.mp4", output_path="Outputs", file_name
     count = 0
     th = 2e5
     use_diff = True
+    file_count = 0
+    next_move = 100
     # endregion
 
     # plt.ion()  # 开启interactive mode 成功的关键函数
@@ -101,25 +103,23 @@ def start_test(file_path="Samples\\Sample.mp4", output_path="Outputs", file_name
     video_writer = None
     # endregion
 
-    file_count = 0
-    next_move = 100
     while sample.isOpened():
-
-        if next_move == 101:
-            video_writer = cv2.VideoWriter(
-                output_path + "\\" + file_name + "_" + str(file_count) + '.avi',
-                cv2.VideoWriter_fourcc(*'MJPG'),
-                fps,
-                size
-            )
-            file_count += 1
-
         sig = 0
         plt.clf()
         position = -1
         ret, frame = sample.read()
         th_line = [th] * 200
         if frame is not None:
+            print(next_move)
+            if next_move == 101:
+                print("Start")
+                video_writer = cv2.VideoWriter(
+                    output_path + "\\" + file_name + "_" + str(file_count) + '.avi',
+                    cv2.VideoWriter_fourcc(*'MJPG'),
+                    fps,
+                    size
+                )
+                file_count += 1
             # frame = enhance(frame)
             # region get Differential Frame
             src_frame = frame.copy()
@@ -176,8 +176,6 @@ def start_test(file_path="Samples\\Sample.mp4", output_path="Outputs", file_name
             # cv2.imshow("hist3", hist_img3)
 
             # endregion
-
-            print(next_move)
             count += 1
             first_hist = first1 is None and first2 is None and first3 is None and first4 is None and first5 is None and first6 is None
             if first_hist or count > 200:
@@ -206,7 +204,7 @@ def start_test(file_path="Samples\\Sample.mp4", output_path="Outputs", file_name
             position = p
 
             if position in [0, 1, 2, 3, 4, 5]:
-                if next_move == 0:
+                if next_move == 0 or file_count == 0:
                     next_move = 101
                 else:
                     next_move = 100
@@ -218,8 +216,8 @@ def start_test(file_path="Samples\\Sample.mp4", output_path="Outputs", file_name
                         video_writer.release()
 
             if next_move > 0 and video_writer:
-                if video_writer:
-                    video_writer.write(src_frame)
+                print("Recording")
+                video_writer.write(src_frame)
 
             # region write Rectangles
             if position == 0:
@@ -243,9 +241,10 @@ def start_test(file_path="Samples\\Sample.mp4", output_path="Outputs", file_name
             else:
                 pass
             # endregion
+            if show_diff:
+                cv2.imshow("diff", frame)
+                cv2.imshow("origin", src_frame)
 
-            # cv2.imshow("detect", frame)
-            # cv2.imshow("origin", src_frame)
         else:
             break
 
@@ -270,10 +269,11 @@ def process_dir(dir_path="Samples", output_path="Outputs"):
     for e, i in enumerate(os.listdir(dir_path)):
         if i.endswith('mp4') or i.endswith('MP4'):
             file_path = os.path.join(dir_path, i)
-            start_test(file_path, output_path, i)
-            if os.path.exists(os.path.join(dir_path, i)):
-                os.remove(os.path.join(dir_path, i))
-                print("src video file has been deleted")
+            start_test(True, file_path, output_path, i)
+            # if os.path.exists(os.path.join(dir_path, i)):
+            #     os.remove(os.path.join(dir_path, i))
+            #     print("src video file has been deleted")
 
 
-process_dir(sys.argv[1], sys.argv[2])
+process_dir()
+# process_dir(sys.argv[1], sys.argv[2])
