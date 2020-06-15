@@ -292,8 +292,9 @@ def delete_file(dir_path, i):
         print("src video file has been deleted")
 
 
-MyRequestHandler.process = process_dir
-server = HTTPServer(("", 8080), MyRequestHandler)
-print("pythonic-simple-http-server started, serving at http://localhost:8080")
-server.serve_forever()
+def start_server():
+    MyRequestHandler.process = process_dir
+    server = HTTPServer(("", 8080), MyRequestHandler)
+    print("pythonic-simple-http-server started, serving at http://localhost:8080")
+    server.serve_forever()
 # process_dir(sys.argv[1], sys.argv[2])

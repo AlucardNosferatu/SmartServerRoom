@@ -1,14 +1,23 @@
 import pickle
 import cv2
 import os
+import sys
 import numpy as np
 from random import shuffle
 from CamMonitor import calcAndDrawHist
 from sklearn.metrics.pairwise import cosine_similarity
 
 
-def get_histogram(file_path):
-    img = cv2.imread(file_path, 1)
+def get_histogram(file_path=None, image=None):
+    if image is not None:
+        img = image
+    else:
+        try:
+            assert file_path is not None
+            img = cv2.imread(file_path, 1)
+        except AssertionError as e:
+            print("Either path or image object need to be input")
+            sys.exit()
     img_copy = img.copy()
     # region Define sizes
     h = img.shape[0]
@@ -95,4 +104,4 @@ def test_loop():
                 cv2.waitKey()
 
 
-test_loop()
+# test_loop()
