@@ -5,7 +5,7 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 
 def post_result(request_id, src_num, dst_num):
-    server_url = 'http://localhost:8080'
+    server_url = 'http://localhost:5673/imr-monitor-server/waitvideo'
     dic = {"ID": request_id, "Src_num": src_num, "Dest_num": dst_num}
     dic_json = json.dumps(dic)
     response = requests.post(server_url, data=dic_json)
@@ -48,7 +48,7 @@ class MyRequestHandler(SimpleHTTPRequestHandler):
         print("process function hasn't been loaded yet.")
 
     def do_GET(self):
-        if self.path == "/" or self.path == "/index":
+        if self.path == "/imr-monitor-server/parsevideo":
             print(self.path)
             req = {"success": "true"}
             self.send_response(200)
@@ -61,14 +61,12 @@ class MyRequestHandler(SimpleHTTPRequestHandler):
             print("get path error")
 
     def do_POST(self):
-        if self.path == "/signin":
+        if self.path == "/imr-monitor-server/parsevideo":
             print("postmsg recv, path right")
-        else:
-            print("postmsg recv, path error")
             data = self.rfile.read(int(self.headers["content-length"]))
             data = json.loads(data)
             if data.__contains__('ID') and data.__contains__('src_url') and data.__contains__('dest_url'):
-            # region 这个要执行很久
+                # region 这个要执行很久
                 self.process_thread = ProcessThread(data['ID'], data['src_url'], data['dest_url'], self.process)
                 self.process_thread.start()
             # endregion
@@ -78,3 +76,23 @@ class MyRequestHandler(SimpleHTTPRequestHandler):
             rspstr = "recv ok, data = "
             rspstr += json.dumps(data, ensure_ascii=False)
             self.wfile.write(rspstr.encode("utf-8"))
+        elif self.path == "/imr-monitor-server/waitvideo":
+            data = self.rfile.read(int(self.headers["content-length"]))
+            data = json.loads(data)
+            if data.__contains__('ID') and data.__contains__('Src_num') and data.__contains__('Dest_num'):
+                self.send_response(200)
+                self.send_header("Content-type", "text/html")
+                self.end_headers()
+                rspstr = "recv ok, data = "
+                rspstr += json.dumps(data, ensure_ascii=False)
+                self.wfile.write(rspstr.encode("utf-8"))
+            else:
+                self.send_response(500)
+                self.send_header("Content-type", "text/html")
+                self.end_headers()
+
+        else:
+            print("postmsg recv, path error")
+            self.send_response(500)
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
