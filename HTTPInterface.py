@@ -90,7 +90,6 @@ class MyRequestHandler(SimpleHTTPRequestHandler):
                 self.send_response(500)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
-
         else:
             print("postmsg recv, path error")
             self.send_response(500)
