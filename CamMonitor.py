@@ -108,7 +108,7 @@ def start_test(show_diff=False, file_path="Samples\\Sample.mp4", output_path="Ou
 
     while sample.isOpened():
         sig = 0
-        plt.clf()
+        # plt.clf()
         position = -1
         ret, frame = sample.read()
         th_line = [th] * 200
@@ -267,13 +267,17 @@ def start_test(show_diff=False, file_path="Samples\\Sample.mp4", output_path="Ou
     cv2.destroyAllWindows()
 
 
-def process_dir(_, request_id, dir_path="Samples", output_path="Outputs"):
+def process_dir(_, request_id, dir_path="C:\\Users\\16413\\Desktop\\SmartServerRoom\\Samples", output_path="C:\\Users\\16413\\Desktop\\SmartServerRoom\\Outputs"):
     start = datetime.datetime.now()
     src_num = 0
     dst_num = 0
     for e, i in enumerate(os.listdir(dir_path)):
         if i.endswith('mp4') or i.endswith('MP4'):
             file_path = os.path.join(dir_path, i)
+            # output_dir_path = os.path.join(output_path, i)
+            # if os.path.exists(output_dir_path):
+            #     os.removedirs(output_dir_path)
+            # os.makedirs(output_dir_path)
             start_test(False, file_path, output_path, i)
             src_num += 1
     for e, i in enumerate(os.listdir(output_path)):
@@ -295,8 +299,9 @@ def delete_file(dir_path, i):
 def start_server():
     MyRequestHandler.process = process_dir
     server = HTTPServer(("", 5673), MyRequestHandler)
-    print("pythonic-simple-http-server started, serving at http://localhost:8080/imr-monitor-server/parsevideo")
+    print("pythonic-simple-http-server started, serving at http://localhost:5673/imr-monitor-server/parsevideo")
     server.serve_forever()
 
 
-start_server()
+# start_server()
+process_dir(_=None, request_id=1)

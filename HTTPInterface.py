@@ -2,15 +2,16 @@ import json
 import requests
 import threading
 from http.server import HTTPServer, SimpleHTTPRequestHandler
+from urllib import parse
 
 
 def post_result(request_id, src_num, dst_num):
-    server_url = 'http://localhost:5673/imr-monitor-server/waitvideo'
+    server_url = 'http://192.168.56.148:8744/imr-face-server/monitor/regmonitor'
     dic = {"ID": request_id, "Src_num": src_num, "Dest_num": dst_num}
     dic_json = json.dumps(dic)
     response = requests.post(server_url, data=dic_json)
     response.raise_for_status()
-    print(response.content)
+    print(response.content.decode('utf-8'))
 
 
 class ProcessThread(threading.Thread):
@@ -26,6 +27,12 @@ class ProcessThread(threading.Thread):
 
     def __init__(self, ID, src_url, dest_url, process):
         threading.Thread.__init__(self)
+        if type(ID) is list:
+            ID = ID[0]
+        if type(ID) is list:
+            src_url = src_url[0]
+        if type(ID) is list:
+            dest_url = dest_url[0]
         self.ID = ID
         self.src_url = src_url
         self.dst_url = dest_url
@@ -64,7 +71,10 @@ class MyRequestHandler(SimpleHTTPRequestHandler):
         if self.path == "/imr-monitor-server/parsevideo":
             print("postmsg recv, path right")
             data = self.rfile.read(int(self.headers["content-length"]))
-            data = json.loads(data)
+            try:
+                data = json.loads(data)
+            except json.decoder.JSONDecodeError:
+                data = parse.parse_qs(data.decode('utf-8'))
             if data.__contains__('ID') and data.__contains__('src_url') and data.__contains__('dest_url'):
                 # region 这个要执行很久
                 self.process_thread = ProcessThread(data['ID'], data['src_url'], data['dest_url'], self.process)
