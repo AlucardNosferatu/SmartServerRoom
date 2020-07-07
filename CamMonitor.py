@@ -1,11 +1,11 @@
-import os
-import sys
-import cv2
 import datetime
+import os
+
+import cv2
 import numpy as np
-import matplotlib.pyplot as plt
+
+from HTTPInterface import post_result, MyRequestHandler, HTTPServer
 from MostDifferentFrame import snap_shot
-from HTTPInterface import post_result, MyRequestHandler, HTTPServer, ProcessThread
 
 
 def enhance(f):
@@ -117,7 +117,7 @@ def start_test(show_diff=False, file_path="Samples\\Sample.mp4", output_path="Ou
             if next_move == 101:
                 print("Start")
                 video_writer = cv2.VideoWriter(
-                    output_path + "\\" + file_name + "_" + str(file_count) + '.avi',
+                    output_path + "/" + file_name + "_" + str(file_count) + '.avi',
                     cv2.VideoWriter_fourcc(*'MJPG'),
                     fps,
                     size
@@ -303,5 +303,5 @@ def start_server():
     server.serve_forever()
 
 
-# start_server()
-process_dir(_=None, request_id=1)
+start_server()
+# process_dir(_=None, request_id=1)

@@ -1,16 +1,16 @@
 import os
+
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 
 
-def snap_shot(calcAndDrawHist, file_path="Outputs\\IMG_0385_3.avi"):
+def snap_shot(calc_and_draw_hist, file_path="Outputs\\IMG_0385_3.avi"):
     sample = cv2.VideoCapture(file_path)
     hist_list = []
     while sample.isOpened():
         ret, frame = sample.read()
         if frame is not None:
-            hist_img, hist = calcAndDrawHist(frame, (0, 0, 255), None)
+            hist_img, hist = calc_and_draw_hist(frame, (0, 0, 255), None)
             hist_list.append(hist.tolist())
         else:
             break
