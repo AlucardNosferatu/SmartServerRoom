@@ -10,8 +10,12 @@ def post_result(request_id, src_num, dst_num):
     server_url = 'http://192.168.56.148:8744/imr-face-server/monitor/regmonitor'
     dic = {"ID": request_id, "Src_num": src_num, "Dest_num": dst_num}
     dic_json = json.dumps(dic)
-    print(str(dic_json))
-    response = requests.post(server_url, json=dic_json)
+    headers = {
+        "Content-Type": "application/json; charset=UTF-8"
+    }
+
+    # print(str(dic_json))
+    response = requests.post(server_url, data=dic_json, headers=headers)
     print("Complete post")
     response.raise_for_status()
     print(response.content.decode('utf-8'))
@@ -108,3 +112,7 @@ class MyRequestHandler(SimpleHTTPRequestHandler):
             self.send_response(500)
             self.send_header("Content-type", "text/html")
             self.end_headers()
+
+
+if __name__ == '__main__':
+    post_result(1, 2, 3)
