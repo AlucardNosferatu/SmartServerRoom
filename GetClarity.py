@@ -1,7 +1,7 @@
 import os
 import cv2
 import numpy as np
-from CamMonitor import calcAndDrawHist
+from CamMonitor import calc_and_draw_hist
 
 
 def get_clarity():
@@ -9,7 +9,7 @@ def get_clarity():
     for e, i in enumerate(os.listdir(path)):
         if i.endswith(".PNG"):
             img = cv2.imread(os.path.join(path, i))
-            hist_img, hist = calcAndDrawHist(img, [255, 0, 255], None)
+            hist_img, hist = calc_and_draw_hist(img, [255, 0, 255], None)
             dark = np.sum(np.squeeze(hist)[:128])
             bright = np.sum(np.squeeze(hist)[128:])
             dbr = dark / bright
