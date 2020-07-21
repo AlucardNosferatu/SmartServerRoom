@@ -4,7 +4,7 @@ import os
 import sys
 import numpy as np
 from random import shuffle
-from CamMonitor import calcAndDrawHist
+from CamMonitor import calc_and_draw_hist
 from sklearn.metrics.pairwise import cosine_similarity
 
 
@@ -41,7 +41,7 @@ def get_histogram(file_path=None, image=None):
             img_mask = np.zeros((h, w), np.uint8)
             img_mask[ya:ya + ys, xa:xa + xs] = 255
             img_copy = cv2.rectangle(img_copy, (xa, ya), (xa + xs, ya + ys), (0, 255, 0), 2, cv2.LINE_AA)
-            hist_img, hist = calcAndDrawHist(img, (0, 0, 255), img_mask)
+            hist_img, hist = calc_and_draw_hist(img, (0, 0, 255), img_mask)
             hist_img_list.append(hist_img)
             col_list.append(hist)
         hist_row_list.append(col_list)

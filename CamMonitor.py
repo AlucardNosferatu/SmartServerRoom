@@ -1,5 +1,6 @@
 import datetime
 import os
+from math import inf
 
 import cv2
 import numpy as np
@@ -21,7 +22,7 @@ def enhance(f):
     return o
 
 
-def calcAndDrawHist(image, color, mask=None):
+def calc_and_draw_hist(image, color, mask=None):
     hist = cv2.calcHist([image], [0], mask, [256], [0.0, 255.0])
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(hist)
     hist_img = np.zeros([256, 256, 3], np.uint8)
@@ -61,9 +62,16 @@ def trigger(h_list, o_list, f_list, threshold, use_diff):
     return pos, o_list, signal
 
 
-def start_test(show_diff=False, file_path="Samples\\Sample.mp4", output_path="Outputs", file_name="Sample.mp4"):
+def start_test(
+        show_diff=False,
+        file_path="Samples\\Sample.mp4",
+        output_path="Outputs",
+        file_name="Sample.mp4",
+        skip_frame=5
+):
     file_name = file_name.split(".")[0]
-
+    print(file_path)
+    print(output_path)
     # region Initialize variables
     old1 = None
     old2 = None
@@ -77,55 +85,64 @@ def start_test(show_diff=False, file_path="Samples\\Sample.mp4", output_path="Ou
     first4 = None
     first5 = None
     first6 = None
-    record = []
     old_frame = None
     # url = "http://admin:admin@10.80.84.47:8081"
     # sample = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
     sample = cv2.VideoCapture(file_path)
     # sample = cv2.VideoCapture(url)
-    th_line = []
     record = []
-    count = 0
-    th = 2e5
+    th = 1e5
     use_diff = True
     file_count = 0
     next_move = 100
     # endregion
-
     # plt.ion()  # 开启interactive mode 成功的关键函数
     # plt.figure(1)
 
     # region Initialize VideoWriter
     fps = sample.get(cv2.CAP_PROP_FPS)
-    if fps == 0:
+    if fps == 0 or fps == inf:
         fps = 15
     size = (
         int(sample.get(cv2.CAP_PROP_FRAME_WIDTH)),
         int(sample.get(cv2.CAP_PROP_FRAME_HEIGHT))
     )
-    video_writer = None
+    video_writer = cv2.VideoWriter()
     # endregion
-
+    count = 0
     while sample.isOpened():
-        sig = 0
         # plt.clf()
-        position = -1
         ret, frame = sample.read()
-        th_line = [th] * 200
         if frame is not None:
-            print(next_move)
+            # print(next_move)
             if next_move == 101:
                 print("Start")
-                video_writer = cv2.VideoWriter(
-                    output_path + "/" + file_name + "_" + str(file_count) + '.avi',
-                    cv2.VideoWriter_fourcc(*'MJPG'),
-                    fps,
-                    size
-                )
+                try:
+                    video_writer = cv2.VideoWriter(
+                        output_path + "/" + file_name + "_" + str(file_count) + '.mp4',
+                        cv2.VideoWriter_fourcc(*'mp4v'),
+                        fps,
+                        size
+                    )
+                except Exception as e:
+                    print(repr(e))
                 file_count += 1
             # frame = enhance(frame)
             # region get Differential Frame
             src_frame = frame.copy()
+            if count % (skip_frame + 1) != 0:
+                count += 1
+                next_move -= 1
+                if next_move < 0:
+                    next_move = 0
+                    if video_writer.isOpened():
+                        video_writer.release()
+                if next_move > 0 and video_writer.isOpened():
+                    print("Recording")
+                    video_writer.write(src_frame)
+                continue
+            frame = cv2.resize(frame, (1024, 768))
+            frame = cv2.rectangle(frame, (25, 25), (450, 75), (255, 255, 255), -1)
             frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
             if old_frame is not None and use_diff:
                 diff = frame.astype(np.int16) - old_frame.astype(np.int16)
@@ -150,32 +167,32 @@ def start_test(show_diff=False, file_path="Samples\\Sample.mp4", output_path="Ou
             # region get Histogram
             img_mask = np.zeros((h, w), np.uint8)
             img_mask[0:y, 0:x1] = 255
-            hist_img1, hist1 = calcAndDrawHist(frame, (0, 0, 255), img_mask)
+            hist_img1, hist1 = calc_and_draw_hist(frame, (0, 0, 255), img_mask)
             # cv2.imshow("hist1", hist_img1)
 
             img_mask = np.zeros((h, w), np.uint8)
             img_mask[0:y, x1:x2] = 255
-            hist_img2, hist2 = calcAndDrawHist(frame, (0, 0, 255), img_mask)
+            hist_img2, hist2 = calc_and_draw_hist(frame, (0, 0, 255), img_mask)
             # cv2.imshow("hist2", hist_img2)
 
             img_mask = np.zeros((h, w), np.uint8)
             img_mask[0:y, x2:w] = 255
-            hist_img3, hist3 = calcAndDrawHist(frame, (0, 0, 255), img_mask)
+            hist_img3, hist3 = calc_and_draw_hist(frame, (0, 0, 255), img_mask)
             # cv2.imshow("hist3", hist_img3)
 
             img_mask = np.zeros((h, w), np.uint8)
             img_mask[y:h, 0:x1] = 255
-            hist_img4, hist4 = calcAndDrawHist(frame, (0, 0, 255), img_mask)
+            hist_img4, hist4 = calc_and_draw_hist(frame, (0, 0, 255), img_mask)
             # cv2.imshow("hist1", hist_img1)
 
             img_mask = np.zeros((h, w), np.uint8)
             img_mask[y:h, x1:x2] = 255
-            hist_img5, hist5 = calcAndDrawHist(frame, (0, 0, 255), img_mask)
+            hist_img5, hist5 = calc_and_draw_hist(frame, (0, 0, 255), img_mask)
             # cv2.imshow("hist2", hist_img2)
 
             img_mask = np.zeros((h, w), np.uint8)
             img_mask[y:h, x2:w] = 255
-            hist_img6, hist6 = calcAndDrawHist(frame, (0, 0, 255), img_mask)
+            hist_img6, hist6 = calc_and_draw_hist(frame, (0, 0, 255), img_mask)
             # cv2.imshow("hist3", hist_img3)
 
             # endregion
@@ -215,10 +232,10 @@ def start_test(show_diff=False, file_path="Samples\\Sample.mp4", output_path="Ou
                 next_move -= 1
                 if next_move < 0:
                     next_move = 0
-                    if video_writer:
+                    if video_writer.isOpened():
                         video_writer.release()
 
-            if next_move > 0 and video_writer:
+            if next_move > 0 and video_writer.isOpened():
                 print("Recording")
                 video_writer.write(src_frame)
 
@@ -262,17 +279,24 @@ def start_test(show_diff=False, file_path="Samples\\Sample.mp4", output_path="Ou
             break
         # endregion
     sample.release()
-    if video_writer:
+    if video_writer.isOpened:
         video_writer.release()
     cv2.destroyAllWindows()
 
 
-def process_dir(_, request_id, dir_path="C:\\Users\\16413\\Desktop\\SmartServerRoom\\Samples", output_path="C:\\Users\\16413\\Desktop\\SmartServerRoom\\Outputs"):
+
+def process_dir(_, request_id, dir_path="C:\\Users\\16413\\Desktop\\SmartServerRoom\\Samples",
+                output_path="C:\\Users\\16413\\Desktop\\SmartServerRoom\\Outputs"):
+    if type(dir_path) == list:
+        dir_path = dir_path[0]
+    if type(output_path) == list:
+        output_path = output_path[0]
+
     start = datetime.datetime.now()
     src_num = 0
     dst_num = 0
     for e, i in enumerate(os.listdir(dir_path)):
-        if i.endswith('mp4') or i.endswith('MP4'):
+        if (i.endswith('mp4') or i.endswith('MP4')) and '_100' in i:
             file_path = os.path.join(dir_path, i)
             # output_dir_path = os.path.join(output_path, i)
             # if os.path.exists(output_dir_path):
@@ -280,10 +304,11 @@ def process_dir(_, request_id, dir_path="C:\\Users\\16413\\Desktop\\SmartServerR
             # os.makedirs(output_dir_path)
             start_test(False, file_path, output_path, i)
             src_num += 1
-    for e, i in enumerate(os.listdir(output_path)):
-        if i.endswith('avi'):
+    out_files = os.listdir(output_path)
+    for e, i in enumerate(out_files):
+        if i.endswith('mp4'):
             file_path = os.path.join(output_path, i)
-            snap_shot(calcAndDrawHist, file_path=file_path)
+            snap_shot(calc_and_draw_hist, file_path=file_path)
             dst_num += 1
     post_result(request_id, src_num, src_num)
     end = datetime.datetime.now()

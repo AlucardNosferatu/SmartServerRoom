@@ -7,7 +7,7 @@ from urllib import parse
 
 def post_result(request_id, src_num, dst_num):
     print("Start to post")
-    server_url = 'http://192.168.56.148:8744/imr-face-server/monitor/regmonitor'
+    server_url = 'http://134.134.13.82:8744/imr-face-server/monitor/regmonitor'
     dic = {"ID": request_id, "Src_num": src_num, "Dest_num": dst_num}
     dic_json = json.dumps(dic)
     headers = {

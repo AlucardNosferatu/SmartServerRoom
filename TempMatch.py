@@ -4,8 +4,8 @@ import numpy as np
 
 
 def change_size(image):
-    # img = cv2.medianBlur(image, 5)  # 中值滤波，去除黑色边际中可能含有的噪声干扰
-    b = cv2.threshold(img, 15, 255, cv2.THRESH_BINARY)  # 调整裁剪效果
+    # image = cv2.medianBlur(image, 5)  # 中值滤波，去除黑色边际中可能含有的噪声干扰
+    b = cv2.threshold(image, 15, 255, cv2.THRESH_BINARY)  # 调整裁剪效果
     binary_image = b[1]  # 二值图--具有三通道
     # binary_image = cv2.cvtColor(binary_image, cv2.COLOR_BGR2GRAY)
     # print(binary_image.shape)  # 改为单通道
