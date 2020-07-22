@@ -180,6 +180,7 @@ def test():
     y_pred = model.predict([te_pairs[:, 0], te_pairs[:, 1]])
     te_acc = compute_accuracy(te_y, y_pred)
 
+    y_pred = base_network.predict(te_pairs[:, 1])
     # y_pred_base_net = base_network.predict()
 
     print('* Accuracy on training set: %0.2f%%' % (100 * tr_acc))
@@ -196,7 +197,12 @@ def test():
         plt.imshow(im, cmap="gray")
         display.get_xaxis().set_visible(False)
         display.get_yaxis().set_visible(False)
-        plt.title(str(np.round(y_pred[item]).T[0].tolist()), loc='center')
+        # plt.title(str(np.round(y_pred[item]).T[0].tolist()), loc='center')
+        title = np.argmax(y_pred[item])
+        title += 1
+        if title == 9:
+            title = 0
+        plt.title(str(title), loc='center')
         # print(y_pred[item])
     plt.show()
 
