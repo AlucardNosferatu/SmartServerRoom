@@ -10,14 +10,14 @@ import tensorflow as tf
 import random
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, Flatten, Dense, Dropout, Lambda
+from tensorflow.keras.layers import Input, Flatten, Dense, Dropout, Lambda, BatchNormalization
 from tensorflow.keras.layers import Conv2D, Activation, AveragePooling2D
-from tensorflow.keras.optimizers import RMSprop
+from tensorflow.keras.optimizers import Adam, RMSprop
 from tensorflow.keras import backend as K
-from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 
 num_classes = 10
-epochs = 10
+epochs = 1000
 number_of_items = 20
 
 
@@ -97,9 +97,10 @@ def get_data():
 
 def create_base_net(input_shape):
     input = Input(shape=input_shape)
-    x = Conv2D(4, (5, 5), activation='tanh')(input)
+    x = Conv2D(32, (5, 5), activation='relu')(input)
     x = AveragePooling2D(pool_size=(2, 2))(x)
-    x = Conv2D(16, (5, 5), activation='tanh')(x)
+    x = BatchNormalization()(x)
+    x = Conv2D(64, (5, 5), activation='tanh')(x)
     x = AveragePooling2D(pool_size=(2, 2))(x)
     x = Flatten()(x)
     x = Dense(10, activation='softmax')(x)
@@ -127,7 +128,7 @@ def get_model(input_shape):
     )
 
     model = Model([input_a, input_b], distance)
-    rms = RMSprop()
+    rms = RMSprop(lr=0.001)
     model.compile(loss=contrastive_loss, optimizer=rms, metrics=[accuracy])
 
     return model, base_network
@@ -152,6 +153,19 @@ def train():
         save_freq='epoch',
         save_weights_only=True
     )
+    es_checkpoint = EarlyStopping(
+        monitor='val_loss',
+        min_delta=0,
+        patience=10,
+        verbose=1,
+        mode='auto'
+    )
+    tb_checkpoint = TensorBoard(
+        log_dir='TensorBoard',
+        histogram_freq=1,
+        write_images=True,
+        update_freq='epoch'
+    )
     with tf.device("/gpu:0"):
         model.fit(
             [tr_pairs[:, 0], tr_pairs[:, 1]],
@@ -159,7 +173,11 @@ def train():
             batch_size=128,
             epochs=epochs,
             validation_data=([te_pairs[:, 0], te_pairs[:, 1]], te_y),
-            callbacks=[cp_checkpoint]
+            callbacks=[
+                cp_checkpoint,
+                es_checkpoint,
+                tb_checkpoint
+            ]
         )
 
 
@@ -208,4 +226,4 @@ def test():
 
 
 if __name__ == '__main__':
-    test()
+    train()

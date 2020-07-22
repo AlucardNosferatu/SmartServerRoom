@@ -5,3 +5,5 @@
 *.png
 *.avi
 *.h5
+TensorBoard/train/
+TensorBoard/validation/
