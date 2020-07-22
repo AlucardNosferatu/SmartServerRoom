@@ -284,7 +284,6 @@ def start_test(
     cv2.destroyAllWindows()
 
 
-
 def process_dir(_, request_id, dir_path="C:\\Users\\16413\\Desktop\\SmartServerRoom\\Samples",
                 output_path="C:\\Users\\16413\\Desktop\\SmartServerRoom\\Outputs"):
     if type(dir_path) == list:
@@ -328,5 +327,6 @@ def start_server():
     server.serve_forever()
 
 
-start_server()
-# process_dir(_=None, request_id=1)
+if __name__ == '__main__':
+    start_server()
+    # process_dir(_=None, request_id=1)
