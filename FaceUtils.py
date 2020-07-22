@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import os
+import matplotlib.pyplot as plt
+from PIL import Image
 
 import numpy as np
 import tensorflow as tf
@@ -16,6 +18,7 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 
 num_classes = 10
 epochs = 20
+number_of_items = 20
 
 
 def euclid_dis(vects):
@@ -131,7 +134,7 @@ def train():
     input_shape, tr_pairs, tr_y, te_pairs, te_y = get_data()
     model = get_model(input_shape)
     if os.path.exists(path='Siamese.h5'):
-        model = tf.keras.models.load_model('Siamese.h5')
+        model.load_weights(filepath='Siamese.h5')
     assert model.input_shape[0][1:] == input_shape
     rms = RMSprop()
     model.compile(loss=contrastive_loss, optimizer=rms, metrics=[accuracy])
@@ -140,7 +143,8 @@ def train():
         monitor='val_loss',
         verbose=1,
         save_best_only=True,
-        save_freq='epoch'
+        save_freq='epoch',
+        save_weights_only=True
     )
     with tf.device("/gpu:0"):
         model.fit(
@@ -153,5 +157,34 @@ def train():
         )
 
 
+def test():
+    input_shape, tr_pairs, tr_y, te_pairs, te_y = get_data()
+    model = get_model(input_shape)
+    if os.path.exists(path='Siamese.h5'):
+        model.load_weights(filepath='Siamese.h5')
+    assert model.input_shape[0][1:] == input_shape
+    y_pred = model.predict([tr_pairs[:, 0], tr_pairs[:, 1]])
+    tr_acc = compute_accuracy(tr_y, y_pred)
+    y_pred = model.predict([te_pairs[:, 0], te_pairs[:, 1]])
+    te_acc = compute_accuracy(te_y, y_pred)
+    print('* Accuracy on training set: %0.2f%%' % (100 * tr_acc))
+    print('* Accuracy on test set: %0.2f%%' % (100 * te_acc))
+    plt.figure(figsize=(10, 3))
+    for item in range(number_of_items):
+        display = plt.subplot(1, number_of_items, item + 1)
+        # im = tf.keras.preprocessing.image.array_to_img(tr_pairs[item, 0], data_format=None, scale=True, dtype=None)
+        # plt.imshow(im, cmap="gray")
+        # display.get_xaxis().set_visible(False)
+        # display.get_yaxis().set_visible(False)
+        # display = plt.subplot(2, number_of_items, item + 1 + number_of_items)
+        im = tf.keras.preprocessing.image.array_to_img(tr_pairs[item, 1], data_format=None, scale=True, dtype=None)
+        plt.imshow(im, cmap="gray")
+        display.get_xaxis().set_visible(False)
+        display.get_yaxis().set_visible(False)
+        plt.title(str(np.round(y_pred[item]).T[0].tolist()), loc='center')
+        # print(y_pred[item])
+    plt.show()
+
+
 if __name__ == '__main__':
-    train()
+    test()
