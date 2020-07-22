@@ -1,4 +1,6 @@
 import os
+import time
+
 from avtk.backends.ffmpeg.shortcuts import convert_to_h264
 import cv2
 import numpy as np
@@ -29,7 +31,7 @@ def snap_shot(calc_and_draw_hist, file_path="Outputs/010tMonitorCollect202007190
             for j in range(i + 1, hists.shape[0]):
                 that_time = hists[j, :]
                 ed = np.linalg.norm(this_time - that_time)
-                print("ed is: ", ed)
+                # print("ed is: ", ed)
                 if ed > max_ed:
                     max_ed = ed
                     max_i = i
@@ -52,5 +54,6 @@ def snap_shot(calc_and_draw_hist, file_path="Outputs/010tMonitorCollect202007190
         convert_to_h264(file_path, file_path + ".new")
         print("Conversion has been completed.")
         os.remove(file_path)
-        print("Src video removed")
+        print("Src video removed.")
         os.rename(file_path + '.new', file_path)
+        print("New Video renamed.")

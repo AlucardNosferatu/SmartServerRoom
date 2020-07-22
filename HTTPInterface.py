@@ -3,10 +3,12 @@ import requests
 import threading
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from urllib import parse
+import datetime
 
 
 def post_result(request_id, src_num, dst_num):
     print("Start to post")
+    print("This is RID: " + request_id)
     server_url = 'http://134.134.13.82:8744/imr-face-server/monitor/regmonitor'
     dic = {"ID": request_id, "Src_num": src_num, "Dest_num": dst_num}
     dic_json = json.dumps(dic)
@@ -14,7 +16,7 @@ def post_result(request_id, src_num, dst_num):
         "Content-Type": "application/json; charset=UTF-8"
     }
 
-    # print(str(dic_json))
+    print(str(dic_json))
     response = requests.post(server_url, data=dic_json, headers=headers)
     print("Complete post")
     response.raise_for_status()
@@ -54,6 +56,7 @@ class MyRequestHandler(SimpleHTTPRequestHandler):
     server_version = "PSHS/0.1"
     sys_version = "Python/3.7.x"
     process_thread = None
+    last_time = datetime.datetime.now()
 
     def process(self):
         print(self.protocol_version)
@@ -82,17 +85,22 @@ class MyRequestHandler(SimpleHTTPRequestHandler):
                 data = json.loads(data)
             except json.decoder.JSONDecodeError:
                 data = parse.parse_qs(data.decode('utf-8'))
-            if data.__contains__('ID') and data.__contains__('src_url') and data.__contains__('dest_url'):
-                # region 这个要执行很久
-                self.process_thread = ProcessThread(data['ID'], data['src_url'], data['dest_url'], self.process)
-                self.process_thread.start()
-            # endregion
             self.send_response(200)
             self.send_header("Content-type", "text/html")
             self.end_headers()
             rspstr = "recv ok, data = "
             rspstr += json.dumps(data, ensure_ascii=False)
             self.wfile.write(rspstr.encode("utf-8"))
+            if data.__contains__('ID') and data.__contains__('src_url') and data.__contains__('dest_url'):
+                # region 这个要执行很久
+                self.process_thread = ProcessThread(data['ID'], data['src_url'], data['dest_url'], self.process)
+                if (datetime.datetime.now() - MyRequestHandler.last_time).seconds < 10:
+                    print('too fast, wait 10 sec for next request.')
+                while (datetime.datetime.now() - MyRequestHandler.last_time).seconds < 10:
+                    pass
+                self.process_thread.start()
+                MyRequestHandler.last_time = datetime.datetime.now()
+                # endregion
         elif self.path == "/imr-monitor-server/waitvideo":
             data = self.rfile.read(int(self.headers["content-length"]))
             data = json.loads(data)

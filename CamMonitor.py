@@ -138,7 +138,7 @@ def start_test(
                     if video_writer.isOpened():
                         video_writer.release()
                 if next_move > 0 and video_writer.isOpened():
-                    print("Recording")
+                    # print("Recording")
                     video_writer.write(src_frame)
                 continue
             frame = cv2.resize(frame, (1024, 768))
@@ -236,7 +236,7 @@ def start_test(
                         video_writer.release()
 
             if next_move > 0 and video_writer.isOpened():
-                print("Recording")
+                # print("Recording")
                 video_writer.write(src_frame)
 
             # region write Rectangles
@@ -290,12 +290,11 @@ def process_dir(_, request_id, dir_path="C:\\Users\\16413\\Desktop\\SmartServerR
         dir_path = dir_path[0]
     if type(output_path) == list:
         output_path = output_path[0]
-
     start = datetime.datetime.now()
     src_num = 0
     dst_num = 0
     for e, i in enumerate(os.listdir(dir_path)):
-        if (i.endswith('mp4') or i.endswith('MP4')) and '_100' in i:
+        if (i.endswith('mp4') or i.endswith('MP4')) and True:
             file_path = os.path.join(dir_path, i)
             # output_dir_path = os.path.join(output_path, i)
             # if os.path.exists(output_dir_path):
@@ -309,6 +308,9 @@ def process_dir(_, request_id, dir_path="C:\\Users\\16413\\Desktop\\SmartServerR
             file_path = os.path.join(output_path, i)
             snap_shot(calc_and_draw_hist, file_path=file_path)
             dst_num += 1
+            # print(os.listdir(output_path))
+    print("This is " + request_id)
+    print("This is " + output_path)
     post_result(request_id, src_num, dst_num)
     end = datetime.datetime.now()
     print(str(end - start))
