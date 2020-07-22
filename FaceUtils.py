@@ -17,7 +17,7 @@ from tensorflow.keras import backend as K
 from tensorflow.keras.callbacks import ModelCheckpoint
 
 num_classes = 10
-epochs = 20
+epochs = 10
 number_of_items = 20
 
 
@@ -55,20 +55,6 @@ def create_pairs(x, digit_indices):
             pairs += [[x[z1], x[z2]]]
             labels += [1, 0]
     return np.array(pairs), np.array(labels)
-
-
-def create_base_net(input_shape):
-    input = Input(shape=input_shape)
-    x = Conv2D(4, (5, 5), activation='tanh')(input)
-    x = AveragePooling2D(pool_size=(2, 2))(x)
-    x = Conv2D(16, (5, 5), activation='tanh')(x)
-    x = AveragePooling2D(pool_size=(2, 2))(x)
-    x = Flatten()(x)
-    x = Dense(10, activation='tanh')(x)
-    model = Model(input, x)
-    model.summary()
-
-    return model
 
 
 def compute_accuracy(y_true, y_pred):
@@ -109,6 +95,20 @@ def get_data():
     return input_shape, tr_pairs, tr_y, te_pairs, te_y
 
 
+def create_base_net(input_shape):
+    input = Input(shape=input_shape)
+    x = Conv2D(4, (5, 5), activation='tanh')(input)
+    x = AveragePooling2D(pool_size=(2, 2))(x)
+    x = Conv2D(16, (5, 5), activation='tanh')(x)
+    x = AveragePooling2D(pool_size=(2, 2))(x)
+    x = Flatten()(x)
+    x = Dense(10, activation='softmax')(x)
+    model = Model(input, x)
+    # model.summary()
+    model.compile(loss='categorical_crossentropy')
+    return model
+
+
 def get_model(input_shape):
     # network definition
     base_network = create_base_net(input_shape)
@@ -127,17 +127,23 @@ def get_model(input_shape):
     )
 
     model = Model([input_a, input_b], distance)
-    return model
+    rms = RMSprop()
+    model.compile(loss=contrastive_loss, optimizer=rms, metrics=[accuracy])
+
+    return model, base_network
 
 
 def train():
     input_shape, tr_pairs, tr_y, te_pairs, te_y = get_data()
-    model = get_model(input_shape)
+    model, _ = get_model(input_shape)
     if os.path.exists(path='Siamese.h5'):
         model.load_weights(filepath='Siamese.h5')
     assert model.input_shape[0][1:] == input_shape
-    rms = RMSprop()
-    model.compile(loss=contrastive_loss, optimizer=rms, metrics=[accuracy])
+    tf.keras.utils.plot_model(
+        model=model,
+        to_file='model.png',
+        show_shapes=True
+    )
     cp_checkpoint = ModelCheckpoint(
         filepath='Siamese.h5',
         monitor='val_loss',
@@ -159,14 +165,23 @@ def train():
 
 def test():
     input_shape, tr_pairs, tr_y, te_pairs, te_y = get_data()
-    model = get_model(input_shape)
+    model, base_network = get_model(input_shape)
     if os.path.exists(path='Siamese.h5'):
         model.load_weights(filepath='Siamese.h5')
     assert model.input_shape[0][1:] == input_shape
+    tf.keras.utils.plot_model(
+        model=model,
+        to_file='model.png',
+        show_shapes=True
+    )
     y_pred = model.predict([tr_pairs[:, 0], tr_pairs[:, 1]])
     tr_acc = compute_accuracy(tr_y, y_pred)
+
     y_pred = model.predict([te_pairs[:, 0], te_pairs[:, 1]])
     te_acc = compute_accuracy(te_y, y_pred)
+
+    # y_pred_base_net = base_network.predict()
+
     print('* Accuracy on training set: %0.2f%%' % (100 * tr_acc))
     print('* Accuracy on test set: %0.2f%%' % (100 * te_acc))
     plt.figure(figsize=(10, 3))
@@ -177,7 +192,7 @@ def test():
         # display.get_xaxis().set_visible(False)
         # display.get_yaxis().set_visible(False)
         # display = plt.subplot(2, number_of_items, item + 1 + number_of_items)
-        im = tf.keras.preprocessing.image.array_to_img(tr_pairs[item, 1], data_format=None, scale=True, dtype=None)
+        im = tf.keras.preprocessing.image.array_to_img(te_pairs[item, 1], data_format=None, scale=True, dtype=None)
         plt.imshow(im, cmap="gray")
         display.get_xaxis().set_visible(False)
         display.get_yaxis().set_visible(False)
