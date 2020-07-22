@@ -15,6 +15,7 @@ from tensorflow.keras.layers import Conv2D, Activation, AveragePooling2D
 from tensorflow.keras.optimizers import Adam, RMSprop
 from tensorflow.keras import backend as K
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
+from tensorflow.keras.utils import to_categorical
 
 num_classes = 10
 epochs = 1000
@@ -73,7 +74,11 @@ def accuracy(y_true, y_pred):
 def get_data():
     # the data, split between train and test sets
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
-
+    # plt.figure(0)
+    # for i in range(x_train.shape[0]):
+    #     plt.imshow(x_train[i, :, :])
+    #     plt.title(str(y_train[i]))
+    #     plt.show()
     x_train = x_train.reshape(x_train.shape[0], 28, 28, 1)
     x_test = x_test.reshape(x_test.shape[0], 28, 28, 1)
     # input_shape = (1, 28, 28)
@@ -106,7 +111,11 @@ def create_base_net(input_shape):
     x = Dense(10, activation='softmax')(x)
     model = Model(input, x)
     # model.summary()
-    model.compile(loss='categorical_crossentropy')
+    rms = RMSprop(lr=0.001)
+    model.compile(
+        optimizer=rms,
+        loss='categorical_crossentropy'
+    )
     return model
 
 
@@ -136,9 +145,11 @@ def get_model(input_shape):
 
 def train():
     input_shape, tr_pairs, tr_y, te_pairs, te_y = get_data()
-    model, _ = get_model(input_shape)
+    model, base_network = get_model(input_shape)
     if os.path.exists(path='Siamese.h5'):
         model.load_weights(filepath='Siamese.h5')
+    if os.path.exists(path='Base.h5'):
+        base_network.load_weights(filepath='Base.h5')
     assert model.input_shape[0][1:] == input_shape
     tf.keras.utils.plot_model(
         model=model,
@@ -186,6 +197,8 @@ def test():
     model, base_network = get_model(input_shape)
     if os.path.exists(path='Siamese.h5'):
         model.load_weights(filepath='Siamese.h5')
+    if os.path.exists(path='Base.h5'):
+        base_network.load_weights(filepath='Base.h5')
     assert model.input_shape[0][1:] == input_shape
     tf.keras.utils.plot_model(
         model=model,
@@ -198,7 +211,7 @@ def test():
     y_pred = model.predict([te_pairs[:, 0], te_pairs[:, 1]])
     te_acc = compute_accuracy(te_y, y_pred)
 
-    y_pred = base_network.predict(te_pairs[:, 1])
+    y_pred = base_network.predict(tr_pairs[:, 1])
     # y_pred_base_net = base_network.predict()
 
     print('* Accuracy on training set: %0.2f%%' % (100 * tr_acc))
@@ -211,19 +224,84 @@ def test():
         # display.get_xaxis().set_visible(False)
         # display.get_yaxis().set_visible(False)
         # display = plt.subplot(2, number_of_items, item + 1 + number_of_items)
-        im = tf.keras.preprocessing.image.array_to_img(te_pairs[item, 1], data_format=None, scale=True, dtype=None)
+        im = tf.keras.preprocessing.image.array_to_img(tr_pairs[item, 1], data_format=None, scale=True, dtype=None)
         plt.imshow(im, cmap="gray")
         display.get_xaxis().set_visible(False)
         display.get_yaxis().set_visible(False)
         # plt.title(str(np.round(y_pred[item]).T[0].tolist()), loc='center')
         title = np.argmax(y_pred[item])
-        title += 1
-        if title == 9:
-            title = 0
         plt.title(str(title), loc='center')
         # print(y_pred[item])
     plt.show()
 
 
+def train_classification():
+    (x_train, y_train), (x_test, y_test) = mnist.load_data()
+    # plt.figure(0)
+    # for i in range(x_train.shape[0]):
+    #     plt.imshow(x_train[i, :, :])
+    #     plt.title(str(y_train[i]))
+    #     plt.show()
+    x_train = x_train.reshape(x_train.shape[0], 28, 28, 1)
+    x_test = x_test.reshape(x_test.shape[0], 28, 28, 1)
+    # input_shape = (1, 28, 28)
+    print(x_train.shape)
+    x_train = x_train.astype('float32')
+    x_test = x_test.astype('float32')
+    x_train /= 255
+    x_test /= 255
+    y_train = to_categorical(y_train, num_classes=10)
+    y_test = to_categorical(y_test, num_classes=10)
+    input_shape = x_train.shape[1:]
+    assert input_shape == (28, 28, 1)
+    model, base_network = get_model(input_shape)
+    if os.path.exists(path='Siamese.h5'):
+        model.load_weights(filepath='Siamese.h5')
+    if os.path.exists(path='Base.h5'):
+        base_network.load_weights(filepath='Base.h5')
+    assert base_network.input_shape[1:] == input_shape
+    tf.keras.utils.plot_model(
+        model=base_network,
+        to_file='base_model.png',
+        show_shapes=True
+    )
+    cp_checkpoint = ModelCheckpoint(
+        filepath='Base.h5',
+        monitor='val_loss',
+        verbose=1,
+        save_best_only=True,
+        save_freq='epoch',
+        save_weights_only=True
+    )
+    es_checkpoint = EarlyStopping(
+        monitor='val_loss',
+        min_delta=0,
+        patience=10,
+        verbose=1,
+        mode='auto'
+    )
+    tb_checkpoint = TensorBoard(
+        log_dir='TensorBoard',
+        histogram_freq=1,
+        write_images=True,
+        update_freq='epoch'
+    )
+    with tf.device("/gpu:0"):
+        base_network.fit(
+            x_train,
+            y_train,
+            batch_size=128,
+            epochs=epochs,
+            validation_data=(x_test, y_test),
+            callbacks=[
+                cp_checkpoint,
+                es_checkpoint,
+                tb_checkpoint
+            ]
+        )
+
+
 if __name__ == '__main__':
-    train()
+    # train()
+    # train_classification()
+    test()
