@@ -8,6 +8,8 @@ import numpy as np
 from HTTPInterface import post_result, MyRequestHandler, HTTPServer
 from MostDifferentFrame import snap_shot
 
+probe = 0
+
 
 def enhance(f):
     # 线性变换
@@ -286,6 +288,7 @@ def start_test(
 
 def process_dir(_, request_id, dir_path="C:\\Users\\16413\\Desktop\\SmartServerRoom\\Samples",
                 output_path="C:\\Users\\16413\\Desktop\\SmartServerRoom\\Outputs"):
+    print("before start_test: ", request_id)
     if type(dir_path) == list:
         dir_path = dir_path[0]
     if type(output_path) == list:
@@ -296,6 +299,7 @@ def process_dir(_, request_id, dir_path="C:\\Users\\16413\\Desktop\\SmartServerR
     for e, i in enumerate(os.listdir(dir_path)):
         if (i.endswith('mp4') or i.endswith('MP4')) and '_100' in i:
             file_path = os.path.join(dir_path, i)
+            print('file_path is:', file_path)
             # output_dir_path = os.path.join(output_path, i)
             # if os.path.exists(output_dir_path):
             #     os.removedirs(output_dir_path)
@@ -309,8 +313,7 @@ def process_dir(_, request_id, dir_path="C:\\Users\\16413\\Desktop\\SmartServerR
             snap_shot(calc_and_draw_hist, file_path=file_path)
             dst_num += 1
             # print(os.listdir(output_path))
-    # print("This is " + request_id)
-    # print("This is " + output_path)
+    print("after start_test: ", request_id)
     post_result(request_id, src_num, dst_num)
     end = datetime.datetime.now()
     print(str(end - start))
