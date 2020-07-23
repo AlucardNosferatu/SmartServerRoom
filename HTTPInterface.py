@@ -8,15 +8,15 @@ import datetime
 
 def post_result(request_id, src_num, dst_num):
     print("Start to post")
-    # print("This is RID: " + request_id)
+    print("This is RID: " + request_id)
     server_url = 'http://134.134.13.82:8744/imr-face-server/monitor/regmonitor'
     dic = {"ID": request_id, "Src_num": src_num, "Dest_num": dst_num}
     dic_json = json.dumps(dic)
     headers = {
         "Content-Type": "application/json; charset=UTF-8"
     }
-
-    # print(str(dic_json))
+    print(str(datetime.datetime.now()))
+    print(str(dic_json))
     response = requests.post(server_url, data=dic_json, headers=headers)
     print("Complete post")
     response.raise_for_status()
@@ -93,7 +93,12 @@ class MyRequestHandler(SimpleHTTPRequestHandler):
             self.wfile.write(rspstr.encode("utf-8"))
             if data.__contains__('ID') and data.__contains__('src_url') and data.__contains__('dest_url'):
                 # region 这个要执行很久
-                self.process_thread = ProcessThread(data['ID'], data['src_url'], data['dest_url'], self.process)
+                self.process_thread = ProcessThread(
+                    data['ID'],
+                    data['src_url'],
+                    data['dest_url'],
+                    self.process
+                )
                 if (datetime.datetime.now() - MyRequestHandler.last_time).seconds < 10:
                     print('too fast, wait 10 sec for next request.')
                 while (datetime.datetime.now() - MyRequestHandler.last_time).seconds < 10:
