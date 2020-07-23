@@ -301,7 +301,7 @@ def process_dir(
     dst_num = 0
     src_id = 0
     for e, i in enumerate(os.listdir(dir_path)):
-        if (i.endswith('mp4') or i.endswith('MP4')) and '_100' in i:
+        if (i.endswith('mp4') or i.endswith('MP4')) and True:
             file_path = os.path.join(dir_path, i)
             print('file_path is:', file_path)
             src_id = start_test(
@@ -314,7 +314,7 @@ def process_dir(
             src_num += 1
     out_files = os.listdir(output_path)
     for e, i in enumerate(out_files):
-        if i.endswith('mp4') and '_100' in i:
+        if i.endswith('mp4') and True:
             file_path = os.path.join(output_path, i)
             snap_shot(calc_and_draw_hist, file_path=file_path)
             dst_num += 1
