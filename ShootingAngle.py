@@ -4,7 +4,7 @@ import os
 import sys
 import numpy as np
 from random import shuffle
-from CamMonitor import calc_and_draw_hist
+from HistUtil import calc_and_draw_hist
 from sklearn.metrics.pairwise import cosine_similarity
 
 

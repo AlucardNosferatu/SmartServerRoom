@@ -1,7 +1,7 @@
 import os
 import cv2
 import numpy as np
-from CamMonitor import calc_and_draw_hist
+from HistUtil import calc_and_draw_hist
 
 
 def get_clarity():
