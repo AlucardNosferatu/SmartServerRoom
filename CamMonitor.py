@@ -294,7 +294,7 @@ def process_dir(_, request_id, dir_path="C:\\Users\\16413\\Desktop\\SmartServerR
     src_num = 0
     dst_num = 0
     for e, i in enumerate(os.listdir(dir_path)):
-        if (i.endswith('mp4') or i.endswith('MP4')) and True:
+        if (i.endswith('mp4') or i.endswith('MP4')) and '_100' in i:
             file_path = os.path.join(dir_path, i)
             # output_dir_path = os.path.join(output_path, i)
             # if os.path.exists(output_dir_path):
@@ -304,7 +304,7 @@ def process_dir(_, request_id, dir_path="C:\\Users\\16413\\Desktop\\SmartServerR
             src_num += 1
     out_files = os.listdir(output_path)
     for e, i in enumerate(out_files):
-        if i.endswith('mp4'):
+        if i.endswith('mp4') and '_100' in i:
             file_path = os.path.join(output_path, i)
             snap_shot(calc_and_draw_hist, file_path=file_path)
             dst_num += 1
