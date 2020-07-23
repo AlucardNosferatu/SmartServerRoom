@@ -8,8 +8,6 @@ import numpy as np
 from HTTPInterface import post_result, MyRequestHandler, HTTPServer
 from MostDifferentFrame import snap_shot
 
-probe = 0
-
 
 def enhance(f):
     # 线性变换
@@ -65,6 +63,7 @@ def trigger(h_list, o_list, f_list, threshold, use_diff):
 
 
 def start_test(
+        id,
         show_diff=False,
         file_path="Samples\\Sample.mp4",
         output_path="Outputs",
@@ -284,27 +283,34 @@ def start_test(
     if video_writer.isOpened:
         video_writer.release()
     cv2.destroyAllWindows()
+    return id
 
 
-def process_dir(_, request_id, dir_path="C:\\Users\\16413\\Desktop\\SmartServerRoom\\Samples",
-                output_path="C:\\Users\\16413\\Desktop\\SmartServerRoom\\Outputs"):
+def process_dir(
+        _,
+        request_id,
+        dir_path="C:\\Users\\16413\\Desktop\\SmartServerRoom\\Samples",
+        output_path="C:\\Users\\16413\\Desktop\\SmartServerRoom\\Outputs"
+):
     print("before start_test: ", request_id)
     if type(dir_path) == list:
         dir_path = dir_path[0]
     if type(output_path) == list:
         output_path = output_path[0]
-    start = datetime.datetime.now()
     src_num = 0
     dst_num = 0
+    src_id = 0
     for e, i in enumerate(os.listdir(dir_path)):
         if (i.endswith('mp4') or i.endswith('MP4')) and '_100' in i:
             file_path = os.path.join(dir_path, i)
             print('file_path is:', file_path)
-            # output_dir_path = os.path.join(output_path, i)
-            # if os.path.exists(output_dir_path):
-            #     os.removedirs(output_dir_path)
-            # os.makedirs(output_dir_path)
-            start_test(False, file_path, output_path, i)
+            src_id = start_test(
+                show_diff=False,
+                file_path=file_path,
+                output_path=output_path,
+                file_name=i,
+                id=request_id
+            )
             src_num += 1
     out_files = os.listdir(output_path)
     for e, i in enumerate(out_files):
@@ -313,10 +319,9 @@ def process_dir(_, request_id, dir_path="C:\\Users\\16413\\Desktop\\SmartServerR
             snap_shot(calc_and_draw_hist, file_path=file_path)
             dst_num += 1
             # print(os.listdir(output_path))
+    assert src_id == request_id
     print("after start_test: ", request_id)
     post_result(request_id, src_num, dst_num)
-    end = datetime.datetime.now()
-    print(str(end - start))
 
 
 def delete_file(dir_path, i):
