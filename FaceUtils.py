@@ -25,6 +25,7 @@ epochs = 1000
 number_of_tested_items = 25
 img_size = 224
 batch_size = 8
+limiter = 200
 
 
 def euclid_dis(vects):
@@ -98,6 +99,7 @@ def load_4_faces():
     np.random.shuffle(x)
     np.random.set_state(state)
     np.random.shuffle(y)
+    print(x.shape)
     # for i in range(x.shape[0]):
     #     cv2.imshow(str(y[i]), x[i])
     #     cv2.waitKey()
@@ -124,7 +126,7 @@ def load_4_faces():
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3)
 
     print('Done')
-    return (x_train, y_train), (x_test, y_test)
+    return (x_train[:limiter], y_train[:limiter]), (x_test, y_test)
 
 
 def get_data(x_train, y_train, x_test, y_test):
@@ -194,7 +196,7 @@ def get_model(input_shape):
     )
 
     model = Model([input_a, input_b], distance)
-    rms = RMSprop(lr=0.001)
+    rms = RMSprop(lr=0.0001)
     model.compile(loss=contrastive_loss, optimizer=rms, metrics=[accuracy])
 
     return model, base_network
@@ -364,5 +366,7 @@ if __name__ == '__main__':
     xtr, ytr = tr
     xte, yte = te
     train(xtr, ytr, xte, yte)
+    print('Siamese training completed.')
     train_classification(xtr, ytr, xte, yte)
+    print('Softmax training completed.')
     test(xtr, ytr, xte, yte)
