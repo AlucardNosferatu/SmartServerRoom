@@ -22,7 +22,7 @@ from tqdm import tqdm
 
 num_classes = 4
 epochs = 1000
-number_of_tested_items = 20
+number_of_tested_items = 25
 img_size = 224
 batch_size = 8
 
@@ -81,8 +81,9 @@ def load_4_faces():
     label_list = []
     path = "C:\\Users\\16413\\Documents\\GitHub\\YOLO\\faces\\Faces"
     dir_list = os.listdir(path)
-    label = 0
     for directory in dir_list:
+        assert directory.isnumeric()
+        label = int(directory)
         directory = os.path.join(path, directory)
         img_list = os.listdir(directory)
         for img in tqdm(img_list):
@@ -91,7 +92,6 @@ def load_4_faces():
             img_array = cv2.resize(img_array, (img_size, img_size))
             img_array_list.append(img_array)
             label_list.append(label)
-        label += 1
     x = np.array(img_array_list)
     y = np.array(label_list)
     state = np.random.get_state()
@@ -101,15 +101,36 @@ def load_4_faces():
     # for i in range(x.shape[0]):
     #     cv2.imshow(str(y[i]), x[i])
     #     cv2.waitKey()
+
+    datagen = ImageDataGenerator(
+        featurewise_center=True,
+        featurewise_std_normalization=True,
+        rotation_range=20,
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        horizontal_flip=True)
+
+    datagen.fit(x)
+    data_iter = datagen.flow(x, y, batch_size=1)
+    x_train_aug = []
+    y_train_aug = []
+    for i in tqdm(range(1000)):
+        x_batch, y_batch = data_iter.next()
+        x_train_aug.append(np.squeeze(x_batch))
+        y_train_aug.append(np.squeeze(y_batch))
+    x = np.array(x_train_aug)
+    y = np.array(y_train_aug)
+
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3)
+
     print('Done')
     return (x_train, y_train), (x_test, y_test)
 
 
-def get_data():
+def get_data(x_train, y_train, x_test, y_test):
     # the data, split between train and test sets
     # (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    (x_train, y_train), (x_test, y_test) = load_4_faces()
+    # (x_train, y_train), (x_test, y_test) = load_4_faces()
     # plt.figure(0)
     # for i in range(x_train.shape[0]):
     #     plt.imshow(x_train[i, :, :])
@@ -137,17 +158,17 @@ def get_data():
 
 
 def create_base_net(input_shape):
-    input = Input(shape=input_shape)
-    x = Conv2D(32, (5, 5), activation='relu')(input)
+    input_layer = Input(shape=input_shape)
+    x = Conv2D(8, (5, 5), activation='relu')(input_layer)
     x = AveragePooling2D(pool_size=(2, 2))(x)
     x = BatchNormalization()(x)
-    x = Conv2D(64, (5, 5), activation='tanh')(x)
+    x = Conv2D(16, (5, 5), activation='tanh')(x)
     x = AveragePooling2D(pool_size=(2, 2))(x)
     x = Flatten()(x)
     x = Dense(num_classes, activation='softmax')(x)
-    model = Model(input, x)
+    model = Model(input_layer, x)
     # model.summary()
-    rms = RMSprop(lr=0.001)
+    rms = RMSprop(lr=0.0001)
     model.compile(
         optimizer=rms,
         loss='categorical_crossentropy'
@@ -179,8 +200,8 @@ def get_model(input_shape):
     return model, base_network
 
 
-def train():
-    input_shape, tr_pairs, tr_y, te_pairs, te_y = get_data()
+def train(x_train, y_train, x_test, y_test):
+    input_shape, tr_pairs, tr_y, te_pairs, te_y = get_data(x_train, y_train, x_test, y_test)
     model, base_network = get_model(input_shape)
     if os.path.exists(path='Models/Siamese.h5'):
         model.load_weights(filepath='Models/Siamese.h5')
@@ -228,8 +249,8 @@ def train():
         )
 
 
-def test():
-    input_shape, tr_pairs, tr_y, te_pairs, te_y = get_data()
+def test(x_train, y_train, x_test, y_test):
+    input_shape, tr_pairs, tr_y, te_pairs, te_y = get_data(x_train, y_train, x_test, y_test)
     model, base_network = get_model(input_shape)
     if os.path.exists(path='Models/Siamese.h5'):
         model.load_weights(filepath='Models/Siamese.h5')
@@ -248,20 +269,19 @@ def test():
     te_acc = compute_accuracy(te_y, y_pred)
 
     y_pred = base_network.predict(tr_pairs[:, 1])
-    # y_pred_base_net = base_network.predict()
 
     print('* Accuracy on training set: %0.2f%%' % (100 * tr_acc))
     print('* Accuracy on test set: %0.2f%%' % (100 * te_acc))
-    plt.figure(figsize=(10, 3))
+    plt.figure(figsize=(10, 5))
     for item in range(number_of_tested_items):
-        display = plt.subplot(1, number_of_tested_items, item + 1)
+        display = plt.subplot(int(number_of_tested_items / 5), 5, item + 1)
         # im = tf.keras.preprocessing.image.array_to_img(tr_pairs[item, 0], data_format=None, scale=True, dtype=None)
         # plt.imshow(im, cmap="gray")
         # display.get_xaxis().set_visible(False)
         # display.get_yaxis().set_visible(False)
         # display = plt.subplot(2, number_of_items, item + 1 + number_of_items)
         im = tf.keras.preprocessing.image.array_to_img(tr_pairs[item, 1], data_format=None, scale=True, dtype=None)
-        plt.imshow(im, cmap="gray")
+        plt.imshow(im)
         display.get_xaxis().set_visible(False)
         display.get_yaxis().set_visible(False)
         # plt.title(str(np.round(y_pred[item]).T[0].tolist()), loc='center')
@@ -271,9 +291,9 @@ def test():
     plt.show()
 
 
-def train_classification():
+def train_classification(x_train, y_train, x_test, y_test):
     # (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    (x_train, y_train), (x_test, y_test) = load_4_faces()
+    # (x_train, y_train), (x_test, y_test) = load_4_faces()
     # plt.figure(0)
     # for i in range(x_train.shape[0]):
     #     plt.imshow(x_train[i, :, :])
@@ -289,6 +309,7 @@ def train_classification():
     x_test /= 255
     y_train = to_categorical(y_train, num_classes=num_classes)
     y_test = to_categorical(y_test, num_classes=num_classes)
+
     input_shape = x_train.shape[1:]
     assert input_shape[0:2] == (img_size, img_size)
     model, base_network = get_model(input_shape)
@@ -339,7 +360,9 @@ def train_classification():
 
 
 if __name__ == '__main__':
-    train()
-    train_classification()
-    # test()
-    # load_4_faces()
+    tr, te = load_4_faces()
+    xtr, ytr = tr
+    xte, yte = te
+    train(xtr, ytr, xte, yte)
+    train_classification(xtr, ytr, xte, yte)
+    test(xtr, ytr, xte, yte)
