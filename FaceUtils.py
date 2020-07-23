@@ -20,7 +20,7 @@ from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tqdm import tqdm
 
-num_classes = 4
+num_classes = 3
 epochs = 1000
 number_of_tested_items = 25
 img_size = 224
@@ -46,18 +46,18 @@ def contrastive_loss(y_true, y_pred):
     return K.mean(y_true * square_pred + (1 - y_true) * margin_square)
 
 
-def create_pairs(x, digit_indices):
+def create_pairs(x, digit_indices, extended_num_classes=None):
+    if extended_num_classes is None:
+        extended_num_classes = num_classes
     pairs = []
     labels = []
-
-    n = min([len(digit_indices[d]) for d in range(num_classes)]) - 1
-
-    for d in range(num_classes):
+    n = min([len(digit_indices[d]) for d in range(extended_num_classes)]) - 1
+    for d in range(extended_num_classes):
         for i in range(n):
             z1, z2 = digit_indices[d][i], digit_indices[d][i + 1]
             pairs += [[x[z1], x[z2]]]
-            inc = random.randrange(1, num_classes)
-            dn = (d + inc) % num_classes
+            inc = random.randrange(1, extended_num_classes)
+            dn = (d + inc) % extended_num_classes
             z1, z2 = digit_indices[d][i], digit_indices[dn][i]
             pairs += [[x[z1], x[z2]]]
             labels += [1, 0]
@@ -129,18 +129,9 @@ def load_4_faces():
     return (x_train[:limiter], y_train[:limiter]), (x_test, y_test)
 
 
-def get_data(x_train, y_train, x_test, y_test):
-    # the data, split between train and test sets
-    # (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    # (x_train, y_train), (x_test, y_test) = load_4_faces()
-    # plt.figure(0)
-    # for i in range(x_train.shape[0]):
-    #     plt.imshow(x_train[i, :, :])
-    #     plt.title(str(y_train[i]))
-    #     plt.show()
+def get_data(x_train, y_train, x_test, y_test, extended_num_classes=None):
     x_train = x_train.reshape(x_train.shape[0], img_size, img_size, -1)
     x_test = x_test.reshape(x_test.shape[0], img_size, img_size, -1)
-    # input_shape = (1, 28, 28)
     print(x_train.shape)
     x_train = x_train.astype('float32')
     x_test = x_test.astype('float32')
@@ -151,15 +142,28 @@ def get_data(x_train, y_train, x_test, y_test):
     assert input_shape[0:2] == (img_size, img_size)
 
     # create training+test positive and negative pairs
-    digit_indices = [np.where(y_train == i)[0] for i in range(num_classes)]
-    tr_pairs, tr_y = create_pairs(x_train, digit_indices)
+    if extended_num_classes is None:
+        y_train_one_hot = to_categorical(y_train, num_classes=num_classes)
+        y_test_one_hot = to_categorical(y_test, num_classes=num_classes)
 
-    digit_indices = [np.where(y_test == i)[0] for i in range(num_classes)]
-    te_pairs, te_y = create_pairs(x_test, digit_indices)
-    return input_shape, tr_pairs, tr_y, te_pairs, te_y
+        digit_indices = [np.where(y_train == i)[0] for i in range(num_classes)]
+        tr_pairs, tr_y = create_pairs(x_train, digit_indices)
+        digit_indices = [np.where(y_test == i)[0] for i in range(num_classes)]
+        te_pairs, te_y = create_pairs(x_test, digit_indices)
+    else:
+        assert type(extended_num_classes) is int
+        y_train_one_hot = to_categorical(y_train, num_classes=extended_num_classes)
+        y_test_one_hot = to_categorical(y_test, num_classes=extended_num_classes)
+
+        digit_indices = [np.where(y_train == i)[0] for i in range(extended_num_classes)]
+        tr_pairs, tr_y = create_pairs(x_train, digit_indices, extended_num_classes)
+        digit_indices = [np.where(y_test == i)[0] for i in range(extended_num_classes)]
+        te_pairs, te_y = create_pairs(x_test, digit_indices, extended_num_classes)
+
+    return input_shape, tr_pairs, tr_y, te_pairs, te_y, y_train_one_hot, y_test_one_hot
 
 
-def create_base_net(input_shape):
+def create_base_net(input_shape, extended_num_classes=None):
     input_layer = Input(shape=input_shape)
     x = Conv2D(8, (5, 5), activation='relu')(input_layer)
     x = AveragePooling2D(pool_size=(2, 2))(x)
@@ -167,20 +171,26 @@ def create_base_net(input_shape):
     x = Conv2D(16, (5, 5), activation='tanh')(x)
     x = AveragePooling2D(pool_size=(2, 2))(x)
     x = Flatten()(x)
-    x = Dense(num_classes, activation='softmax')(x)
-    model = Model(input_layer, x)
-    # model.summary()
+    without_dense = Model(input_layer, x)
+    if extended_num_classes is not None:
+        assert type(extended_num_classes) is int
+        output = Dense(num_classes, activation='softmax')(x)
+    else:
+        output = Dense(extended_num_classes, activation='softmax')(x)
+    model = Model(input_layer, output)
     rms = RMSprop(lr=0.0001)
     model.compile(
         optimizer=rms,
         loss='categorical_crossentropy'
     )
-    return model
+    return model, without_dense
 
 
-def get_model(input_shape):
+def get_model(input_shape, extended_num_classes=None):
     # network definition
-    base_network = create_base_net(input_shape)
+    if extended_num_classes is not None:
+        assert type(extended_num_classes) is int
+    base_network, without_dense = create_base_net(input_shape, extended_num_classes)
 
     input_a = Input(shape=input_shape)
     input_b = Input(shape=input_shape)
@@ -199,16 +209,79 @@ def get_model(input_shape):
     rms = RMSprop(lr=0.0001)
     model.compile(loss=contrastive_loss, optimizer=rms, metrics=[accuracy])
 
-    return model, base_network
+    return model, base_network, without_dense
+
+
+def test(x_train, y_train, x_test, y_test, extended_num_classes):
+    input_shape, tr_pairs, tr_y, te_pairs, te_y, y_train_one_hot, y_test_one_hot = get_data(
+        x_train,
+        y_train,
+        x_test,
+        y_test,
+        extended_num_classes
+    )
+    model, base_network, without_dense = get_model(
+        input_shape,
+        extended_num_classes=[
+            None,
+            extended_num_classes
+        ]
+    )
+    if os.path.exists(path='Models/Siamese.h5'):
+        model.load_weights(filepath='Models/Siamese.h5')
+    if os.path.exists(path='Models/Softmax.h5'):
+        base_network.load_weights(filepath='Models/Softmax.h5')
+    if os.path.exists(path='Models/Conv.h5'):
+        without_dense.load_weights(filepath='Models/Conv.h5')
+    assert model.input_shape[0][1:] == input_shape
+    tf.keras.utils.plot_model(
+        model=model,
+        to_file='model.png',
+        show_shapes=True
+    )
+    y_pred = model.predict([tr_pairs[:, 0], tr_pairs[:, 1]])
+    tr_acc = compute_accuracy(tr_y, y_pred)
+
+    y_pred = model.predict([te_pairs[:, 0], te_pairs[:, 1]])
+    te_acc = compute_accuracy(te_y, y_pred)
+
+    y_pred = base_network.predict(tr_pairs[:, 1])
+
+    print('* Accuracy on training set: %0.2f%%' % (100 * tr_acc))
+    print('* Accuracy on test set: %0.2f%%' % (100 * te_acc))
+    plt.figure(figsize=(10, 5))
+    for item in range(number_of_tested_items):
+        display = plt.subplot(int(number_of_tested_items / 5), 5, item + 1)
+        # im = tf.keras.preprocessing.image.array_to_img(tr_pairs[item, 0], data_format=None, scale=True, dtype=None)
+        # plt.imshow(im, cmap="gray")
+        # display.get_xaxis().set_visible(False)
+        # display.get_yaxis().set_visible(False)
+        # display = plt.subplot(2, number_of_items, item + 1 + number_of_items)
+        im = tf.keras.preprocessing.image.array_to_img(tr_pairs[item, 1], data_format=None, scale=True, dtype=None)
+        plt.imshow(im)
+        display.get_xaxis().set_visible(False)
+        display.get_yaxis().set_visible(False)
+        # plt.title(str(np.round(y_pred[item]).T[0].tolist()), loc='center')
+        title = np.argmax(y_pred[item])
+        plt.title(str(title), loc='center')
+        # print(y_pred[item])
+    plt.show()
 
 
 def train(x_train, y_train, x_test, y_test):
-    input_shape, tr_pairs, tr_y, te_pairs, te_y = get_data(x_train, y_train, x_test, y_test)
-    model, base_network = get_model(input_shape)
+    input_shape, tr_pairs, tr_y, te_pairs, te_y, _, _ = get_data(
+        x_train,
+        y_train,
+        x_test,
+        y_test
+    )
+    model, base_network, without_dense = get_model(input_shape)
     if os.path.exists(path='Models/Siamese.h5'):
         model.load_weights(filepath='Models/Siamese.h5')
-    if os.path.exists(path='Models/Base.h5'):
-        base_network.load_weights(filepath='Models/Base.h5')
+    if os.path.exists(path='Models/Softmax.h5'):
+        base_network.load_weights(filepath='Models/Softmax.h5')
+    if os.path.exists(path='Models/Conv.h5'):
+        without_dense.load_weights(filepath='Models/Conv.h5')
     assert model.input_shape[0][1:] == input_shape
     tf.keras.utils.plot_model(
         model=model,
@@ -249,76 +322,25 @@ def train(x_train, y_train, x_test, y_test):
                 tb_checkpoint
             ]
         )
-
-
-def test(x_train, y_train, x_test, y_test):
-    input_shape, tr_pairs, tr_y, te_pairs, te_y = get_data(x_train, y_train, x_test, y_test)
-    model, base_network = get_model(input_shape)
-    if os.path.exists(path='Models/Siamese.h5'):
-        model.load_weights(filepath='Models/Siamese.h5')
-    if os.path.exists(path='Models/Base.h5'):
-        base_network.load_weights(filepath='Models/Base.h5')
-    assert model.input_shape[0][1:] == input_shape
-    tf.keras.utils.plot_model(
-        model=model,
-        to_file='model.png',
-        show_shapes=True
-    )
-    y_pred = model.predict([tr_pairs[:, 0], tr_pairs[:, 1]])
-    tr_acc = compute_accuracy(tr_y, y_pred)
-
-    y_pred = model.predict([te_pairs[:, 0], te_pairs[:, 1]])
-    te_acc = compute_accuracy(te_y, y_pred)
-
-    y_pred = base_network.predict(tr_pairs[:, 1])
-
-    print('* Accuracy on training set: %0.2f%%' % (100 * tr_acc))
-    print('* Accuracy on test set: %0.2f%%' % (100 * te_acc))
-    plt.figure(figsize=(10, 5))
-    for item in range(number_of_tested_items):
-        display = plt.subplot(int(number_of_tested_items / 5), 5, item + 1)
-        # im = tf.keras.preprocessing.image.array_to_img(tr_pairs[item, 0], data_format=None, scale=True, dtype=None)
-        # plt.imshow(im, cmap="gray")
-        # display.get_xaxis().set_visible(False)
-        # display.get_yaxis().set_visible(False)
-        # display = plt.subplot(2, number_of_items, item + 1 + number_of_items)
-        im = tf.keras.preprocessing.image.array_to_img(tr_pairs[item, 1], data_format=None, scale=True, dtype=None)
-        plt.imshow(im)
-        display.get_xaxis().set_visible(False)
-        display.get_yaxis().set_visible(False)
-        # plt.title(str(np.round(y_pred[item]).T[0].tolist()), loc='center')
-        title = np.argmax(y_pred[item])
-        plt.title(str(title), loc='center')
-        # print(y_pred[item])
-    plt.show()
+    model.save_weights(filepath='Models/Siamese.h5')
+    base_network.save_weights(filepath='Models/Softmax.h5')
+    without_dense.save_weights(filepath='Models/Conv.h5')
 
 
 def train_classification(x_train, y_train, x_test, y_test):
-    # (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    # (x_train, y_train), (x_test, y_test) = load_4_faces()
-    # plt.figure(0)
-    # for i in range(x_train.shape[0]):
-    #     plt.imshow(x_train[i, :, :])
-    #     plt.title(str(y_train[i]))
-    #     plt.show()
-    x_train = x_train.reshape(x_train.shape[0], img_size, img_size, -1)
-    x_test = x_test.reshape(x_test.shape[0], img_size, img_size, -1)
-    # input_shape = (1, 28, 28)
-    print(x_train.shape)
-    x_train = x_train.astype('float32')
-    x_test = x_test.astype('float32')
-    x_train /= 255
-    x_test /= 255
-    y_train = to_categorical(y_train, num_classes=num_classes)
-    y_test = to_categorical(y_test, num_classes=num_classes)
-
-    input_shape = x_train.shape[1:]
-    assert input_shape[0:2] == (img_size, img_size)
-    model, base_network = get_model(input_shape)
+    input_shape, _, _, _, _, y_train_one_hot, y_test_one_hot = get_data(
+        x_train,
+        y_train,
+        x_test,
+        y_test
+    )
+    model, base_network, without_dense = get_model(input_shape)
     if os.path.exists(path='Models/Siamese.h5'):
         model.load_weights(filepath='Models/Siamese.h5')
-    if os.path.exists(path='Models/Base.h5'):
-        base_network.load_weights(filepath='Models/Base.h5')
+    if os.path.exists(path='Models/Softmax.h5'):
+        base_network.load_weights(filepath='Models/Softmax.h5')
+    if os.path.exists(path='Models/Conv.h5'):
+        without_dense.load_weights(filepath='Models/Conv.h5')
     assert base_network.input_shape[1:] == input_shape
     tf.keras.utils.plot_model(
         model=base_network,
@@ -326,7 +348,7 @@ def train_classification(x_train, y_train, x_test, y_test):
         show_shapes=True
     )
     cp_checkpoint = ModelCheckpoint(
-        filepath='Models/Base.h5',
+        filepath='Models/Softmax.h5',
         monitor='val_loss',
         verbose=1,
         save_best_only=True,
@@ -349,24 +371,69 @@ def train_classification(x_train, y_train, x_test, y_test):
     with tf.device("/gpu:0"):
         base_network.fit(
             x_train,
-            y_train,
+            y_train_one_hot,
             batch_size=batch_size,
             epochs=epochs,
-            validation_data=(x_test, y_test),
+            validation_data=(x_test, y_test_one_hot),
             callbacks=[
                 cp_checkpoint,
                 es_checkpoint,
                 tb_checkpoint
             ]
         )
+    model.save_weights(filepath='Models/Siamese.h5')
+    base_network.save_weights(filepath='Models/Softmax.h5')
+    without_dense.save_weights(filepath='Models/Conv.h5')
 
 
-if __name__ == '__main__':
+def train_increment(x_train, y_train, x_test, y_test, extended_num_classes):
+    input_shape, tr_pairs, tr_y, te_pairs, te_y, y_train_one_hot, y_test_one_hot = get_data(
+        x_train,
+        y_train,
+        x_test,
+        y_test,
+        extended_num_classes
+    )
+    _, _, without_dense = get_model(input_shape)
+    if os.path.exists(path='Models/Conv.h5'):
+        without_dense.load_weights(filepath='Models/Conv.h5')
+    model, base_network, without_dense = get_model(
+        input_shape,
+        extended_num_classes=[
+            without_dense,
+            extended_num_classes
+        ]
+    )
+    model.fit(
+        [tr_pairs[:, 0], tr_pairs[:, 1]],
+        tr_y,
+        batch_size=batch_size,
+        epochs=epochs,
+        validation_data=([te_pairs[:, 0], te_pairs[:, 1]], te_y),
+    )
+    base_network.fit(
+        x_train,
+        y_train_one_hot,
+        batch_size=batch_size,
+        epochs=epochs,
+        validation_data=(x_test, y_test_one_hot),
+    )
+    # model.save_weights(filepath='Models/Siamese.h5')
+    # base_network.save_weights(filepath='Models/Softmax.h5')
+    without_dense.save_weights(filepath='Models/Conv.h5')
+
+
+def full_process():
     tr, te = load_4_faces()
     xtr, ytr = tr
     xte, yte = te
-    train(xtr, ytr, xte, yte)
-    print('Siamese training completed.')
-    train_classification(xtr, ytr, xte, yte)
-    print('Softmax training completed.')
+    # train(xtr, ytr, xte, yte)
+    # print('Siamese training completed.')
+    # train_classification(xtr, ytr, xte, yte)
+    # print('Softmax training completed.')
+    train_increment(xtr, ytr, xte, yte, 4)
     test(xtr, ytr, xte, yte)
+
+
+if __name__ == '__main__':
+    full_process()
