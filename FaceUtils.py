@@ -174,9 +174,9 @@ def create_base_net(input_shape, extended_num_classes=None):
     without_dense = Model(input_layer, x)
     if extended_num_classes is not None:
         assert type(extended_num_classes) is int
-        output = Dense(num_classes, activation='softmax')(x)
-    else:
         output = Dense(extended_num_classes, activation='softmax')(x)
+    else:
+        output = Dense(num_classes, activation='softmax')(x)
     model = Model(input_layer, output)
     rms = RMSprop(lr=0.0001)
     model.compile(
@@ -212,7 +212,7 @@ def get_model(input_shape, extended_num_classes=None):
     return model, base_network, without_dense
 
 
-def test(x_train, y_train, x_test, y_test, extended_num_classes):
+def test(x_train, y_train, x_test, y_test, extended_num_classes=None):
     input_shape, tr_pairs, tr_y, te_pairs, te_y, y_train_one_hot, y_test_one_hot = get_data(
         x_train,
         y_train,
@@ -222,15 +222,8 @@ def test(x_train, y_train, x_test, y_test, extended_num_classes):
     )
     model, base_network, without_dense = get_model(
         input_shape,
-        extended_num_classes=[
-            None,
-            extended_num_classes
-        ]
+        extended_num_classes
     )
-    if os.path.exists(path='Models/Siamese.h5'):
-        model.load_weights(filepath='Models/Siamese.h5')
-    if os.path.exists(path='Models/Softmax.h5'):
-        base_network.load_weights(filepath='Models/Softmax.h5')
     if os.path.exists(path='Models/Conv.h5'):
         without_dense.load_weights(filepath='Models/Conv.h5')
     assert model.input_shape[0][1:] == input_shape
@@ -394,15 +387,18 @@ def train_increment(x_train, y_train, x_test, y_test, extended_num_classes):
         y_test,
         extended_num_classes
     )
-    _, _, without_dense = get_model(input_shape)
-    if os.path.exists(path='Models/Conv.h5'):
-        without_dense.load_weights(filepath='Models/Conv.h5')
     model, base_network, without_dense = get_model(
         input_shape,
-        extended_num_classes=[
-            without_dense,
-            extended_num_classes
-        ]
+        extended_num_classes
+    )
+    if os.path.exists(path='Models/Conv.h5'):
+        without_dense.load_weights(filepath='Models/Conv.h5')
+    es_checkpoint = EarlyStopping(
+        monitor='val_loss',
+        min_delta=0,
+        patience=10,
+        verbose=1,
+        mode='auto'
     )
     model.fit(
         [tr_pairs[:, 0], tr_pairs[:, 1]],
@@ -410,6 +406,7 @@ def train_increment(x_train, y_train, x_test, y_test, extended_num_classes):
         batch_size=batch_size,
         epochs=epochs,
         validation_data=([te_pairs[:, 0], te_pairs[:, 1]], te_y),
+        callbacks=[es_checkpoint]
     )
     base_network.fit(
         x_train,
@@ -417,22 +414,27 @@ def train_increment(x_train, y_train, x_test, y_test, extended_num_classes):
         batch_size=batch_size,
         epochs=epochs,
         validation_data=(x_test, y_test_one_hot),
+        callbacks=[es_checkpoint]
     )
     # model.save_weights(filepath='Models/Siamese.h5')
     # base_network.save_weights(filepath='Models/Softmax.h5')
     without_dense.save_weights(filepath='Models/Conv.h5')
 
 
-def full_process():
+def full_process(mode='init'):
     tr, te = load_4_faces()
     xtr, ytr = tr
     xte, yte = te
-    # train(xtr, ytr, xte, yte)
-    # print('Siamese training completed.')
-    # train_classification(xtr, ytr, xte, yte)
-    # print('Softmax training completed.')
-    train_increment(xtr, ytr, xte, yte, 4)
-    test(xtr, ytr, xte, yte)
+    if mode=='init':
+        train(xtr, ytr, xte, yte)
+        print('Siamese training completed.')
+        train_classification(xtr, ytr, xte, yte)
+        print('Softmax training completed.')
+        test_num_classes = None
+    elif mode=='':
+        train_increment(xtr, ytr, xte, yte, 4)
+
+    test(xtr, ytr, xte, yte, test_num_classes)
 
 
 if __name__ == '__main__':
