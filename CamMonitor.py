@@ -309,8 +309,8 @@ def process_dir(_, request_id, dir_path="C:\\Users\\16413\\Desktop\\SmartServerR
             snap_shot(calc_and_draw_hist, file_path=file_path)
             dst_num += 1
             # print(os.listdir(output_path))
-    print("This is " + request_id)
-    print("This is " + output_path)
+    # print("This is " + request_id)
+    # print("This is " + output_path)
     post_result(request_id, src_num, dst_num)
     end = datetime.datetime.now()
     print(str(end - start))

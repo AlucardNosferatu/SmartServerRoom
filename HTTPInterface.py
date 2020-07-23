@@ -8,7 +8,7 @@ import datetime
 
 def post_result(request_id, src_num, dst_num):
     print("Start to post")
-    print("This is RID: " + request_id)
+    # print("This is RID: " + request_id)
     server_url = 'http://134.134.13.82:8744/imr-face-server/monitor/regmonitor'
     dic = {"ID": request_id, "Src_num": src_num, "Dest_num": dst_num}
     dic_json = json.dumps(dic)
@@ -16,7 +16,7 @@ def post_result(request_id, src_num, dst_num):
         "Content-Type": "application/json; charset=UTF-8"
     }
 
-    print(str(dic_json))
+    # print(str(dic_json))
     response = requests.post(server_url, data=dic_json, headers=headers)
     print("Complete post")
     response.raise_for_status()
