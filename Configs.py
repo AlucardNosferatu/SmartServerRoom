@@ -1,0 +1,9 @@
+num_classes = 3
+epochs = 1000
+new_epochs = 100
+number_of_tested_items = 25
+img_size = 224
+batch_size = 8
+limiter = 500
+test_ratio = 0.25
+data_subsample = 40
