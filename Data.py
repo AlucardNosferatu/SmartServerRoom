@@ -79,7 +79,7 @@ def load_4_faces():
         y_train_aug.append(np.squeeze(y_batch))
     x_train = np.array(x_train_aug)
     y_train = np.array(y_train_aug)
-
+    x_test = (x_test / 255).astype('float32')
     return (x_train, y_train), (x_test, y_test)
 
 
