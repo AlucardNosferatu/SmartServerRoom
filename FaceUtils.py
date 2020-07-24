@@ -222,7 +222,7 @@ def test(x_train, y_train, x_test, y_test, extended_num_classes=None):
     plt.show()
 
 
-def full_process(test_num_classes=None):
+def full_process(test_num_classes=4):
     tr, te = load_4_faces()
     xtr, ytr = tr
     xte, yte = te
