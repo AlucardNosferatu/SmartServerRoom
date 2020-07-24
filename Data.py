@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.python.keras.utils.np_utils import to_categorical
+from tensorflow.keras.utils import to_categorical
 from tqdm import tqdm
 
 from Configs import data_subsample, img_size, test_ratio, num_classes, limiter

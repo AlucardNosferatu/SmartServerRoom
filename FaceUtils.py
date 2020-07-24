@@ -201,7 +201,7 @@ def test(x_train, y_train, x_test, y_test, extended_num_classes=None):
     y_pred = model.predict([te_pairs[:, 0], te_pairs[:, 1]])
     te_acc = compute_accuracy(te_y, y_pred)
 
-    y_pred = base_network.predict(tr_pairs[:, 1])
+    y_pred = base_network.predict(te_pairs[:, 1])
 
     print('* Accuracy on training set: %0.2f%%' % (100 * tr_acc))
     print('* Accuracy on test set: %0.2f%%' % (100 * te_acc))
@@ -213,7 +213,7 @@ def test(x_train, y_train, x_test, y_test, extended_num_classes=None):
         # display.get_xaxis().set_visible(False)
         # display.get_yaxis().set_visible(False)
         # display = plt.subplot(2, number_of_items, item + 1 + number_of_items)
-        im = tf.keras.preprocessing.image.array_to_img(tr_pairs[item, 1], data_format=None, scale=True, dtype=None)
+        im = tf.keras.preprocessing.image.array_to_img(te_pairs[item, 1], data_format=None, scale=True, dtype=None)
         plt.imshow(im)
         display.get_xaxis().set_visible(False)
         display.get_yaxis().set_visible(False)
