@@ -135,10 +135,6 @@ def train_increment(x_train, y_train, x_test, y_test, extended_num_classes):
         input_shape,
         extended_num_classes
     )
-    # if os.path.exists(path='Models/Siamese.h5'):
-    #     model.load_weights(filepath='Models/Siamese.h5')
-    # if os.path.exists(path='Models/Softmax.h5'):
-    #     base_network.load_weights(filepath='Models/Softmax.h5')
     if os.path.exists(path='Models/Conv.h5'):
         without_dense.load_weights(filepath='Models/Conv.h5')
     es_checkpoint = EarlyStopping(
