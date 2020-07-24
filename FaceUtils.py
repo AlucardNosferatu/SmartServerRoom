@@ -10,14 +10,13 @@ import numpy as np
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
 from tensorflow.keras import backend as K
-from tensorflow.keras.datasets import mnist
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 from tensorflow.keras.layers import Conv2D, AveragePooling2D
 from tensorflow.keras.layers import Input, Flatten, Dense, Lambda, BatchNormalization
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import RMSprop, Adam
-from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.utils import to_categorical
 from tqdm import tqdm
 
 num_classes = 3
@@ -28,6 +27,7 @@ img_size = 224
 batch_size = 8
 limiter = 1000
 test_ratio = 0.3
+data_subsample = 40
 
 
 def euclid_dis(vects):
@@ -89,7 +89,7 @@ def load_4_faces():
         label = int(directory)
         directory = os.path.join(path, directory)
         img_list = os.listdir(directory)
-        for img in tqdm(img_list):
+        for img in tqdm(img_list[:data_subsample]):
             img = os.path.join(directory, img)
             img_array = cv2.imread(img)
             img_array = cv2.resize(img_array, (img_size, img_size))
@@ -97,6 +97,7 @@ def load_4_faces():
             label_list.append(label)
     x = np.array(img_array_list)
     y = np.array(label_list)
+
     state = np.random.get_state()
     np.random.shuffle(x)
     np.random.set_state(state)
@@ -105,7 +106,7 @@ def load_4_faces():
     # for i in range(x.shape[0]):
     #     cv2.imshow(str(y[i]), x[i])
     #     cv2.waitKey()
-
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=test_ratio)
     datagen = ImageDataGenerator(
         rotation_range=40,
         width_shift_range=0.2,
@@ -119,33 +120,22 @@ def load_4_faces():
         channel_shift_range=0,
         vertical_flip=False
     )
-
-    # datagen.fit(x)
-    data_iter = datagen.flow(x, y, batch_size=1)
+    data_iter = datagen.flow(x_train, y_train, batch_size=1)
     x_train_aug = []
     y_train_aug = []
     for i in tqdm(range(limiter)):
         x_batch, y_batch = data_iter.next()
         x_train_aug.append(np.squeeze(x_batch))
         y_train_aug.append(np.squeeze(y_batch))
-    x = np.array(x_train_aug)
-    y = np.array(y_train_aug)
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=test_ratio)
+    x_train = np.array(x_train_aug)
+    y_train = np.array(y_train_aug)
+
     return (x_train, y_train), (x_test, y_test)
 
 
 def get_data(x_train, y_train, x_test, y_test, extended_num_classes=None):
-    # x_train = x_train.reshape(x_train.shape[0], img_size, img_size, -1)
-    # x_test = x_test.reshape(x_test.shape[0], img_size, img_size, -1)
-    # print(x_train.shape)
-    # x_train = x_train.astype('float32')
-    # x_test = x_test.astype('float32')
-    # x_train /= 255
-    # x_test /= 255
-
     input_shape = x_train.shape[1:]
     assert input_shape[0:2] == (img_size, img_size)
-
     # create training+test positive and negative pairs
     if extended_num_classes is None:
         y_train_one_hot = to_categorical(y_train, num_classes=num_classes)
@@ -427,7 +417,7 @@ def test(x_train, y_train, x_test, y_test, extended_num_classes=None):
     plt.show()
 
 
-def full_process(test_num_classes=4):
+def full_process(test_num_classes=None):
     tr, te = load_4_faces()
     xtr, ytr = tr
     xte, yte = te
