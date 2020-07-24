@@ -170,10 +170,10 @@ def get_data(x_train, y_train, x_test, y_test, extended_num_classes=None):
 
 def create_base_net(input_shape, extended_num_classes=None):
     input_layer = Input(shape=input_shape)
-    x = Conv2D(4, (5, 5), activation='relu')(input_layer)
+    x = Conv2D(16, (5, 5), activation='relu')(input_layer)
     x = AveragePooling2D(pool_size=(2, 2))(x)
     x = BatchNormalization()(x)
-    x = Conv2D(8, (5, 5), activation='tanh')(x)
+    x = Conv2D(32, (5, 5), activation='tanh')(x)
     x = AveragePooling2D(pool_size=(2, 2))(x)
     x = Flatten()(x)
     without_dense = Model(input_layer, x)
@@ -187,7 +187,7 @@ def create_base_net(input_shape, extended_num_classes=None):
     model.compile(
         optimizer=rms,
         loss='categorical_crossentropy',
-        metrics=[accuracy]
+        metrics=['accuracy']
     )
     return model, without_dense
 
