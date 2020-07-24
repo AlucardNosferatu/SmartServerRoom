@@ -54,6 +54,7 @@ def train(x_train, y_train, x_test, y_test):
             batch_size=batch_size,
             epochs=epochs,
             validation_data=([te_pairs[:, 0], te_pairs[:, 1]], te_y),
+            validation_steps=2,
             callbacks=[
                 cp_checkpoint,
                 es_checkpoint,
@@ -112,6 +113,7 @@ def train_classification(x_train, y_train, x_test, y_test):
             batch_size=batch_size,
             epochs=epochs,
             validation_data=(x_test, y_test_one_hot),
+            validation_steps=2,
             callbacks=[
                 cp_checkpoint,
                 es_checkpoint,
@@ -151,6 +153,7 @@ def train_increment(x_train, y_train, x_test, y_test, extended_num_classes):
         batch_size=batch_size,
         epochs=new_epochs,
         validation_data=([te_pairs[:, 0], te_pairs[:, 1]], te_y),
+        validation_steps=2,
         callbacks=[es_checkpoint]
     )
     base_network.fit(
@@ -159,6 +162,7 @@ def train_increment(x_train, y_train, x_test, y_test, extended_num_classes):
         batch_size=batch_size,
         epochs=new_epochs,
         validation_data=(x_test, y_test_one_hot),
+        validation_steps=2,
         callbacks=[es_checkpoint]
     )
     model.save_weights(filepath='Models/Siamese.h5')
@@ -235,4 +239,5 @@ def full_process(test_num_classes=None):
 
 if __name__ == '__main__':
     full_process()
+    full_process(test_num_classes=3)
     full_process(test_num_classes=4)

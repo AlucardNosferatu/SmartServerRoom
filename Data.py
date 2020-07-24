@@ -3,12 +3,11 @@ import random
 
 import cv2
 import numpy as np
-from sklearn.model_selection import train_test_split
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import to_categorical
 from tqdm import tqdm
 
-from Configs import data_subsample, img_size, test_ratio, num_classes, limiter
+from Configs import img_size, test_ratio, num_classes, limiter
 
 
 def create_pairs(x, digit_indices, extended_num_classes=None):
@@ -30,8 +29,10 @@ def create_pairs(x, digit_indices, extended_num_classes=None):
 
 
 def load_4_faces(extended_num_classes=None):
-    img_array_list = []
-    label_list = []
+    train_img_list = []
+    train_label_list = []
+    test_img_list = []
+    test_label_list = []
     path = "C:\\Users\\16413\\Documents\\GitHub\\YOLO\\faces\\Faces"
     dir_list = os.listdir(path)
     dir_list.sort()
@@ -41,29 +42,44 @@ def load_4_faces(extended_num_classes=None):
         assert type(extended_num_classes) is int
         assert extended_num_classes <= len(dir_list)
         dir_list = dir_list[:extended_num_classes]
+
     for directory in dir_list:
         assert directory.isnumeric()
         label = int(directory)
         directory = os.path.join(path, directory)
         img_list = os.listdir(directory)
-        for img in tqdm(img_list[:data_subsample]):
+        for img in tqdm(img_list[:int(test_ratio * len(img_list))]):
             img = os.path.join(directory, img)
             img_array = cv2.imread(img)
             img_array = cv2.resize(img_array, (img_size, img_size))
-            img_array_list.append(img_array)
-            label_list.append(label)
-    x = np.array(img_array_list)
-    y = np.array(label_list)
+            test_img_list.append(img_array)
+            test_label_list.append(label)
+        for img in tqdm(img_list[int(test_ratio * len(img_list)):]):
+            img = os.path.join(directory, img)
+            img_array = cv2.imread(img)
+            img_array = cv2.resize(img_array, (img_size, img_size))
+            train_img_list.append(img_array)
+            train_label_list.append(label)
+
+    x_train = np.array(train_img_list)
+    y_train = np.array(train_label_list)
+    x_test = np.array(test_img_list)
+    y_test = np.array(test_label_list)
 
     state = np.random.get_state()
-    np.random.shuffle(x)
+    np.random.shuffle(x_train)
     np.random.set_state(state)
-    np.random.shuffle(y)
-    print(x.shape)
+    np.random.shuffle(y_train)
+
+    state = np.random.get_state()
+    np.random.shuffle(x_test)
+    np.random.set_state(state)
+    np.random.shuffle(y_test)
+
     # for i in range(x.shape[0]):
     #     cv2.imshow(str(y[i]), x[i])
     #     cv2.waitKey()
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=test_ratio)
+
     train_gen = ImageDataGenerator(
         rotation_range=40,
         width_shift_range=0.2,
