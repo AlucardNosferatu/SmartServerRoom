@@ -22,10 +22,11 @@ from tqdm import tqdm
 
 num_classes = 3
 epochs = 1000
+new_epochs = 100
 number_of_tested_items = 25
 img_size = 224
 batch_size = 8
-limiter = 200
+limiter = 500
 
 
 def euclid_dis(vects):
@@ -404,7 +405,7 @@ def train_increment(x_train, y_train, x_test, y_test, extended_num_classes):
         [tr_pairs[:, 0], tr_pairs[:, 1]],
         tr_y,
         batch_size=batch_size,
-        epochs=epochs,
+        epochs=new_epochs,
         validation_data=([te_pairs[:, 0], te_pairs[:, 1]], te_y),
         callbacks=[es_checkpoint]
     )
@@ -412,7 +413,7 @@ def train_increment(x_train, y_train, x_test, y_test, extended_num_classes):
         x_train,
         y_train_one_hot,
         batch_size=batch_size,
-        epochs=epochs,
+        epochs=new_epochs,
         validation_data=(x_test, y_test_one_hot),
         callbacks=[es_checkpoint]
     )
@@ -425,15 +426,16 @@ def full_process(mode='init'):
     tr, te = load_4_faces()
     xtr, ytr = tr
     xte, yte = te
-    if mode=='init':
+    test_num_classes = None
+    if mode == 'init':
         train(xtr, ytr, xte, yte)
         print('Siamese training completed.')
         train_classification(xtr, ytr, xte, yte)
         print('Softmax training completed.')
         test_num_classes = None
-    elif mode=='':
-        train_increment(xtr, ytr, xte, yte, 4)
-
+    elif mode == 'new':
+        test_num_classes = 4
+        train_increment(xtr, ytr, xte, yte, test_num_classes)
     test(xtr, ytr, xte, yte, test_num_classes)
 
 
