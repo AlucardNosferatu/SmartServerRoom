@@ -21,12 +21,8 @@ def train(x_train, y_train, x_test, y_test):
         y_test
     )
     model, base_network, without_dense = get_model(input_shape)
+    print('Model loaded.')
     assert model.input_shape[0][1:] == input_shape
-    tf.keras.utils.plot_model(
-        model=model,
-        to_file='model.png',
-        show_shapes=True
-    )
     cp_checkpoint = ModelCheckpoint(
         filepath='Models/Siamese.h5',
         monitor='val_loss',
@@ -35,19 +31,22 @@ def train(x_train, y_train, x_test, y_test):
         save_freq='epoch',
         save_weights_only=True
     )
+    print("cp_checkpoint added.")
     es_checkpoint = EarlyStopping(
         monitor='val_loss',
         min_delta=0,
-        patience=10,
+        patience=5,
         verbose=1,
         mode='auto'
     )
+    print("es_checkpoint added.")
     tb_checkpoint = TensorBoard(
         log_dir='TensorBoard',
         histogram_freq=1,
         write_images=True,
         update_freq='epoch'
     )
+    print("tb_checkpoint added.")
     with tf.device("/gpu:0"):
         model.fit(
             [tr_pairs[:, 0], tr_pairs[:, 1]],
@@ -77,6 +76,7 @@ def train_classification(x_train, y_train, x_test, y_test):
     #     cv2.imshow(str(y_train_one_hot[i]), x_train[i])
     #     cv2.waitKey()
     model, base_network, without_dense = get_model(input_shape)
+    print('Model loaded.')
     assert base_network.input_shape[1:] == input_shape
     if os.path.exists(path='Models/Siamese.h5'):
         model.load_weights(filepath='Models/Siamese.h5')
@@ -95,7 +95,7 @@ def train_classification(x_train, y_train, x_test, y_test):
     es_checkpoint = EarlyStopping(
         monitor='val_loss',
         min_delta=0,
-        patience=10,
+        patience=5,
         verbose=1,
         mode='auto'
     )
@@ -135,12 +135,13 @@ def train_increment(x_train, y_train, x_test, y_test, extended_num_classes):
         input_shape,
         extended_num_classes
     )
+    print('Model loaded.')
     if os.path.exists(path='Models/Conv.h5'):
         without_dense.load_weights(filepath='Models/Conv.h5')
     es_checkpoint = EarlyStopping(
         monitor='val_loss',
         min_delta=0,
-        patience=10,
+        patience=5,
         verbose=1,
         mode='auto'
     )
@@ -218,8 +219,8 @@ def test(x_train, y_train, x_test, y_test, extended_num_classes=None):
     plt.show()
 
 
-def full_process(test_num_classes=4):
-    tr, te = load_4_faces()
+def full_process(test_num_classes=None):
+    tr, te = load_4_faces(extended_num_classes=test_num_classes)
     xtr, ytr = tr
     xte, yte = te
     if test_num_classes is None:
@@ -234,3 +235,4 @@ def full_process(test_num_classes=4):
 
 if __name__ == '__main__':
     full_process()
+    full_process(test_num_classes=4)

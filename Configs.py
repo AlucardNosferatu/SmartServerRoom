@@ -6,4 +6,4 @@ img_size = 224
 batch_size = 32
 limiter = 2000
 test_ratio = 0.25
-data_subsample = 40
+data_subsample = 30

@@ -29,11 +29,18 @@ def create_pairs(x, digit_indices, extended_num_classes=None):
     return np.array(pairs), np.array(labels)
 
 
-def load_4_faces():
+def load_4_faces(extended_num_classes=None):
     img_array_list = []
     label_list = []
     path = "C:\\Users\\16413\\Documents\\GitHub\\YOLO\\faces\\Faces"
     dir_list = os.listdir(path)
+    dir_list.sort()
+    if extended_num_classes is None:
+        dir_list = dir_list[:num_classes]
+    else:
+        assert type(extended_num_classes) is int
+        assert extended_num_classes <= len(dir_list)
+        dir_list = dir_list[:extended_num_classes]
     for directory in dir_list:
         assert directory.isnumeric()
         label = int(directory)
@@ -57,7 +64,7 @@ def load_4_faces():
     #     cv2.imshow(str(y[i]), x[i])
     #     cv2.waitKey()
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=test_ratio)
-    datagen = ImageDataGenerator(
+    train_gen = ImageDataGenerator(
         rotation_range=40,
         width_shift_range=0.2,
         height_shift_range=0.2,
@@ -70,16 +77,38 @@ def load_4_faces():
         channel_shift_range=0,
         vertical_flip=False
     )
-    data_iter = datagen.flow(x_train, y_train, batch_size=1)
+    train_iter = train_gen.flow(x_train, y_train, batch_size=1)
     x_train_aug = []
     y_train_aug = []
     for i in tqdm(range(limiter)):
-        x_batch, y_batch = data_iter.next()
+        x_batch, y_batch = train_iter.next()
         x_train_aug.append(np.squeeze(x_batch))
         y_train_aug.append(np.squeeze(y_batch))
     x_train = np.array(x_train_aug)
     y_train = np.array(y_train_aug)
-    x_test = (x_test / 255).astype('float32')
+    test_gen = ImageDataGenerator(
+        rotation_range=40,
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        rescale=1. / 255,
+        shear_range=0.2,
+        zoom_range=0.2,
+        horizontal_flip=True,
+        fill_mode='nearest',
+        cval=0,
+        channel_shift_range=0,
+        vertical_flip=False
+    )
+    test_iter = test_gen.flow(x_test, y_test, batch_size=1)
+    x_test_aug = []
+    y_test_aug = []
+    for i in tqdm(range(100)):
+        x_batch, y_batch = test_iter.next()
+        x_test_aug.append(np.squeeze(x_batch))
+        y_test_aug.append(np.squeeze(y_batch))
+    x_test = np.array(x_test_aug)
+    y_test = np.array(y_test_aug)
+
     return (x_train, y_train), (x_test, y_test)
 
 
