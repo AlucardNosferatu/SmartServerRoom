@@ -427,19 +427,16 @@ def test(x_train, y_train, x_test, y_test, extended_num_classes=None):
     plt.show()
 
 
-def full_process(mode='init'):
+def full_process(test_num_classes=None):
     tr, te = load_4_faces()
     xtr, ytr = tr
     xte, yte = te
-    test_num_classes = None
-    if mode == 'init':
-        # train(xtr, ytr, xte, yte)
-        # print('Siamese training completed.')
+    if test_num_classes is None:
+        train(xtr, ytr, xte, yte)
+        print('Siamese training completed.')
         train_classification(xtr, ytr, xte, yte)
         print('Softmax training completed.')
-        test_num_classes = None
-    elif mode == 'new':
-        test_num_classes = 4
+    elif type(test_num_classes) is int:
         train_increment(xtr, ytr, xte, yte, test_num_classes)
     test(xtr, ytr, xte, yte, test_num_classes)
 
