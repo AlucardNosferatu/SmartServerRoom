@@ -62,7 +62,7 @@ def trigger(h_list, o_list, f_list, threshold, use_diff):
 
 
 def start_test(
-        id,
+        src_id,
         show_diff=False,
         file_path="Samples\\Sample.mp4",
         output_path="Outputs",
@@ -197,7 +197,12 @@ def start_test(
 
             # endregion
             count += 1
-            first_hist = first1 is None and first2 is None and first3 is None and first4 is None and first5 is None and first6 is None
+            first_hist = first1 is None
+            first_hist = first_hist and first2 is None
+            first_hist = first_hist and first3 is None
+            first_hist = first_hist and first4 is None
+            first_hist = first_hist and first5 is None
+            first_hist = first_hist and first6 is None
             if first_hist or count > 200:
                 count = 0
                 first1 = hist1
@@ -282,7 +287,7 @@ def start_test(
     if video_writer.isOpened:
         video_writer.release()
     cv2.destroyAllWindows()
-    return id
+    return src_id
 
 
 def process_dir(
@@ -309,7 +314,7 @@ def process_dir(
                 file_path=file_path,
                 output_path=output_path,
                 file_name=i,
-                id=request_id
+                src_id=request_id
             )
             src_num += 1
     out_files = os.listdir(output_path)
