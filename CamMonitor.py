@@ -1,4 +1,3 @@
-import datetime
 import os
 from math import inf
 
@@ -92,7 +91,7 @@ def start_test(
     sample = cv2.VideoCapture(file_path)
     # sample = cv2.VideoCapture(url)
     record = []
-    th = 1e5
+    th = 1e3
     use_diff = True
     file_count = 0
     next_move = 100
@@ -289,8 +288,8 @@ def start_test(
 def process_dir(
         _,
         request_id,
-        dir_path="C:\\Users\\16413\\Desktop\\SmartServerRoom\\Samples",
-        output_path="C:\\Users\\16413\\Desktop\\SmartServerRoom\\Outputs"
+        dir_path="C:\\Users\\16413\\Desktop\\FFCS\\SVN\\CV_Toolbox\\SmartServerRoom\\Samples",
+        output_path="C:\\Users\\16413\\Desktop\\FFCS\\SVN\\CV_Toolbox\\SmartServerRoom\\Outputs"
 ):
     print("before start_test: ", request_id)
     if type(dir_path) == list:
@@ -305,7 +304,8 @@ def process_dir(
             file_path = os.path.join(dir_path, i)
             print('file_path is:', file_path)
             src_id = start_test(
-                show_diff=False,
+                show_diff=True,
+                # show_diff=False,
                 file_path=file_path,
                 output_path=output_path,
                 file_name=i,
@@ -338,5 +338,5 @@ def start_server():
 
 
 if __name__ == '__main__':
-    start_server()
-    # process_dir(_=None, request_id=1)
+    # start_server()
+    process_dir(_=None, request_id=1)
