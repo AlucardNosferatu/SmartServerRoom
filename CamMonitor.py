@@ -338,7 +338,7 @@ def delete_file(dir_path, i):
 def start_server():
     MyRequestHandler.process = process_dir
     server = HTTPServer(("", 5673), MyRequestHandler)
-    print("pythonic-simple-http-server started, serving at http://localhost:5673/imr-monitor-server/parsevideo")
+    print("Serving at http://localhost:5673/imr-monitor-server/parsevideo")
     server.serve_forever()
 
 
