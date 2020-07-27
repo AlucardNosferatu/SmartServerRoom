@@ -95,6 +95,7 @@ def start_test(
     use_diff = True
     file_count = 0
     next_move = 100
+
     # endregion
     # plt.ion()  # 开启interactive mode 成功的关键函数
     # plt.figure(1)
@@ -110,6 +111,7 @@ def start_test(
     video_writer = cv2.VideoWriter()
     # endregion
     count = 0
+    prev_frames = []
     while sample.isOpened():
         # plt.clf()
         ret, frame = sample.read()
@@ -130,6 +132,9 @@ def start_test(
             # frame = enhance(frame)
             # region get Differential Frame
             src_frame = frame.copy()
+            prev_frames.append(src_frame)
+            if len(prev_frames) > 20:
+                prev_frames.pop(0)
             if count % (skip_frame + 1) != 0:
                 count += 1
                 next_move -= 1
@@ -139,7 +144,7 @@ def start_test(
                         video_writer.release()
                 if next_move > 0 and video_writer.isOpened():
                     # print("Recording")
-                    video_writer.write(src_frame)
+                    video_writer.write(prev_frames[0])
                 continue
             frame = cv2.resize(frame, (1024, 768))
             frame = cv2.rectangle(frame, (25, 25), (500, 90), (255, 255, 255), -1)
@@ -242,7 +247,7 @@ def start_test(
 
             if next_move > 0 and video_writer.isOpened():
                 # print("Recording")
-                video_writer.write(src_frame)
+                video_writer.write(prev_frames[0])
 
             # region write Rectangles
             if position == 0:
@@ -296,6 +301,7 @@ def process_dir(
         dir_path="C:\\Users\\16413\\Desktop\\FFCS\\SVN\\CV_Toolbox\\SmartServerRoom\\Samples",
         output_path="C:\\Users\\16413\\Desktop\\FFCS\\SVN\\CV_Toolbox\\SmartServerRoom\\Outputs"
 ):
+    indices = range(245, 289)
     print("before start_test: ", request_id)
     if type(dir_path) == list:
         dir_path = dir_path[0]
@@ -305,12 +311,12 @@ def process_dir(
     dst_num = 0
     src_id = 0
     for e, i in enumerate(os.listdir(dir_path)):
-        if (i.endswith('mp4') or i.endswith('MP4')) and True:
+        if (i.endswith('mp4') or i.endswith('MP4')) and specify_index(indices=indices, i=i):
             file_path = os.path.join(dir_path, i)
             print('file_path is:', file_path)
             src_id = start_test(
-                show_diff=True,
-                # show_diff=False,
+                # show_diff=True,
+                show_diff=False,
                 file_path=file_path,
                 output_path=output_path,
                 file_name=i,
@@ -342,6 +348,13 @@ def start_server():
     server.serve_forever()
 
 
+def specify_index(indices, i):
+    for index in indices:
+        if '_' + str(index) in i:
+            return True
+    return False
+
+
 if __name__ == '__main__':
-    # start_server()
-    process_dir(_=None, request_id='1')
+    start_server()
+    # process_dir(_=None, request_id='1')
