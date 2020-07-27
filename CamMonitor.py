@@ -6,6 +6,7 @@ import numpy as np
 
 from HTTPInterface import post_result, MyRequestHandler, HTTPServer
 from MostDifferentFrame import snap_shot
+from TimeStamp import get_boxes, cut_timestamp
 
 
 def enhance(f):
@@ -95,10 +96,9 @@ def start_test(
     use_diff = True
     file_count = 0
     next_move = 100
-
+    first_frame = True
+    cut_box = [[57, 25, 500]]
     # endregion
-    # plt.ion()  # 开启interactive mode 成功的关键函数
-    # plt.figure(1)
 
     # region Initialize VideoWriter
     fps = sample.get(cv2.CAP_PROP_FPS)
@@ -129,7 +129,9 @@ def start_test(
                 except Exception as e:
                     print(repr(e))
                 file_count += 1
+
             # frame = enhance(frame)
+
             # region get Differential Frame
             src_frame = frame.copy()
             prev_frames.append(src_frame)
@@ -147,7 +149,10 @@ def start_test(
                     video_writer.write(prev_frames[0])
                 continue
             frame = cv2.resize(frame, (1024, 768))
-            frame = cv2.rectangle(frame, (25, 25), (500, 90), (255, 255, 255), -1)
+            if first_frame:
+                cut_box = get_boxes(frame)
+            frame = cut_timestamp(cut_box=cut_box, vis=frame)
+            inspect_frame = frame.copy()
             frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
             if old_frame is not None and use_diff:
                 diff = frame.astype(np.int16) - old_frame.astype(np.int16)
@@ -201,6 +206,7 @@ def start_test(
             # cv2.imshow("hist3", hist_img3)
 
             # endregion
+
             count += 1
             first_hist = first1 is None
             first_hist = first_hist and first2 is None
@@ -228,9 +234,6 @@ def start_test(
             record.append(sig)
             if len(record) > 200:
                 del record[0]
-            # plt.plot(record)
-            # plt.plot(th_line)
-            # plt.pause(0.005)
             position = p
 
             if position in [0, 1, 2, 3, 4, 5]:
@@ -273,10 +276,11 @@ def start_test(
             # endregion
             if show_diff:
                 cv2.imshow("diff", frame)
-                cv2.imshow("origin", src_frame)
+                cv2.imshow("origin", cv2.resize(src_frame, (1024, 768)))
+                cv2.imshow("cut_ts", inspect_frame)
         else:
             break
-
+        first_frame = False
         # region key interface
         k = cv2.waitKey(50)
         if k & 0xff == ord('q'):
@@ -288,6 +292,7 @@ def start_test(
         if k & 0xff == ord('w'):
             break
         # endregion
+
     sample.release()
     if video_writer.isOpened:
         video_writer.release()
@@ -311,12 +316,12 @@ def process_dir(
     dst_num = 0
     src_id = 0
     for e, i in enumerate(os.listdir(dir_path)):
-        if (i.endswith('mp4') or i.endswith('MP4')) and specify_index(indices=indices, i=i):
+        if (i.endswith('mp4') or i.endswith('MP4')) and True:
             file_path = os.path.join(dir_path, i)
             print('file_path is:', file_path)
             src_id = start_test(
-                # show_diff=True,
-                show_diff=False,
+                show_diff=True,
+                # show_diff=False,
                 file_path=file_path,
                 output_path=output_path,
                 file_name=i,
@@ -356,5 +361,5 @@ def specify_index(indices, i):
 
 
 if __name__ == '__main__':
-    start_server()
-    # process_dir(_=None, request_id='1')
+    # start_server()
+    process_dir(_=None, request_id='1')
