@@ -142,7 +142,7 @@ def start_test(
                     video_writer.write(src_frame)
                 continue
             frame = cv2.resize(frame, (1024, 768))
-            frame = cv2.rectangle(frame, (25, 25), (450, 75), (255, 255, 255), -1)
+            frame = cv2.rectangle(frame, (25, 25), (500, 90), (255, 255, 255), -1)
             frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
             if old_frame is not None and use_diff:
                 diff = frame.astype(np.int16) - old_frame.astype(np.int16)
@@ -344,4 +344,4 @@ def start_server():
 
 if __name__ == '__main__':
     # start_server()
-    process_dir(_=None, request_id=1)
+    process_dir(_=None, request_id='1')
