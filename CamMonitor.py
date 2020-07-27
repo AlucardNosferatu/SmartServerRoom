@@ -6,6 +6,7 @@ import numpy as np
 
 from HTTPInterface import post_result, MyRequestHandler, HTTPServer
 from MostDifferentFrame import snap_shot
+from ShapeFilter import valid_shape
 from TimeStamp import get_boxes, cut_timestamp
 
 
@@ -113,7 +114,6 @@ def start_test(
     count = 0
     prev_frames = []
     while sample.isOpened():
-        # plt.clf()
         ret, frame = sample.read()
         if frame is not None:
             # print(next_move)
@@ -173,6 +173,8 @@ def start_test(
             x2 = int(0.7 * w)
             y = int(0.5 * h)
             # endregion
+
+            flicker_points = valid_shape(frame)
 
             # region get Histogram
             img_mask = np.zeros((h, w), np.uint8)
@@ -236,7 +238,7 @@ def start_test(
                 del record[0]
             position = p
 
-            if position in [0, 1, 2, 3, 4, 5]:
+            if position in [0, 1, 2, 3, 4, 5] and not flicker_points:
                 if next_move == 0 or file_count == 0:
                     next_move = 101
                 else:
@@ -253,31 +255,33 @@ def start_test(
                 video_writer.write(prev_frames[0])
 
             # region write Rectangles
-            if position == 0:
-                # src_frame = cv2.rectangle(src_frame, (0, 0), (x1, y), (255, 0, 0), 5, cv2.LINE_AA)
-                frame = cv2.rectangle(frame, (0, 0), (x1, y), (255, 255, 255), 5, cv2.LINE_AA)
-            elif position == 1:
-                # src_frame = cv2.rectangle(src_frame, (x1, 0), (x2, y), (255, 0, 0), 5, cv2.LINE_AA)
-                frame = cv2.rectangle(frame, (x1, 0), (x2, y), (255, 255, 255), 5, cv2.LINE_AA)
-            elif position == 2:
-                # src_frame = cv2.rectangle(src_frame, (x2, 0), (w, y), (255, 0, 0), 5, cv2.LINE_AA)
-                frame = cv2.rectangle(frame, (x2, 0), (w, y), (255, 255, 255), 5, cv2.LINE_AA)
-            elif position == 3:
-                # src_frame = cv2.rectangle(src_frame, (0, y), (x1, h), (255, 0, 0), 5, cv2.LINE_AA)
-                frame = cv2.rectangle(frame, (0, y), (x1, h), (255, 255, 255), 5, cv2.LINE_AA)
-            elif position == 4:
-                # src_frame = cv2.rectangle(src_frame, (x1, y), (x2, h), (255, 0, 0), 5, cv2.LINE_AA)
-                frame = cv2.rectangle(frame, (x1, y), (x2, h), (255, 255, 255), 5, cv2.LINE_AA)
-            elif position == 5:
-                # src_frame = cv2.rectangle(src_frame, (x2, y), (w, h), (255, 0, 0), 5, cv2.LINE_AA)
-                frame = cv2.rectangle(frame, (x2, y), (w, h), (255, 255, 255), 5, cv2.LINE_AA)
-            else:
-                pass
+            if not flicker_points:
+                if position == 0:
+                    # src_frame = cv2.rectangle(src_frame, (0, 0), (x1, y), (255, 0, 0), 5, cv2.LINE_AA)
+                    frame = cv2.rectangle(frame, (0, 0), (x1, y), (255, 255, 255), 5, cv2.LINE_AA)
+                elif position == 1:
+                    # src_frame = cv2.rectangle(src_frame, (x1, 0), (x2, y), (255, 0, 0), 5, cv2.LINE_AA)
+                    frame = cv2.rectangle(frame, (x1, 0), (x2, y), (255, 255, 255), 5, cv2.LINE_AA)
+                elif position == 2:
+                    # src_frame = cv2.rectangle(src_frame, (x2, 0), (w, y), (255, 0, 0), 5, cv2.LINE_AA)
+                    frame = cv2.rectangle(frame, (x2, 0), (w, y), (255, 255, 255), 5, cv2.LINE_AA)
+                elif position == 3:
+                    # src_frame = cv2.rectangle(src_frame, (0, y), (x1, h), (255, 0, 0), 5, cv2.LINE_AA)
+                    frame = cv2.rectangle(frame, (0, y), (x1, h), (255, 255, 255), 5, cv2.LINE_AA)
+                elif position == 4:
+                    # src_frame = cv2.rectangle(src_frame, (x1, y), (x2, h), (255, 0, 0), 5, cv2.LINE_AA)
+                    frame = cv2.rectangle(frame, (x1, y), (x2, h), (255, 255, 255), 5, cv2.LINE_AA)
+                elif position == 5:
+                    # src_frame = cv2.rectangle(src_frame, (x2, y), (w, h), (255, 0, 0), 5, cv2.LINE_AA)
+                    frame = cv2.rectangle(frame, (x2, y), (w, h), (255, 255, 255), 5, cv2.LINE_AA)
+                else:
+                    pass
             # endregion
             if show_diff:
                 cv2.imshow("diff", frame)
                 cv2.imshow("origin", cv2.resize(src_frame, (1024, 768)))
                 cv2.imshow("cut_ts", inspect_frame)
+                # cv2.waitKey()
         else:
             break
         first_frame = False
