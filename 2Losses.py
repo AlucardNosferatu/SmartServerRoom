@@ -1,3 +1,4 @@
+import os
 import random
 
 import numpy as np
@@ -99,6 +100,8 @@ def get_data_2_labels():
 
 def train_with_2_losses():
     m, bn, wd = get_model_2_outputs(extended_num_classes=4)
+    if os.path.exists(path='Models/Conv.h5'):
+        wd.load_weights(filepath='Models/Conv.h5')
     trp, tra_y, tep, tes_y = get_data_2_labels()
     cp_checkpoint = ModelCheckpoint(
         filepath='Models/Siamese.h5',
