@@ -5,5 +5,5 @@ number_of_tested_items = 25
 img_size = 224
 batch_size = 32
 limiter = 3000
-limiter_test = 2000
+limiter_test = 1000
 test_ratio = 0.25

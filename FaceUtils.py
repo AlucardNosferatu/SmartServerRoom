@@ -8,7 +8,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 
-from CelebA import get_celeb_a, num_classes_celeb_a
+from CelebA import get_celeb_a
 from Configs import batch_size, epochs, new_epochs, number_of_tested_items
 from Data import get_data, load_4_faces
 from Networks import get_model, compute_accuracy
@@ -234,8 +234,7 @@ def full_process(test_num_classes=None, use_celeb_a=False):
         global ep
         global new_ep
         new_ep = ep
-        tr, te = get_celeb_a()
-        test_num_classes = num_classes_celeb_a
+        tr, te, test_num_classes = get_celeb_a()
     else:
         tr, te = load_4_faces(extended_num_classes=test_num_classes)
     xtr, ytr = tr

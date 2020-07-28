@@ -33,7 +33,7 @@ def compute_accuracy(y_true, y_pred):
     return np.mean(pred == y_true)
 
 
-def acc_with_threshold(y_true, y_pred):
+def awt(y_true, y_pred):
     '''Compute classification accuracy with a fixed threshold on distances.
     '''
     return K.mean(K.equal(y_true, K.cast(y_pred < 0.5, y_true.dtype)))
@@ -41,7 +41,7 @@ def acc_with_threshold(y_true, y_pred):
 
 def create_base_net(input_shape, extended_num_classes=None):
     input_layer = Input(shape=input_shape)
-    x = Conv2D(16, (3, 3), activation='relu')(input_layer)
+    x = Conv2D(32, (3, 3), activation='relu')(input_layer)
     x = BatchNormalization()(x)
     x = AveragePooling2D(pool_size=(2, 2))(x)
     x = Dropout(0.25)(x)
@@ -53,7 +53,7 @@ def create_base_net(input_shape, extended_num_classes=None):
     x = BatchNormalization()(x)
     x = AveragePooling2D(pool_size=(2, 2))(x)
     x = Dropout(0.25)(x)
-    x = Conv2D(16, (3, 3), activation='relu')(x)
+    x = Conv2D(32, (3, 3), activation='relu')(x)
     x = BatchNormalization()(x)
     x = AveragePooling2D(pool_size=(2, 2))(x)
     x = Dropout(0.25)(x)
@@ -96,6 +96,6 @@ def get_model(input_shape, extended_num_classes=None):
 
     model = Model([input_a, input_b], distance)
     rms = RMSprop(lr=0.0001)
-    model.compile(loss=contrastive_loss, optimizer=rms, metrics=[acc_with_threshold])
+    model.compile(loss=contrastive_loss, optimizer=rms, metrics=[awt])
 
     return model, base_network, without_dense

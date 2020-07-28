@@ -9,9 +9,10 @@ from tensorflow.keras.layers import Lambda
 from tensorflow.keras.optimizers import RMSprop
 from tensorflow.keras.utils import to_categorical
 
+from CelebA import get_celeb_a
 from Configs import epochs, batch_size
 from Data import load_4_faces
-from Networks import create_base_net, euclid_dis, eucl_dist_output_shape, acc_with_threshold
+from Networks import create_base_net, euclid_dis, eucl_dist_output_shape, awt
 
 
 def two_losses(y_true, y_pred):
@@ -52,11 +53,11 @@ def get_model_2_outputs(input_shape=(224, 224, 3), extended_num_classes=None):
     )
 
     model = Model([input_a, input_b], [distance, processed_a, processed_b])
-    rms = RMSprop(lr=0.0001)
+    rms = RMSprop(lr=0.001)
     model.output_names[0] = 'AB'
     model.output_names[1] = 'PA'
     model.output_names[2] = 'PB'
-    model.compile(loss=two_losses, optimizer=rms, metrics={'AB': acc_with_threshold, 'PA': 'acc', 'PB': 'acc'})
+    model.compile(loss=two_losses, optimizer=rms, metrics={'AB': awt, 'PA': 'acc', 'PB': 'acc'})
 
     return model, base_network, without_dense
 
@@ -85,31 +86,33 @@ def create_pairs_with_labels(x, y_one_hot, digit_indices, extended_num_classes=N
 
 
 def get_data_2_labels():
-    tr, te = load_4_faces(extended_num_classes=4)
+    test_num_classes = 4
+    tr, te = load_4_faces(extended_num_classes=test_num_classes)
+    # tr, te, test_num_classes = get_celeb_a()
     xtr, ytr = tr
     xte, yte = te
-    y_train_one_hot = to_categorical(ytr, num_classes=4)
-    y_test_one_hot = to_categorical(yte, num_classes=4)
+    y_train_one_hot = to_categorical(ytr, num_classes=test_num_classes)
+    y_test_one_hot = to_categorical(yte, num_classes=test_num_classes)
 
-    digit_indices = [np.where(ytr == i)[0] for i in range(4)]
-    tr_pairs, tr_y = create_pairs_with_labels(xtr, y_train_one_hot, digit_indices, 4)
-    digit_indices = [np.where(yte == i)[0] for i in range(4)]
-    te_pairs, te_y = create_pairs_with_labels(xte, y_test_one_hot, digit_indices, 4)
-    return tr_pairs, tr_y, te_pairs, te_y
+    digit_indices = [np.where(ytr == i)[0] for i in range(test_num_classes)]
+    tr_pairs, tr_y = create_pairs_with_labels(xtr, y_train_one_hot, digit_indices, test_num_classes)
+    digit_indices = [np.where(yte == i)[0] for i in range(test_num_classes)]
+    te_pairs, te_y = create_pairs_with_labels(xte, y_test_one_hot, digit_indices, test_num_classes)
+    return tr_pairs, tr_y, te_pairs, te_y, test_num_classes
 
 
 def train_with_2_losses():
-    m, bn, wd = get_model_2_outputs(extended_num_classes=4)
+    trp, tra_y, tep, tes_y, num_classes = get_data_2_labels()
+    m, bn, wd = get_model_2_outputs(extended_num_classes=num_classes)
     if os.path.exists(path='Models/Conv.h5'):
         wd.load_weights(filepath='Models/Conv.h5')
-    trp, tra_y, tep, tes_y = get_data_2_labels()
     cp_checkpoint = ModelCheckpoint(
         filepath='Models/Siamese.h5',
         monitor='val_loss',
         verbose=1,
         save_best_only=True,
         save_freq='epoch',
-        save_weights_only=True
+        save_weights_only=True,
     )
     es_checkpoint = EarlyStopping(
         monitor='val_loss',

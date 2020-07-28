@@ -102,7 +102,7 @@ def get_celeb_a():
         bound = limiter_test
         x_test = x_test[:bound]
         y_test = y_test[:bound]
-    return [x_train, y_train], [x_test, y_test]
+    return [x_train, y_train], [x_test, y_test], num_classes_celeb_a
 
 
 if __name__ == '__main__':
