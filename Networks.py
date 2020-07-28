@@ -33,7 +33,7 @@ def compute_accuracy(y_true, y_pred):
     return np.mean(pred == y_true)
 
 
-def accuracy(y_true, y_pred):
+def acc_with_threshold(y_true, y_pred):
     '''Compute classification accuracy with a fixed threshold on distances.
     '''
     return K.mean(K.equal(y_true, K.cast(y_pred < 0.5, y_true.dtype)))
@@ -96,6 +96,6 @@ def get_model(input_shape, extended_num_classes=None):
 
     model = Model([input_a, input_b], distance)
     rms = RMSprop(lr=0.0001)
-    model.compile(loss=contrastive_loss, optimizer=rms, metrics=[accuracy])
+    model.compile(loss=contrastive_loss, optimizer=rms, metrics=[acc_with_threshold])
 
     return model, base_network, without_dense

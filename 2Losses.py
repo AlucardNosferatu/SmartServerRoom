@@ -11,7 +11,7 @@ from tensorflow.keras.utils import to_categorical
 
 from Configs import epochs, batch_size
 from Data import load_4_faces
-from Networks import create_base_net, euclid_dis, eucl_dist_output_shape
+from Networks import create_base_net, euclid_dis, eucl_dist_output_shape, acc_with_threshold
 
 
 def two_losses(y_true, y_pred):
@@ -56,7 +56,7 @@ def get_model_2_outputs(input_shape=(224, 224, 3), extended_num_classes=None):
     model.output_names[0] = 'AB'
     model.output_names[1] = 'PA'
     model.output_names[2] = 'PB'
-    model.compile(loss=two_losses, optimizer=rms, metrics=['acc'])
+    model.compile(loss=two_losses, optimizer=rms, metrics={'AB': acc_with_threshold, 'PA': 'acc', 'PB': 'acc'})
 
     return model, base_network, without_dense
 
