@@ -6,9 +6,11 @@ from sklearn.model_selection import train_test_split
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tqdm import tqdm
 
-from Configs import test_ratio, limiter, limiter_test
+from Configs import test_ratio
 
-num_classes_celeb_a = 100
+num_classes_celeb_a = 200
+limiter_test = int(num_classes_celeb_a * 40 * test_ratio)
+limiter = num_classes_celeb_a - limiter_test
 
 
 def get_celeb_a():
@@ -17,14 +19,14 @@ def get_celeb_a():
     f = open(path, mode='r', encoding='utf-8')
     lines = f.readlines()
     id_dict = {}
-    for line in lines:
+    for line in tqdm(lines):
         temp = line.strip().split(' ')
         if int(temp[1]) > num_classes_celeb_a:
             continue
         id_dict[temp[1]] = id_dict.get(temp[1], []) + [temp[0]]
     img_list = []
     label_list = []
-    for key in id_dict:
+    for key in tqdm(id_dict):
         label = int(key) - 1
         file_list = id_dict[key]
         temp = file_list.copy()

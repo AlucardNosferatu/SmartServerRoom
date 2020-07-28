@@ -13,6 +13,9 @@ from Configs import batch_size, epochs, new_epochs, number_of_tested_items
 from Data import get_data, load_4_faces
 from Networks import get_model, compute_accuracy
 
+ep = epochs
+new_ep = new_epochs
+
 
 def train(x_train, y_train, x_test, y_test):
     input_shape, tr_pairs, tr_y, te_pairs, te_y, _, _, _, _ = get_data(
@@ -55,7 +58,7 @@ def train(x_train, y_train, x_test, y_test):
             [tr_pairs[:, 0], tr_pairs[:, 1]],
             tr_y,
             batch_size=batch_size,
-            epochs=epochs,
+            epochs=ep,
             validation_data=([te_pairs[:, 0], te_pairs[:, 1]], te_y),
             validation_steps=2,
             callbacks=[
@@ -114,7 +117,7 @@ def train_classification(x_train, y_train, x_test, y_test):
             x_train,
             y_train_one_hot,
             batch_size=batch_size,
-            epochs=epochs,
+            epochs=ep,
             validation_data=(x_test, y_test_one_hot),
             validation_steps=2,
             callbacks=[
@@ -146,7 +149,7 @@ def train_increment(x_train, y_train, x_test, y_test, extended_num_classes):
     es_checkpoint = EarlyStopping(
         monitor='val_loss',
         min_delta=0,
-        patience=5,
+        patience=10,
         verbose=1,
         mode='auto'
     )
@@ -154,7 +157,7 @@ def train_increment(x_train, y_train, x_test, y_test, extended_num_classes):
         [tr_pairs[:, 0], tr_pairs[:, 1]],
         tr_y,
         batch_size=batch_size,
-        epochs=new_epochs,
+        epochs=new_ep,
         validation_data=([te_pairs[:, 0], te_pairs[:, 1]], te_y),
         validation_steps=2,
         callbacks=[es_checkpoint]
@@ -163,7 +166,7 @@ def train_increment(x_train, y_train, x_test, y_test, extended_num_classes):
         x_train,
         y_train_one_hot,
         batch_size=batch_size,
-        epochs=new_epochs,
+        epochs=new_ep,
         validation_data=(x_test, y_test_one_hot),
         validation_steps=2,
         callbacks=[es_checkpoint]
@@ -228,6 +231,9 @@ def test(x_train, y_train, x_test, y_test, extended_num_classes=None):
 
 def full_process(test_num_classes=None, use_celeb_a=False):
     if use_celeb_a:
+        global ep
+        global new_ep
+        new_ep = ep
         tr, te = get_celeb_a()
         test_num_classes = num_classes_celeb_a
     else:
@@ -240,7 +246,8 @@ def full_process(test_num_classes=None, use_celeb_a=False):
         train_classification(xtr, ytr, xte, yte)
         print('Softmax training completed.')
     elif type(test_num_classes) is int:
-        train_increment(xtr, ytr, xte, yte, test_num_classes)
+        pass
+        # train_increment(xtr, ytr, xte, yte, test_num_classes)
     test(xtr, ytr, xte, yte, test_num_classes)
 
 
