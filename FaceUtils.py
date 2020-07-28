@@ -8,6 +8,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 
+from CelebA import get_celeb_a, num_classes_celeb_a
 from Configs import batch_size, epochs, new_epochs, number_of_tested_items
 from Data import get_data, load_4_faces
 from Networks import get_model, compute_accuracy
@@ -23,6 +24,8 @@ def train(x_train, y_train, x_test, y_test):
     model, base_network, without_dense = get_model(input_shape)
     print('Model loaded.')
     assert model.input_shape[0][1:] == input_shape
+    if os.path.exists(path='Models/Conv.h5'):
+        without_dense.load_weights(filepath='Models/Conv.h5')
     cp_checkpoint = ModelCheckpoint(
         filepath='Models/Siamese.h5',
         monitor='val_loss',
@@ -223,8 +226,12 @@ def test(x_train, y_train, x_test, y_test, extended_num_classes=None):
     plt.show()
 
 
-def full_process(test_num_classes=None):
-    tr, te = load_4_faces(extended_num_classes=test_num_classes)
+def full_process(test_num_classes=None, use_celeb_a=False):
+    if use_celeb_a:
+        tr, te = get_celeb_a()
+        test_num_classes = num_classes_celeb_a
+    else:
+        tr, te = load_4_faces(extended_num_classes=test_num_classes)
     xtr, ytr = tr
     xte, yte = te
     if test_num_classes is None:
@@ -238,6 +245,7 @@ def full_process(test_num_classes=None):
 
 
 if __name__ == '__main__':
-    full_process()
-    full_process(test_num_classes=3)
+    # full_process()
+    # full_process(test_num_classes=3)
     full_process(test_num_classes=4)
+    # full_process(use_celeb_a=True)

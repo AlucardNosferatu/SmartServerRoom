@@ -7,10 +7,16 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import to_categorical
 from tqdm import tqdm
 
-from Configs import img_size, test_ratio, num_classes, limiter
+from Configs import img_size, test_ratio, num_classes, limiter_test
 
 
 def create_pairs(x, digit_indices, extended_num_classes=None):
+    for i in range(len(digit_indices)):
+        di = digit_indices[i].tolist()
+        temp = di.copy()
+        while len(di) < 10:
+            di.append(random.choice(temp))
+        digit_indices[i] = np.array(di)
     if extended_num_classes is None:
         extended_num_classes = num_classes
     pairs = []
@@ -96,7 +102,7 @@ def load_4_faces(extended_num_classes=None):
     train_iter = train_gen.flow(x_train, y_train, batch_size=1)
     x_train_aug = []
     y_train_aug = []
-    for i in tqdm(range(limiter)):
+    for i in tqdm(range(limiter_test)):
         x_batch, y_batch = train_iter.next()
         x_train_aug.append(np.squeeze(x_batch))
         y_train_aug.append(np.squeeze(y_batch))

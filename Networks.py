@@ -40,10 +40,13 @@ def accuracy(y_true, y_pred):
 
 def create_base_net(input_shape, extended_num_classes=None):
     input_layer = Input(shape=input_shape)
-    x = Conv2D(8, (3, 3), activation='tanh')(input_layer)
+    x = Conv2D(16, (3, 3), activation='tanh')(input_layer)
     x = AveragePooling2D(pool_size=(2, 2))(x)
     x = Dropout(0.25)(x)
-    x = Conv2D(8, (3, 3), activation='tanh')(x)
+    x = Conv2D(32, (3, 3), activation='tanh')(x)
+    x = AveragePooling2D(pool_size=(2, 2))(x)
+    x = Dropout(0.25)(x)
+    x = Conv2D(16, (3, 3), activation='tanh')(x)
     x = AveragePooling2D(pool_size=(2, 2))(x)
     x = Dropout(0.25)(x)
     x = Flatten()(x)
