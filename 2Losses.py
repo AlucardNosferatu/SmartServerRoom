@@ -1,12 +1,11 @@
 import random
 
 import numpy as np
-import tensorflow as tf
 import tensorflow.keras.backend as K
 from tensorflow.keras import Input, Model
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.layers import Lambda
 from tensorflow.keras.optimizers import RMSprop
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.utils import to_categorical
 
 from Configs import epochs, batch_size
@@ -27,6 +26,8 @@ def two_losses(y_true, y_pred):
     square_pred = K.square(y_p)
     margin_square = K.square(K.maximum(margin - y_p, 0))
     contrastive = K.mean(y_t * square_pred + (1 - y_t) * margin_square)
+    # yt=0 不同 margin_square尽可能小 y_p尽可能接近或大于1（越大越好）
+    # yt=1 相同 square_pred尽可能小 y_p尽可能小或接近0
     return contrastive + a_class_loss + b_class_loss
 
 
