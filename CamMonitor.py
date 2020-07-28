@@ -324,8 +324,8 @@ def process_dir(
             file_path = os.path.join(dir_path, i)
             print('file_path is:', file_path)
             src_id = start_test(
-                show_diff=True,
-                # show_diff=False,
+                # show_diff=True,
+                show_diff=False,
                 file_path=file_path,
                 output_path=output_path,
                 file_name=i,
@@ -365,5 +365,5 @@ def specify_index(indices, i):
 
 
 if __name__ == '__main__':
-    # start_server()
-    process_dir(_=None, request_id='1')
+    start_server()
+    # process_dir(_=None, request_id='1')
