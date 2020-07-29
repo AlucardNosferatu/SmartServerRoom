@@ -4,7 +4,7 @@ import os
 import sys
 import numpy as np
 from random import shuffle
-from HistUtil import calc_and_draw_hist
+from Obsolete.HistUtil import calc_and_draw_hist
 from sklearn.metrics.pairwise import cosine_similarity
 
 
@@ -69,7 +69,7 @@ def cal_cos_similarity(temp_hist, hist_array):
 
 
 def test_loop():
-    path = "Samples"
+    path = "../Samples"
     temp_hist = None
     file_list = os.listdir(path)
     shuffle(file_list)

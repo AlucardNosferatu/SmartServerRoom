@@ -1,7 +1,7 @@
 import os
 import cv2
 import numpy as np
-from HistUtil import calc_and_draw_hist
+from Obsolete.HistUtil import calc_and_draw_hist
 
 
 def get_clarity():
@@ -24,7 +24,7 @@ def get_clarity():
 
 
 def blurify():
-    path = "Samples"
+    path = "../Samples"
     for e, i in enumerate(os.listdir(path)):
         for size in [5, 11, 21]:
             if i.endswith(".jpg"):
