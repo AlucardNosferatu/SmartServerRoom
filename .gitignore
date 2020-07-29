@@ -7,3 +7,5 @@
 *.h5
 TensorBoard/train/
 TensorBoard/validation/
+__pycache__/
+*.dat
