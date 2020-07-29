@@ -26,7 +26,7 @@ def read_data(path):
         return pic_name_list, pic_list
 
 
-if __name__ == '__main__':
+def init_detectors():
     # 人脸检测器
     detector = dlib.get_frontal_face_detector()
 
@@ -35,7 +35,11 @@ if __name__ == '__main__':
 
     # 人脸参数模型
     feature_model = dlib.face_recognition_model_v1(face_rc_model_path)
+    return detector, feature_point, feature_model
 
+
+def get_recorded_features():
+    detector, feature_point, feature_model = init_detectors()
     # 候选人特征向量列表
     descriptors = []
     name_list, img_list = read_data(face_folder_path)
@@ -59,27 +63,77 @@ if __name__ == '__main__':
 
             v = numpy.array(face_feature)
             descriptors.append(v)
+    return descriptors, name_list
+
+
+def test_single_image():
+    detector, feature_point, feature_model = init_detectors
+    descriptors, name_list = get_recorded_features
     '''
     对单张人脸进行识别
     '''
     test_img = cv2.imread(test_img_path)
     dets = detector(test_img, 1)
+    test_feature = None
     for k, d in enumerate(dets):
         shape = feature_point(test_img, d)
         test_feature = feature_model.compute_face_descriptor(test_img, shape)
         test_feature = numpy.array(test_feature)
 
-    dist = []
-    count = 0
-    for i in descriptors:
-        dist_ = numpy.linalg.norm(i - test_feature)
-        print('%s : %f' % (name_list[count], dist_))
-        dist.append(dist_)
-        count += 1
+        dist = []
+        count = 0
+        for i in descriptors:
+            dist_ = numpy.linalg.norm(i - test_feature)
+            print('%s : %f' % (name_list[count], dist_))
+            dist.append(dist_)
+            count += 1
 
-    # 返回距离最小的下标
-    min_dist = numpy.argmin(dist)
+        # 返回距离最小的下标
+        min_dist = numpy.argmin(dist)
 
-    # 截取姓名字符串，去掉末尾的.jpg
-    result = name_list[min_dist][:-4]
-    print(result)
+        # 截取姓名字符串，去掉末尾的.jpg
+        result = name_list[min_dist][:-4]
+        print(result)
+
+
+def test_cam():
+    detector, feature_point, feature_model = init_detectors()
+    descriptors, name_list = get_recorded_features()
+    '''
+    对单张人脸进行识别
+    '''
+    sample = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
+    while sample.isOpened():
+        ret, test_img = sample.read()
+        if test_img is not None:
+            dets = detector(test_img, 1)
+            test_feature = None
+            for k, d in enumerate(dets):
+                shape = feature_point(test_img, d)
+                key_points = list(shape.parts())
+                test_img_copy = test_img.copy()
+                for point in key_points:
+                    test_img_copy = cv2.circle(test_img_copy, (point.x, point.y), 1, (255, 0, 0), 4)
+                cv2.imshow('detected face:', test_img_copy)
+                test_feature = feature_model.compute_face_descriptor(test_img, shape)
+                test_feature = numpy.array(test_feature)
+                dist = []
+                count = 0
+                for i in descriptors:
+                    dist_ = numpy.linalg.norm(i - test_feature)
+                    print('%s : %f' % (name_list[count], dist_))
+                    dist.append(dist_)
+                    count += 1
+                # 返回距离最小的下标
+                min_dist = numpy.argmin(dist)
+                # 截取姓名字符串，去掉末尾的.jpg
+                result = name_list[min_dist][:-4]
+                print(result)
+        k = cv2.waitKey(50)
+        if k & 0xff == ord('q'):
+            break
+    sample.release()
+    cv2.destroyAllWindows()
+
+if __name__ == '__main__':
+    test_cam()
