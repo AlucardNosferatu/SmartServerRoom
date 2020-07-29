@@ -7,4 +7,4 @@
 *.h5
 TensorBoard/train/
 TensorBoard/validation/
-Models/dlib_face_recognition_resnet_model_v1.dat
+*.dat
