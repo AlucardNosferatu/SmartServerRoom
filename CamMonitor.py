@@ -65,11 +65,11 @@ def trigger(h_list, o_list, f_list, threshold, use_diff):
 
 def start_test(
         src_id,
+        # skip_frame=7,
         show_diff=False,
         file_path="Samples\\Sample.mp4",
         output_path="Outputs",
-        file_name="Sample.mp4",
-        skip_frame=5
+        file_name="Sample.mp4"
 ):
     file_name = file_name.split(".")[0]
     print(file_path)
@@ -103,6 +103,8 @@ def start_test(
 
     # region Initialize VideoWriter
     fps = sample.get(cv2.CAP_PROP_FPS)
+    br = sample.get(cv2.CAP_PROP_BITRATE)
+    skip_frame = int(2.5 * int(br / 1000))
     if fps == 0 or fps == inf:
         fps = 15
     size = (
@@ -365,5 +367,5 @@ def specify_index(indices, i):
 
 
 if __name__ == '__main__':
-    start_server()
-    # process_dir(_=None, request_id='1')
+    # start_server()
+    process_dir(_=None, request_id='1')
