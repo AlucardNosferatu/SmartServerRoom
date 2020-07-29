@@ -7,3 +7,4 @@
 *.h5
 TensorBoard/train/
 TensorBoard/validation/
+*.dat
