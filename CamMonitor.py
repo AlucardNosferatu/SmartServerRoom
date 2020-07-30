@@ -93,7 +93,7 @@ def start_test(
     # sample = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
     sample = cv2.VideoCapture(file_path)
     # sample = cv2.VideoCapture(url)
-    record = []
+    # record = []
     th = 1000
     use_diff = True
     file_count = 0
@@ -106,6 +106,7 @@ def start_test(
     fps = sample.get(cv2.CAP_PROP_FPS)
     br = sample.get(cv2.CAP_PROP_BITRATE)
     skip_frame = int(5 * int(br / 1000)) - 5
+    # skip_frame = 5
     print("Skipped: ", skip_frame)
     if fps == 0 or fps == inf:
         fps = 15
@@ -117,12 +118,27 @@ def start_test(
     # endregion
     count = 0
     prev_frames = []
+    base_time = datetime.datetime.now()
+    fr = base_time
+    pvb = base_time
+    ct = base_time
+    diff_t = base_time
+    flicker = base_time
+    histo_t = base_time
+    trigger_t = base_time
+    record_t = base_time
+    mm_t = base_time
     while sample.isOpened():
+        now = datetime.datetime.now()
         ret, frame = sample.read()
+        then = datetime.datetime.now()
+        print('frame read: ', str(then - now))
+        fr += (then - now)
+        now = then
+
         if frame is not None:
             # print(next_move)
             if next_move == 201:
-                print("Start")
                 try:
                     video_writer = cv2.VideoWriter(
                         output_path + "/" + file_name + "_" + str(file_count) + '.mp4',
@@ -133,7 +149,9 @@ def start_test(
                 except Exception as e:
                     print(repr(e))
                 file_count += 1
-
+                then = datetime.datetime.now()
+                print("Start recording: ", str(then - now))
+                now = then
             # frame = enhance(frame)
 
             # region get Differential Frame
@@ -141,6 +159,10 @@ def start_test(
             prev_frames.append(src_frame)
             if len(prev_frames) > 20:
                 prev_frames.pop(0)
+            then = datetime.datetime.now()
+            print('Push video buffer: ', str(then - now))
+            pvb += (then - now)
+            now = then
             if count % (skip_frame + 1) != 0:
                 count += 1
                 next_move -= 1
@@ -151,11 +173,26 @@ def start_test(
                 if next_move > 0 and video_writer.isOpened():
                     # print("Recording")
                     video_writer.write(prev_frames[0])
+                then = datetime.datetime.now()
+                print('Record during skipped frame: ', str(then - now))
+                record_t += (then - now)
+                now = then
                 continue
+
             frame = cv2.resize(frame, (1024, 768))
             if first_frame:
                 cut_box = get_boxes(frame)
+                then = datetime.datetime.now()
+                print('Get timestamp from first frame: ', str(then - now))
+                ct += (then - now)
+                now = then
+
             frame = cut_timestamp(cut_box=cut_box, vis=frame)
+            then = datetime.datetime.now()
+            print('Cut timestamp: ', str(then - now))
+            ct += (then - now)
+            now = then
+
             inspect_frame = frame.copy()
             frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
             if old_frame is not None and use_diff:
@@ -169,6 +206,10 @@ def start_test(
                 diff = np.abs(diff).astype(np.uint8)
                 frame = diff
             # endregion
+            then = datetime.datetime.now()
+            print('Get diff of frames: ', str(then - now))
+            diff_t += (then - now)
+            now = then
 
             # region get Sizes
             h = frame.shape[0]
@@ -179,6 +220,10 @@ def start_test(
             # endregion
 
             flicker_points = valid_shape(frame)
+            then = datetime.datetime.now()
+            print('Detect flicker: ', str(then - now))
+            flicker += (then - now)
+            now = then
             # if flicker_points:
             #     print("FP")
 
@@ -212,8 +257,11 @@ def start_test(
             img_mask[y:h, x2:w] = 255
             hist_img6, hist6 = calc_and_draw_hist(frame, (0, 0, 255), img_mask)
             # cv2.imshow("hist3", hist_img3)
-
             # endregion
+            then = datetime.datetime.now()
+            print("get histo: ", str(then - now))
+            histo_t += (then - now)
+            now = then
 
             count += 1
             first_hist = first1 is None
@@ -236,13 +284,16 @@ def start_test(
             first_list = [first1, first2, first3, first4, first5, first6]
             p, old, sig = trigger(hist_list, old_list, first_list, th, use_diff)
             old1, old2, old3, old4, old5, old6 = old
-
-            if sig > 2 * th:
-                sig = 2 * th
-            record.append(sig)
-            if len(record) > 200:
-                del record[0]
             position = p
+            then = datetime.datetime.now()
+            print('Get trigger: ', str(then - now))
+            trigger_t += (then - now)
+            now = then
+            # if sig > 2 * th:
+            #     sig = 2 * th
+            # record.append(sig)
+            # if len(record) > 200:
+            #     del record[0]
 
             if position in [0, 1, 2, 3, 4, 5] and not flicker_points:
                 if next_move == 0 or file_count == 0:
@@ -259,6 +310,10 @@ def start_test(
             if next_move > 0 and video_writer.isOpened():
                 # print("Recording")
                 video_writer.write(prev_frames[0])
+                then = datetime.datetime.now()
+                print('Recording: ', str(then - now))
+                record_t += (then - now)
+                now = then
 
             # region write Rectangles
             if not flicker_points:
@@ -282,11 +337,15 @@ def start_test(
                     frame = cv2.rectangle(frame, (x2, y), (w, h), (255, 255, 255), 5, cv2.LINE_AA)
                 else:
                     pass
+                then = datetime.datetime.now()
+                print("Mark motion: ", str(then - now))
+                mm_t += (then - now)
+                now = then
             # endregion
             if show_diff:
                 cv2.imshow("diff", frame)
-                # cv2.imshow("origin", cv2.resize(src_frame, (1024, 768)))
-                cv2.imshow("cut_ts", inspect_frame)
+                cv2.imshow("origin", cv2.resize(src_frame, (1024, 768)))
+                # cv2.imshow("cut_ts", inspect_frame)
                 # cv2.waitKey()
         else:
             break
@@ -302,7 +361,24 @@ def start_test(
         if k & 0xff == ord('w'):
             break
         # endregion
-
+    fr -= base_time
+    pvb -= base_time
+    ct -= base_time
+    diff_t -= base_time
+    flicker -= base_time
+    histo_t -= base_time
+    trigger_t -= base_time
+    record_t -= base_time
+    mm_t -= base_time
+    print('total_fr: ', str(fr))
+    print('total_pvb: ', str(pvb))
+    print('total_ct: ', str(ct))
+    print('total_diff: ', str(diff_t))
+    print('total_flicker: ', str(flicker))
+    print('total_histo: ', str(histo_t))
+    print('total_trigger: ', str(trigger_t))
+    print('total_record: ', str(record_t))
+    print('total_motion:', str(mm_t))
     sample.release()
     if video_writer.isOpened:
         video_writer.release()
