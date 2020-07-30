@@ -57,8 +57,11 @@ def naive_matcher():
     # img = cv2.imread('Samples\\LMS\\6.PNG', 0)
     template = cv2.imread('..\\Samples\\temp2.jpg', 1)
     path = "..\\Samples\\LMS"
-    orb = cv2.ORB_create(nfeatures=20)
-    # surf = cv2.xfeatures2d.SURF_create()
+    # orb = cv2.ORB_create(nfeatures=20)
+    sift = cv2.xfeatures2d.SIFT_create(nfeatures=20)
+    FLANN_INDEX_KDTREE = 0
+    indexParams = dict(algorithm=FLANN_INDEX_KDTREE, trees=5)
+    searchParams = dict(checks=50)
     for e, file_name in enumerate(os.listdir(path)):
         if file_name.endswith(".PNG"):
             img = cv2.imread(os.path.join(path, file_name))
@@ -67,23 +70,38 @@ def naive_matcher():
                 rot = rotate_bound(template, i)
                 rot = change_size(rot)
                 cv2.imshow("rot", rot)
-                kp1, des1 = orb.detectAndCompute(rot, None)
-                kp2, des2 = orb.detectAndCompute(img, None)
-                # kp1, des1 = surf.detectAndCompute(rot, None)
-                # kp2, des2 = surf.detectAndCompute(img, None)
-                bf = cv2.BFMatcher(normType=cv2.NORM_L2, crossCheck=True)
-                matches = bf.match(des1, des2)
-                matches = sorted(matches, key=lambda x: x.distance)
-                # print(len(matches))
-                img2 = cv2.drawMatches(
-                    img1=rot,
-                    keypoints1=kp1,
-                    img2=img,
-                    keypoints2=kp2,
-                    matches1to2=matches,
-                    outImg=img,
-                    flags=2
+                # kp1, des1 = orb.detectAndCompute(rot, None)
+                # kp2, des2 = orb.detectAndCompute(img, None)
+                kp1, des1 = sift.detectAndCompute(rot, None)
+                kp2, des2 = sift.detectAndCompute(img, None)
+                # bf = cv2.BFMatcher(normType=cv2.NORM_L2, crossCheck=True)
+                flann = cv2.FlannBasedMatcher(indexParams, searchParams)
+
+                # matches = bf.match(des1, des2)
+                # matches = sorted(matches, key=lambda x: x.distance)
+                # img2 = cv2.drawMatches(
+                #     img1=rot,
+                #     keypoints1=kp1,
+                #     img2=img,
+                #     keypoints2=kp2,
+                #     matches1to2=matches,
+                #     outImg=img,
+                #     flags=2
+                # )
+
+                matches = flann.knnMatch(des1, des2, k=2)
+                matches_mask = [[0, 0] for i in range(len(matches))]
+                for i, (m, n) in enumerate(matches):
+                    if m.distance < 0.7 * n.distance:
+                        matches_mask[i] = [1, 0]
+                draw_params = dict(
+                    matchColor=(0, 255, 0),
+                    singlePointColor=(255, 0, 0),
+                    matchesMask=matches_mask,
+                    flags=0
                 )
+                img2 = cv2.drawMatchesKnn(rot, kp1, img, kp2, matches, None, **draw_params)
+
                 # region Match template
                 # h, w = rot.shape[:2]
                 # res = cv2.matchTemplate(img, rot, cv2.TM_SQDIFF_NORMED)
