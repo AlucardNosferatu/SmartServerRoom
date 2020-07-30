@@ -163,6 +163,7 @@ def start_test(
             print('Push video buffer: ', str(then - now))
             pvb += (then - now)
             now = then
+
             if count % (skip_frame + 1) != 0:
                 count += 1
                 next_move -= 1
