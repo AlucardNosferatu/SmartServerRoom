@@ -69,7 +69,8 @@ def start_test(
         show_diff=False,
         file_path="Samples\\Sample.mp4",
         output_path="Outputs",
-        file_name="Sample.mp4"
+        file_name="Sample.mp4",
+        skip_read=False
 ):
     start_time = datetime.datetime.now()
     file_name = file_name.split(".")[0]
@@ -120,6 +121,7 @@ def start_test(
     prev_frames = []
     base_time = datetime.datetime.now()
     fr = base_time
+    gr = base_time
     pvb = base_time
     ct = base_time
     diff_t = base_time
@@ -130,6 +132,15 @@ def start_test(
     mm_t = base_time
     while sample.isOpened():
         now = datetime.datetime.now()
+        if count % (skip_frame + 1) != 0 and skip_read:
+            count += 1
+            sample.grab()
+            then = datetime.datetime.now()
+            print('frame grab: ', str(then - now))
+            gr += (then - now)
+            now = then
+            continue
+
         ret, frame = sample.read()
         then = datetime.datetime.now()
         print('frame read: ', str(then - now))
@@ -363,6 +374,7 @@ def start_test(
             break
         # endregion
     fr -= base_time
+    gr -= base_time
     pvb -= base_time
     ct -= base_time
     diff_t -= base_time
@@ -372,6 +384,7 @@ def start_test(
     record_t -= base_time
     mm_t -= base_time
     print('total_fr: ', str(fr))
+    print('total_gr: ', str(gr))
     print('total_pvb: ', str(pvb))
     print('total_ct: ', str(ct))
     print('total_diff: ', str(diff_t))
