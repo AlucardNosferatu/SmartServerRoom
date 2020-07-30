@@ -57,31 +57,29 @@ def naive_matcher():
     # img = cv2.imread('Samples\\LMS\\6.PNG', 0)
     template = cv2.imread('..\\Samples\\temp2.jpg', 1)
     path = "..\\Samples\\LMS"
-    # orb = cv2.ORB_create()
-    surf = cv2.xfeatures2d.SURF_create()
+    orb = cv2.ORB_create(nfeatures=20)
+    # surf = cv2.xfeatures2d.SURF_create()
     for e, file_name in enumerate(os.listdir(path)):
         if file_name.endswith(".PNG"):
             img = cv2.imread(os.path.join(path, file_name))
-            rot = template
-            for i in range(360):
-                print(i)
+            for i in range(0, 360, 2):
+                # print(i)
                 rot = rotate_bound(template, i)
                 rot = change_size(rot)
                 cv2.imshow("rot", rot)
-                # kp1, des1 = orb.detectAndCompute(rot, None)
-                # kp2, des2 = orb.detectAndCompute(img, None)
-                kps1, des_s1 = surf.detectAndCompute(rot, None)
-                kps2, des_s2 = surf.detectAndCompute(img, None)
-                # bf = cv2.BFMatcher(normType=cv2.NORM_L2, crossCheck=True)
-                fm = cv2.FlannBasedMatcher()
-                matches = fm.match(des_s1, des_s2)
+                kp1, des1 = orb.detectAndCompute(rot, None)
+                kp2, des2 = orb.detectAndCompute(img, None)
+                # kp1, des1 = surf.detectAndCompute(rot, None)
+                # kp2, des2 = surf.detectAndCompute(img, None)
+                bf = cv2.BFMatcher(normType=cv2.NORM_L2, crossCheck=True)
+                matches = bf.match(des1, des2)
                 matches = sorted(matches, key=lambda x: x.distance)
                 # print(len(matches))
                 img2 = cv2.drawMatches(
                     img1=rot,
-                    keypoints1=kps1,
+                    keypoints1=kp1,
                     img2=img,
-                    keypoints2=kps2,
+                    keypoints2=kp2,
                     matches1to2=matches,
                     outImg=img,
                     flags=2
@@ -97,6 +95,7 @@ def naive_matcher():
                 # cv2.imshow("img", img_copy)
                 # endregion
                 cv2.imshow("res", img2)
+                cv2.waitKey()
                 cv2.waitKey(1)
 
 
