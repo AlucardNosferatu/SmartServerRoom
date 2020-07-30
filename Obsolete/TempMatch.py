@@ -1,8 +1,9 @@
 import os
+
 import cv2
 import numpy as np
 
-from Obsolete.QRCode import compute_1, compute_center, detect_contours, juge_angle, compute_2, detect, enhance
+from Obsolete.QRCode import compute_1, compute_center, detect_contours, juge_angle, compute_2, detect
 
 
 def change_size(image):
@@ -123,7 +124,7 @@ def naive_matcher():
     cv2.createTrackbar('highVal', 'colorTest', initial_col[5], 255, nothing)
 
     # img = cv2.imread('Samples\\LMS\\6.PNG', 0)
-    template = cv2.imread('..\\Samples\\temp2.jpg', 1)
+    template = cv2.imread('..\\Samples\\temp2.jpg', 0)
     template = cv2.resize(template, (int(template.shape[1] / 2), int(template.shape[0] / 2)))
     path = "..\\Samples\\LMS"
     # orb = cv2.ORB_create(nfeatures=20)
@@ -149,8 +150,8 @@ def naive_matcher():
                     img = cv2.fillPoly(img, [box], (255, 255, 255))
                 else:
                     flag = False
-            img = focus_on_label(img)
-            img = enhance(img)
+            # img = process_img(img)
+            # img = enhance(img)
             for i in range(0, 360, 2):
                 # print(i)
                 rot = rotate_bound(template, i)
