@@ -283,7 +283,7 @@ def start_test(
                 cv2.imshow("diff", frame)
                 cv2.imshow("origin", cv2.resize(src_frame, (1024, 768)))
                 cv2.imshow("cut_ts", inspect_frame)
-                # cv2.waitKey()
+                cv2.waitKey()
         else:
             break
         first_frame = False
@@ -367,5 +367,5 @@ def specify_index(indices, i):
 
 
 if __name__ == '__main__':
-    # start_server()
-    process_dir(_=None, request_id='1')
+    start_server()
+    # process_dir(_=None, request_id='1')

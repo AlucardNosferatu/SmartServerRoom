@@ -9,3 +9,4 @@ TensorBoard/train/
 TensorBoard/validation/
 *.dat
 __pycache__/
+valid_file.txt

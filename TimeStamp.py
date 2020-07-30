@@ -104,24 +104,24 @@ def get_boxes(vis):
         # distance = abs(y_list[i] - centers[labels[i]][0])
         distance = abs(y_list[i] - y_center_fm[labels[i]])
         if distance > distance_th:
-            vis = cv2.rectangle(
-                vis,
-                (x_list[i], y_list[i]),
-                (x_list[i] + w_list[i], y_list[i] + h_list[i]),
-                (255, 0, 0),
-                2
-            )
+            # vis = cv2.rectangle(
+            #     vis,
+            #     (x_list[i], y_list[i]),
+            #     (x_list[i] + w_list[i], y_list[i] + h_list[i]),
+            #     (255, 0, 0),
+            #     2
+            # )
             pass
         else:
             rest_y[labels[i]].append(y_list[i])
             rest_x[labels[i]].append(x_list[i])
-            vis = cv2.rectangle(
-                vis,
-                (x_list[i], y_list[i]),
-                (x_list[i] + w_list[i], y_list[i] + h_list[i]),
-                (0, 0, 255),
-                2
-            )
+            # vis = cv2.rectangle(
+            #     vis,
+            #     (x_list[i], y_list[i]),
+            #     (x_list[i] + w_list[i], y_list[i] + h_list[i]),
+            #     (0, 0, 255),
+            #     2
+            # )
     y1 = np.mean(np.array(rest_y[0]))
     x1_1 = np.min(np.array(rest_x[0]))
     x1_2 = np.max(np.array(rest_x[0]))
