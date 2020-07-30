@@ -3,7 +3,7 @@ from math import inf
 
 import cv2
 import numpy as np
-
+import datetime
 from HTTPInterface import post_result, MyRequestHandler, HTTPServer
 from MostDifferentFrame import snap_shot
 from ShapeFilter import valid_shape
@@ -71,6 +71,7 @@ def start_test(
         output_path="Outputs",
         file_name="Sample.mp4"
 ):
+    start_time = datetime.datetime.now()
     file_name = file_name.split(".")[0]
     print(file_path)
     print(output_path)
@@ -93,10 +94,10 @@ def start_test(
     sample = cv2.VideoCapture(file_path)
     # sample = cv2.VideoCapture(url)
     record = []
-    th = 1e3
+    th = 1000
     use_diff = True
     file_count = 0
-    next_move = 100
+    next_move = 200
     first_frame = True
     cut_box = [[57, 25, 500]]
     # endregion
@@ -104,7 +105,8 @@ def start_test(
     # region Initialize VideoWriter
     fps = sample.get(cv2.CAP_PROP_FPS)
     br = sample.get(cv2.CAP_PROP_BITRATE)
-    skip_frame = int(2.5 * int(br / 1000))
+    skip_frame = int(5 * int(br / 1000)) - 5
+    print("Skipped: ", skip_frame)
     if fps == 0 or fps == inf:
         fps = 15
     size = (
@@ -119,7 +121,7 @@ def start_test(
         ret, frame = sample.read()
         if frame is not None:
             # print(next_move)
-            if next_move == 101:
+            if next_move == 201:
                 print("Start")
                 try:
                     video_writer = cv2.VideoWriter(
@@ -177,6 +179,8 @@ def start_test(
             # endregion
 
             flicker_points = valid_shape(frame)
+            # if flicker_points:
+            #     print("FP")
 
             # region get Histogram
             img_mask = np.zeros((h, w), np.uint8)
@@ -242,9 +246,9 @@ def start_test(
 
             if position in [0, 1, 2, 3, 4, 5] and not flicker_points:
                 if next_move == 0 or file_count == 0:
-                    next_move = 101
+                    next_move = 201
                 else:
-                    next_move = 100
+                    next_move = 200
             else:
                 next_move -= 1
                 if next_move < 0:
@@ -281,9 +285,9 @@ def start_test(
             # endregion
             if show_diff:
                 cv2.imshow("diff", frame)
-                cv2.imshow("origin", cv2.resize(src_frame, (1024, 768)))
+                # cv2.imshow("origin", cv2.resize(src_frame, (1024, 768)))
                 cv2.imshow("cut_ts", inspect_frame)
-                cv2.waitKey()
+                # cv2.waitKey()
         else:
             break
         first_frame = False
@@ -303,6 +307,9 @@ def start_test(
     if video_writer.isOpened:
         video_writer.release()
     cv2.destroyAllWindows()
+    end_time = datetime.datetime.now()
+    duration = end_time - start_time
+    print('Duration: ', str(duration))
     return src_id
 
 
@@ -313,7 +320,7 @@ def process_dir(
         output_path="C:\\Users\\16413\\Desktop\\FFCS\\SVN\\CV_Toolbox\\SmartServerRoom\\Outputs"
 ):
     indices = range(245, 289)
-    print("before start_test: ", request_id)
+    # print("before start_test: ", request_id)
     if type(dir_path) == list:
         dir_path = dir_path[0]
     if type(output_path) == list:
@@ -342,7 +349,7 @@ def process_dir(
             dst_num += 1
             # print(os.listdir(output_path))
     assert src_id == request_id
-    print("after start_test: ", request_id)
+    # print("after start_test: ", request_id)
     post_result(request_id, src_num, dst_num)
 
 
@@ -367,5 +374,5 @@ def specify_index(indices, i):
 
 
 if __name__ == '__main__':
-    start_server()
-    # process_dir(_=None, request_id='1')
+    # start_server()
+    process_dir(_=None, request_id='1')
