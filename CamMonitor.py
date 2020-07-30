@@ -135,6 +135,11 @@ def start_test(
         if count % (skip_frame + 1) != 0 and skip_read:
             count += 1
             sample.grab()
+            next_move -= 1
+            if next_move < 0:
+                next_move = 0
+                if video_writer.isOpened():
+                    video_writer.release()
             then = datetime.datetime.now()
             print('frame grab: ', str(then - now))
             gr += (then - now)
