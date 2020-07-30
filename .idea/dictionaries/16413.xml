@@ -2,7 +2,9 @@
   <dictionary name="16413">
     <words>
       <w>blurify</w>
+      <w>imagenet</w>
       <w>sobel</w>
+      <w>softmax</w>
     </words>
   </dictionary>
 </component>
