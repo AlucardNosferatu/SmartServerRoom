@@ -4,8 +4,8 @@ import cv2
 import numpy as np
 import pytesseract
 
-a = 1.3
-b = 30
+a = 1.2
+b = 10
 kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
 
 
@@ -73,7 +73,7 @@ def detect(input_image):
     _, gray = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU + cv2.THRESH_BINARY_INV)
     cont, h = cv2.findContours(gray, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     cv2.drawContours(img, cont, -1, (0, 0, 255), 1)
-    cv2.imshow("cont", cv2.resize(img, (w2, h2)))
+    # cv2.imshow("cont", cv2.resize(img, (w2, h2)))
     # cv2.waitKey()
     return input_image, cont, h
 
@@ -207,7 +207,7 @@ def ocr(warped):
     # cv2.waitKey()
 
 
-def find(file, img, cont, hier, bf_matcher=None, temp=None, orb=None, root=0):
+def find(img, cont, hier):
     '''找到符合要求的轮廓'''
     rec = []
     if not hier.any():
@@ -237,15 +237,6 @@ def find(file, img, cont, hier, bf_matcher=None, temp=None, orb=None, root=0):
     cv2.imshow("warped", warped)
     # cv2.waitKey()
     ocr(warped)
-    # kp1, des1 = orb.detectAndCompute(temp, None)
-    # kp2, des2 = orb.detectAndCompute(warped, None)
-    # matches = bf_matcher.match(des1, des2)
-    # matches = sorted(matches, key=lambda x: x.distance)
-    # print(len(matches))
-    # img2 = cv2.drawMatches(img1=temp, keypoints1=kp1, img2=warped, keypoints2=kp2, matches1to2=matches, outImg=warped,
-    #                        flags=2)
-    # cv2.imshow("res", img2)
-    # cv2.waitKey()
     cv2.drawContours(result, [box], 0, (0, 0, 255), 2)
     cv2.drawContours(img, cont, rec[i][6], (255, 0, 0), 2)
     cv2.drawContours(img, cont, rec[j][6], (255, 0, 0), 2)
@@ -290,7 +281,6 @@ if __name__ == '__main__':
                 # temp=temp_hist,
                 # bf_matcher=bf,
                 # orb=orb,
-                file=file_name,
                 img=image,
                 cont=contours,
                 hier=np.squeeze(hierarchy),
