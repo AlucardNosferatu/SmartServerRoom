@@ -1,11 +1,11 @@
+import datetime
 import os
 from math import inf
 
 import cv2
 import numpy as np
-import datetime
 
-from CamM2 import start_test_lite, trigger
+from Analysis import trigger, start_test_lite
 from HTTPInterface import post_result, MyRequestHandler, HTTPServer
 from MostDifferentFrame import snap_shot
 from ShapeFilter import valid_shape
@@ -404,12 +404,18 @@ def process_dir(
             #     src_id=request_id
             # )
             start = datetime.datetime.now()
+            # src_id = start_test_lite(
+            #     src_id=request_id,
+            #     file_path=file_path,
+            #     output_path=output_path,
+            #     file_name=i,
+            #     skip_read=False
+            # )
             src_id = start_test_lite(
-                src_id=request_id,
+                src_id=src_id,
                 file_path=file_path,
                 output_path=output_path,
-                file_name=i,
-                skip_read=False
+                file_name=i
             )
             end = datetime.datetime.now()
             print(str(end - start))
