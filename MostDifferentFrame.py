@@ -1,9 +1,9 @@
+import datetime
 import os
-import time
 
-from avtk.backends.ffmpeg.shortcuts import convert_to_h264
 import cv2
 import numpy as np
+from avtk.backends.ffmpeg.shortcuts import convert_to_h264
 
 
 def snap_shot(calc_and_draw_hist, file_path="Outputs/010tMonitorCollect202007190100000150002fc14e_100_0.mp4"):
@@ -26,18 +26,35 @@ def snap_shot(calc_and_draw_hist, file_path="Outputs/010tMonitorCollect202007190
     if len(hists.shape) < 2:
         os.remove(file_path)
     else:
-        for i in range(hists.shape[0]):
+        base_time = datetime.datetime.now()
+        total_time = base_time
+        for i in range(hists.shape[0] - 1):
             this_time = hists[i, :]
-            for j in range(i + 1, hists.shape[0]):
-                that_time = hists[j, :]
-                ed = np.linalg.norm(this_time - that_time)
-                # print("ed is: ", ed)
-                if ed > max_ed:
-                    max_ed = ed
-                    max_i = i
-                    max_j = j
-        print(max_i)
-        print(max_j)
+            now = datetime.datetime.now()
+
+            ed_many = np.linalg.norm(this_time - hists[i + 1:, :], axis=-1)
+            ed = np.max(ed_many)
+            if ed > max_ed:
+                max_ed = ed
+                max_i = i
+                max_j = np.argmax(ed_many) + i + 1
+            then = datetime.datetime.now()
+
+            # for j in range(i + 1, hists.shape[0]):
+            #     that_time = hists[j, :]
+            #     ed = np.linalg.norm(this_time - that_time)
+            #     # print("ed is: ", ed)
+            #     if ed > max_ed:
+            #         max_ed = ed
+            #         max_i = i
+            #         max_j = j
+            # then = datetime.datetime.now()
+
+            total_time += (then - now)
+        total_time -= base_time
+        print('time used: ', str(total_time))
+        # print(max_i)
+        # print(max_j)
         sample = cv2.VideoCapture(file_path)
         sample.set(1, max_i)
         ret, frame_a = sample.read()
@@ -57,3 +74,21 @@ def snap_shot(calc_and_draw_hist, file_path="Outputs/010tMonitorCollect202007190
         # print("Src video removed.")
         os.rename(file_path + '.new', file_path)
         # print("New Video renamed.")
+
+
+def calc_and_draw_hist(image, color, mask=None):
+    hist = cv2.calcHist([image], [0], mask, [256], [0.0, 255.0])
+    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(hist)
+    hist_img = np.zeros([256, 256, 3], np.uint8)
+    hpt = int(0.9 * 256)
+    for h in range(256):
+        intensity = int(hist[h] * hpt / max_val)
+        cv2.line(hist_img, (h, 256), (h, 256 - intensity), color)
+    return hist_img, hist
+
+
+if __name__ == '__main__':
+    snap_shot(
+        calc_and_draw_hist=calc_and_draw_hist,
+        file_path='Outputs/010tMonitorCollect202007141118363150016f2102_110_1.mp4'
+    )
