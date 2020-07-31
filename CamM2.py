@@ -8,29 +8,21 @@ from ShapeFilter import valid_shape
 from TimeStamp import cut_timestamp, get_boxes
 
 
-def trigger(h_list, o_list, threshold):
-    signal = 0
-    if np.array(o_list).any():
-        s1_list = []
-        s2_list = []
-        for i in range(6):
-            std1 = np.sum(h_list[i][64:, 0])
-            std2 = np.sum(h_list[i][64:, 0])
-            s1_list.append(std1)
-            s2_list.append(std2)
-        s3_list = np.multiply(np.array(s1_list), np.array(s2_list)).tolist()
-        o_list = h_list
-        signal = max(s3_list)
-        # print(signal)
-        if signal < threshold:
-            pos = -1
-        else:
-            pos = s3_list.index(signal)
-    else:
-        o_list = h_list
+def trigger(h_list, threshold):
+    s1_list = []
+    s2_list = []
+    for i in range(6):
+        std1 = np.sum(h_list[i][64:, 0])
+        std2 = np.sum(h_list[i][64:, 0])
+        s1_list.append(std1)
+        s2_list.append(std2)
+    s3_list = np.multiply(np.array(s1_list), np.array(s2_list)).tolist()
+    signal = max(s3_list)
+    if signal < threshold:
         pos = -1
-
-    return pos, o_list, signal
+    else:
+        pos = s3_list.index(signal)
+    return pos, signal
 
 
 def get_diff(frame, old_frame):
@@ -48,11 +40,10 @@ def get_diff(frame, old_frame):
     return old_frame, frame
 
 
-def get_position(frame, old_list):
-    th = 1000
+def get_position(frame, sizes):
     # region get Sizes
-    h = frame.shape[0]
-    w = frame.shape[1]
+    th = 1000
+    w, h = sizes
     x1 = int(0.3 * w)
     x2 = int(0.7 * w)
     y = int(0.5 * h)
@@ -91,29 +82,20 @@ def get_position(frame, old_list):
     # endregion
 
     hist_list = [hist1, hist2, hist3, hist4, hist5, hist6]
-    p, old, sig = trigger(hist_list, old_list, th)
-
-    old1, old2, old3, old4, old5, old6 = old
-    position = p
-    return position, [old1, old2, old3, old4, old5, old6]
+    p, sig = trigger(hist_list, th)
+    return p
 
 
-def start_test_new(
-        file_path="Samples\\Sample.mp4",
-):
-    sample = cv2.VideoCapture(file_path)
-    old1 = None
-    old2 = None
-    old3 = None
-    old4 = None
-    old5 = None
-    old6 = None
-    old_frame = None
-    current_frame = 0
-    while sample.isOpened():
-        current_frame += 1
-
-    pass
+# def start_test_new(
+#         file_path="Samples\\Sample.mp4",
+# ):
+#     sample = cv2.VideoCapture(file_path)
+#     old_frame = None
+#     current_frame = 0
+#     while sample.isOpened():
+#         current_frame += 1
+#
+#     pass
 
 
 def start_test_lite(
@@ -127,12 +109,6 @@ def start_test_lite(
     file_name = file_name.split(".")[0]
 
     # region Initialize variables
-    old1 = None
-    old2 = None
-    old3 = None
-    old4 = None
-    old5 = None
-    old6 = None
     old_frame = None
     # url = "http://admin:admin@10.80.84.47:8081"
     # sample = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
@@ -157,6 +133,7 @@ def start_test_lite(
         int(sample.get(cv2.CAP_PROP_FRAME_WIDTH)),
         int(sample.get(cv2.CAP_PROP_FRAME_HEIGHT))
     )
+    new_size = (1024, 768)
     video_writer = cv2.VideoWriter()
     # endregion
 
@@ -229,21 +206,21 @@ def start_test_lite(
                     diff_time += (end - start)
                 continue
 
-            frame = cv2.resize(frame, (1024, 768))
+            frame = cv2.resize(frame, new_size)
             if first_frame:
                 cut_box = get_boxes(frame)
 
             frame = cut_timestamp(cut_box=cut_box, vis=frame)
 
             old_frame, frame = get_diff(frame, old_frame)
-
             # endregion
 
             flicker_points = valid_shape(frame)
 
-            old_list = [old1, old2, old3, old4, old5, old6]
-            position, old_list = get_position(frame=frame, old_list=old_list)
-            old1, old2, old3, old4, old5, old6 = old_list
+            position = get_position(
+                frame=frame,
+                sizes=new_size
+            )
 
             if position in [0, 1, 2, 3, 4, 5] and not flicker_points:
                 if next_move == 0 or file_count == 0:
@@ -264,6 +241,10 @@ def start_test_lite(
                 diff_time += (end - start)
 
             # # region write Rectangles
+            # w, h = new_size
+            # x1 = int(0.3 * w)
+            # x2 = int(0.7 * w)
+            # y = int(0.5 * h)
             # if not flicker_points:
             #     if position == 0:
             #         # src_frame = cv2.rectangle(src_frame, (0, 0), (x1, y), (255, 0, 0), 5, cv2.LINE_AA)
