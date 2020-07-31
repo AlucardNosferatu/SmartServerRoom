@@ -3,6 +3,7 @@ import os
 
 import cv2
 import numpy as np
+from avtk.backends.ffmpeg.convert import FFmpeg, Output, Video, NoAudio
 
 from Analysis import start_test_lite, start_test_time
 from HTTPInterface import post_result, MyRequestHandler, HTTPServer
@@ -53,14 +54,19 @@ def process_dir(
             file_path = os.path.join(dir_path, i)
             print('file_path is:', file_path)
             start = datetime.datetime.now()
-            # src_id = start_test_lite(
-            #     src_id=request_id,
-            #     file_path=file_path,
-            #     output_path=output_path,
-            #     file_name=i,
-            #     skip_read=False
-            # )
-            src_id = start_test_time(src_id=src_id, file_path=file_path)
+            convert(file_path=file_path)
+            flv_path = file_path.replace('.mp4', '.MP4').replace('.MP4', '.flv')
+            src_id = start_test_lite(
+                src_id=request_id,
+                file_path=flv_path,
+                output_path=output_path,
+                file_name=i,
+                skip_read=False,
+                show_diff=False
+            )
+            if os.path.exists(flv_path):
+                os.remove(flv_path)
+            # src_id = start_test_time(src_id=src_id, file_path=file_path)
             end = datetime.datetime.now()
             print(str(end - start))
             src_num += 1
@@ -94,6 +100,25 @@ def specify_index(indices, i):
         if '_' + str(index) in i:
             return True
     return False
+
+
+def convert(file_path='Samples/010tMonitorCollect20200729025635377826769671_171.mp4'):
+    output_path = file_path.replace('.mp4','.MP4').replace('.MP4', '.flv')
+    start = datetime.datetime.now()
+    FFmpeg(
+        file_path,
+        Output(
+            output_path,
+            streams=[
+                Video('flv', scale=(-1, 768), bit_rate='1500k'),
+                NoAudio
+            ],
+
+        )
+    ).run()
+    # convert_to_h264(file_path, 'Outputs/test.mp4', preset='fast')
+    end = datetime.datetime.now()
+    print(str(end - start))
 
 
 if __name__ == '__main__':

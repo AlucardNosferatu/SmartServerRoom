@@ -137,7 +137,7 @@ def start_test_lite(
     # region Initialize VideoWriter
     fps = sample.get(cv2.CAP_PROP_FPS)
     br = sample.get(cv2.CAP_PROP_BITRATE)
-    skip_frame = (int(5 * int(br / 1000)) - 5)
+    skip_frame = int(5 * int(br / 1000))
     print("Skipped: ", skip_frame)
     if fps == 0 or fps == inf:
         fps = 15

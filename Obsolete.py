@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 
 from Analysis import get_diff, get_position, mark_motion, trigger
-from CamMonitor import calc_and_draw_hist
+from CamMonitor import calc_and_draw_hist, convert
 from ShapeFilter import valid_shape
 from TimeStamp import get_boxes, cut_timestamp
 
@@ -54,7 +54,7 @@ def start_test_new(
                 # region process and inspect
                 src_frame = frame.copy()
                 frame = cv2.resize(frame, new_size)
-                cv2.imshow('cutts',frame)
+                cv2.imshow('cutts', frame)
                 cv2.waitKey()
                 if current_frame == 0:
                     cut_box = get_boxes(frame)
@@ -463,3 +463,7 @@ def start_test(
     duration = end_time - start_time
     print('Duration: ', str(duration))
     return src_id
+
+
+if __name__ == '__main__':
+    convert()
