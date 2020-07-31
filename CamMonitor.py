@@ -51,12 +51,6 @@ def start_test(
     print(output_path)
 
     # region Initialize variables
-    old1 = None
-    old2 = None
-    old3 = None
-    old4 = None
-    old5 = None
-    old6 = None
     first1 = None
     first2 = None
     first3 = None
@@ -273,9 +267,8 @@ def start_test(
                 first6 = hist6
 
             hist_list = [hist1, hist2, hist3, hist4, hist5, hist6]
-            old_list = [old1, old2, old3, old4, old5, old6]
-            p, old, sig = trigger(hist_list, old_list, th)
-            old1, old2, old3, old4, old5, old6 = old
+            p, sig = trigger(hist_list, th)
+            old1, old2, old3, old4, old5, old6 = hist_list
             position = p
             then = datetime.datetime.now()
             print('Get trigger: ', str(then - now))
