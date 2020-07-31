@@ -33,12 +33,18 @@ def trigger(h_list, o_list, threshold):
     return pos, o_list, signal
 
 
-def get_diff(frame):
+def get_diff(frame, old_frame):
     frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-    old_frame = frame.copy()
-    diff = frame.astype(np.int16) - old_frame.astype(np.int16)
-    diff = np.abs(diff).astype(np.uint8)
-    frame = diff
+    if old_frame is not None:
+        diff = frame.astype(np.int16) - old_frame.astype(np.int16)
+        diff = np.abs(diff).astype(np.uint8)
+        old_frame = frame.copy()
+        frame = diff
+    else:
+        old_frame = frame.copy()
+        diff = frame.astype(np.int16) - old_frame.astype(np.int16)
+        diff = np.abs(diff).astype(np.uint8)
+        frame = diff
     return old_frame, frame
 
 
@@ -47,7 +53,8 @@ def start_test_new(
         file_path="Samples\\Sample.mp4",
         output_path="Outputs",
         file_name="Sample.mp4",
-        skip_read=True
+        skip_read=False,
+        show_diff=True
 ):
     file_name = file_name.split(".")[0]
 
@@ -58,6 +65,7 @@ def start_test_new(
     old4 = None
     old5 = None
     old6 = None
+    old_frame = None
     # url = "http://admin:admin@10.80.84.47:8081"
     # sample = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
     sample = cv2.VideoCapture(file_path)
@@ -86,17 +94,24 @@ def start_test_new(
 
     prev_frames = []
     current_frame = 0
-    now = datetime.datetime.now()
-    base_time = now
+    base_time = datetime.datetime.now()
+    now = base_time
     total_time = base_time
+    diff_time = base_time
     while sample.isOpened():
         then = datetime.datetime.now()
+
         current_frame += 1
         total_time += (then - now)
         if current_frame % 500 == 0:
-            print(current_frame, ' ', str(total_time - base_time))
+            print(current_frame, '', str(total_time - diff_time))
+            print('total use:', ' ', str(total_time - base_time))
             total_time = base_time
+            print('diff use:', ' ', str(diff_time - base_time))
+            diff_time = base_time
+
         now = then
+
         if current_frame % (skip_frame + 1) != 0 and skip_read:
             sample.grab()
             next_move -= 1
@@ -104,8 +119,10 @@ def start_test_new(
                 next_move = 0
                 if video_writer.isOpened():
                     video_writer.release()
-
+            end = datetime.datetime.now()
+            diff_time += (end - start)
             continue
+
         ret, frame = sample.read()
 
         if frame is not None:
@@ -130,14 +147,18 @@ def start_test_new(
                 prev_frames.pop(0)
 
             if current_frame % (skip_frame + 1) != 0:
+
                 next_move -= 1
                 if next_move < 0:
                     next_move = 0
                     if video_writer.isOpened():
                         video_writer.release()
+
                 if next_move > 0 and video_writer.isOpened():
-                    # print("Recording")
+                    start = datetime.datetime.now()
                     video_writer.write(prev_frames[0])
+                    end = datetime.datetime.now()
+                    diff_time += (end - start)
                 continue
 
             frame = cv2.resize(frame, (1024, 768))
@@ -145,7 +166,11 @@ def start_test_new(
                 cut_box = get_boxes(frame)
 
             frame = cut_timestamp(cut_box=cut_box, vis=frame)
-            old_frame, frame = get_diff(frame)
+
+            old_frame, frame = get_diff(frame, old_frame)
+            # old_frame = old_frame
+            # frame -= frame
+
             # endregion
 
             # region get Sizes
@@ -210,11 +235,44 @@ def start_test_new(
                         video_writer.release()
 
             if next_move > 0 and video_writer.isOpened():
+                start = datetime.datetime.now()
                 video_writer.write(prev_frames[0])
+                end = datetime.datetime.now()
+                diff_time += (end - start)
 
+            # # region write Rectangles
+            # if not flicker_points:
+            #     if position == 0:
+            #         # src_frame = cv2.rectangle(src_frame, (0, 0), (x1, y), (255, 0, 0), 5, cv2.LINE_AA)
+            #         frame = cv2.rectangle(frame, (0, 0), (x1, y), (255, 255, 255), 5, cv2.LINE_AA)
+            #     elif position == 1:
+            #         # src_frame = cv2.rectangle(src_frame, (x1, 0), (x2, y), (255, 0, 0), 5, cv2.LINE_AA)
+            #         frame = cv2.rectangle(frame, (x1, 0), (x2, y), (255, 255, 255), 5, cv2.LINE_AA)
+            #     elif position == 2:
+            #         # src_frame = cv2.rectangle(src_frame, (x2, 0), (w, y), (255, 0, 0), 5, cv2.LINE_AA)
+            #         frame = cv2.rectangle(frame, (x2, 0), (w, y), (255, 255, 255), 5, cv2.LINE_AA)
+            #     elif position == 3:
+            #         # src_frame = cv2.rectangle(src_frame, (0, y), (x1, h), (255, 0, 0), 5, cv2.LINE_AA)
+            #         frame = cv2.rectangle(frame, (0, y), (x1, h), (255, 255, 255), 5, cv2.LINE_AA)
+            #     elif position == 4:
+            #         # src_frame = cv2.rectangle(src_frame, (x1, y), (x2, h), (255, 0, 0), 5, cv2.LINE_AA)
+            #         frame = cv2.rectangle(frame, (x1, y), (x2, h), (255, 255, 255), 5, cv2.LINE_AA)
+            #     elif position == 5:
+            #         # src_frame = cv2.rectangle(src_frame, (x2, y), (w, h), (255, 0, 0), 5, cv2.LINE_AA)
+            #         frame = cv2.rectangle(frame, (x2, y), (w, h), (255, 255, 255), 5, cv2.LINE_AA)
+            #     else:
+            #         pass
+            #
+            # if show_diff:
+            #     cv2.imshow("diff", frame)
+            #     cv2.imshow("origin", cv2.resize(src_frame, (1024, 768)))
+            #     # cv2.imshow("cut_ts", inspect_frame)
+            #     cv2.waitKey(1)
         else:
             break
         first_frame = False
+        # end = datetime.datetime.now()
+        # diff_time += (end - start)
 
     sample.release()
     if video_writer.isOpened:

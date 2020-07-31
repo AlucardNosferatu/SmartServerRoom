@@ -402,14 +402,14 @@ def process_dir(
         if (i.endswith('mp4') or i.endswith('MP4')) and True:
             file_path = os.path.join(dir_path, i)
             print('file_path is:', file_path)
-            src_id = start_test(
-                # show_diff=True,
-                show_diff=False,
-                file_path=file_path,
-                output_path=output_path,
-                file_name=i,
-                src_id=request_id
-            )
+            # src_id = start_test(
+            #     # show_diff=True,
+            #     show_diff=False,
+            #     file_path=file_path,
+            #     output_path=output_path,
+            #     file_name=i,
+            #     src_id=request_id
+            # )
             start = datetime.datetime.now()
             src_id = start_test_new(
                 src_id=request_id,
