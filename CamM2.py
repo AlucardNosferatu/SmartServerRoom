@@ -227,23 +227,15 @@ def start_test_lite(
         output_path="Outputs",
         file_name="Sample.mp4",
         skip_read=False,
-        show_diff=True
+        show_diff=False
 ):
     file_name = file_name.split(".")[0]
-
-    # region Initialize variables
     old_frame = None
-    # url = "http://admin:admin@10.80.84.47:8081"
-    # sample = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
     sample = cv2.VideoCapture(file_path)
-    # sample = cv2.VideoCapture(url)
-    # record = []
-
     file_count = 0
     next_move = 200
     first_frame = True
     cut_box = [[57, 25, 500]]
-    # endregion
 
     # region Initialize VideoWriter
     fps = sample.get(cv2.CAP_PROP_FPS)
@@ -268,7 +260,6 @@ def start_test_lite(
     diff_time = base_time
     while sample.isOpened():
         then = datetime.datetime.now()
-
         current_frame += 1
         total_time += (then - now)
         if current_frame % 500 == 0:
@@ -363,6 +354,14 @@ def start_test_lite(
                 end = datetime.datetime.now()
                 diff_time += (end - start)
 
+            mark_motion(
+                new_size=new_size,
+                position=position,
+                frame=frame,
+                src_frame=src_frame,
+                flicker_points=flicker_points,
+                show_diff=show_diff
+            )
         else:
             break
         first_frame = False
