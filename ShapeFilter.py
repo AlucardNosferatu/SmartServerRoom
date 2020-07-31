@@ -10,7 +10,7 @@ def valid_shape(frame):
     # cv2.imshow('shape', thresh1)
     # cv2.waitKey()
     # print(pixels.shape[1])
-    if pixels.shape[1] < 10:
+    if 0 < pixels.shape[1] < 5:
         return True
     else:
         return False
