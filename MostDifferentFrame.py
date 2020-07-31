@@ -52,7 +52,7 @@ def snap_shot(calc_and_draw_hist, file_path="Outputs/010tMonitorCollect202007190
 
             total_time += (then - now)
         total_time -= base_time
-        print('time used: ', str(total_time))
+        # print('time used: ', str(total_time))
         # print(max_i)
         # print(max_j)
         sample = cv2.VideoCapture(file_path)

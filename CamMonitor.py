@@ -4,6 +4,8 @@ from math import inf
 import cv2
 import numpy as np
 import datetime
+
+from CamM2 import start_test_new, trigger
 from HTTPInterface import post_result, MyRequestHandler, HTTPServer
 from MostDifferentFrame import snap_shot
 from ShapeFilter import valid_shape
@@ -34,35 +36,6 @@ def calc_and_draw_hist(image, color, mask=None):
     return hist_img, hist
 
 
-def trigger(h_list, o_list, f_list, threshold, use_diff):
-    signal = 0
-    if np.array(o_list).any():
-        s1_list = []
-        s2_list = []
-        for i in range(6):
-            if use_diff:
-                std1 = np.sum(h_list[i][64:, 0])
-                std2 = np.sum(h_list[i][64:, 0])
-            else:
-                std1 = np.sqrt(np.sum(np.power(h_list[i] - o_list[i], 2)))
-                std2 = np.sqrt(np.sum(np.power(h_list[i] - f_list[i], 2)))
-            s1_list.append(std1)
-            s2_list.append(std2)
-        s3_list = np.multiply(np.array(s1_list), np.array(s2_list)).tolist()
-        o_list = h_list
-        signal = max(s3_list)
-        # print(signal)
-        if signal < threshold:
-            pos = -1
-        else:
-            pos = s3_list.index(signal)
-    else:
-        o_list = h_list
-        pos = -1
-
-    return pos, o_list, signal
-
-
 def start_test(
         src_id,
         # skip_frame=7,
@@ -76,6 +49,7 @@ def start_test(
     file_name = file_name.split(".")[0]
     print(file_path)
     print(output_path)
+
     # region Initialize variables
     old1 = None
     old2 = None
@@ -117,7 +91,7 @@ def start_test(
     )
     video_writer = cv2.VideoWriter()
     # endregion
-    count = 0
+
     prev_frames = []
     base_time = datetime.datetime.now()
     fr = base_time
@@ -130,6 +104,7 @@ def start_test(
     trigger_t = base_time
     record_t = base_time
     mm_t = base_time
+    count = 0
     while sample.isOpened():
         now = datetime.datetime.now()
         if count % (skip_frame + 1) != 0 and skip_read:
@@ -143,7 +118,6 @@ def start_test(
             then = datetime.datetime.now()
             print('frame grab: ', str(then - now))
             gr += (then - now)
-            now = then
             continue
 
         ret, frame = sample.read()
@@ -171,8 +145,10 @@ def start_test(
             # frame = enhance(frame)
 
             # region get Differential Frame
+            # prev_frames = []
             src_frame = frame.copy()
             prev_frames.append(src_frame)
+
             if len(prev_frames) > 20:
                 prev_frames.pop(0)
             then = datetime.datetime.now()
@@ -298,8 +274,7 @@ def start_test(
 
             hist_list = [hist1, hist2, hist3, hist4, hist5, hist6]
             old_list = [old1, old2, old3, old4, old5, old6]
-            first_list = [first1, first2, first3, first4, first5, first6]
-            p, old, sig = trigger(hist_list, old_list, first_list, th, use_diff)
+            p, old, sig = trigger(hist_list, old_list, th)
             old1, old2, old3, old4, old5, old6 = old
             position = p
             then = datetime.datetime.now()
@@ -368,7 +343,7 @@ def start_test(
             break
         first_frame = False
         # region key interface
-        k = cv2.waitKey(50)
+        k = cv2.waitKey(1)
         if k & 0xff == ord('q'):
             print("redefine threshold")
             th = th * 1.05
@@ -435,6 +410,16 @@ def process_dir(
                 file_name=i,
                 src_id=request_id
             )
+            start = datetime.datetime.now()
+            src_id = start_test_new(
+                src_id=request_id,
+                file_path=file_path,
+                output_path=output_path,
+                file_name=i,
+                skip_read=False
+            )
+            end = datetime.datetime.now()
+            print(str(end - start))
             src_num += 1
     out_files = os.listdir(output_path)
     for e, i in enumerate(out_files):
