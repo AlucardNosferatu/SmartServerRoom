@@ -11,3 +11,4 @@ TensorBoard/validation/
 __pycache__/
 valid_file.txt
 Outputs/
+*.flv
