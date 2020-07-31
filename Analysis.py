@@ -294,6 +294,7 @@ def start_test_new(
         file_name='Sample.mp4',
         skip_frame=100
 ):
+    file_name = file_name.split(".")[0]
     cut_box = [[57, 25, 500]]
     new_size = (1024, 768)
     sample = cv2.VideoCapture(file_path)
@@ -335,10 +336,9 @@ def start_test_new(
                 if current_frame == 0:
                     cut_box = get_boxes(frame)
                 frame = cut_timestamp(cut_box=cut_box, vis=frame)
-                if skip_read or record_now:
-                    temp, frame = get_diff(frame, old_frame)
-                else:
-                    _, frame = get_diff(frame, old_frame)
+
+                temp, frame = get_diff(frame, old_frame)
+
                 position = get_position(
                     frame=frame,
                     sizes=new_size
@@ -354,6 +354,7 @@ def start_test_new(
                 # region switch modes
                 if position in [0, 1, 2, 3, 4, 5]:
                     if skip_read:
+                        assert not record_now
                         old_frame = old_frame
                         # 如果画面出现变化且不处于倒带状态，则开始倒带（倒带2帧），正向状态切为倒带状态（skip_read=False）
                         if current_frame >= 2:
@@ -363,40 +364,46 @@ def start_test_new(
                         sample.set(cv2.CAP_PROP_POS_FRAMES, current_frame)
                         skip_read = False
                     else:
-                        # 如果画面出现变化且处于倒带状态，则继续倒带（倒带2帧）
-                        if current_frame >= 2:
-                            current_frame -= 2
+                        if record_now:
+                            old_frame = temp
+                            print('Recording...')
+                            if vw is None:
+                                vw = cv2.VideoWriter(
+                                    output_path + "/" + file_name + "_" + str(file_count) + '.mp4',
+                                    cv2.VideoWriter_fourcc(*'mp4v'),
+                                    fps,
+                                    size
+                                )
+                            vw.write(frame)
                         else:
-                            current_frame = 0
-                        sample.set(cv2.CAP_PROP_POS_FRAMES, current_frame)
-                        skip_read = False
+                            old_frame = old_frame
+                            # 如果画面出现变化且处于倒带状态，则继续倒带（倒带2帧）
+                            if current_frame >= 2:
+                                current_frame -= 2
+                            else:
+                                current_frame = 0
+                            sample.set(cv2.CAP_PROP_POS_FRAMES, current_frame)
+                            skip_read = False
                 else:
+                    old_frame = temp
                     if skip_read:
-                        old_frame = temp
                         # 如果画面无变化且不处于倒带状态，则继续运行，下一次将读取skip_frame个帧数后的那一帧
                         # 录像模式若开启，则关闭
+                        assert not record_now
+                    else:
                         if record_now:
                             record_now = False
                         if vw is not None:
                             if vw.isOpened():
                                 vw.release()
                                 file_count += 1
-                    else:
-                        # 如果画面无变化且处于倒带状态，则意味着到达有动作状态的开头，此时关闭倒带模式，开启录像模式
-                        skip_read = False
-                        record_now = True
+                        else:
+                            # 如果画面无变化且处于倒带状态，则意味着到达有动作状态的开头，此时关闭倒带模式，开启录像模式
+                            skip_read = False
+                            record_now = True
                 # endregion
 
-                if record_now:
-                    print('Recording...')
-                    if vw is None:
-                        vw = cv2.VideoWriter(
-                            output_path + "/" + file_name + "_" + str(file_count) + '.mp4',
-                            cv2.VideoWriter_fourcc(*'mp4v'),
-                            fps,
-                            size
-                        )
-                    vw.write(frame)
+
 
     sample.release()
     if vw.isOpened:
