@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 import datetime
 
-from CamM2 import start_test_new, trigger
+from CamM2 import start_test_lite, trigger
 from HTTPInterface import post_result, MyRequestHandler, HTTPServer
 from MostDifferentFrame import snap_shot
 from ShapeFilter import valid_shape
@@ -411,7 +411,7 @@ def process_dir(
             #     src_id=request_id
             # )
             start = datetime.datetime.now()
-            src_id = start_test_new(
+            src_id = start_test_lite(
                 src_id=request_id,
                 file_path=file_path,
                 output_path=output_path,

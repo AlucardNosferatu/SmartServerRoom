@@ -48,7 +48,75 @@ def get_diff(frame, old_frame):
     return old_frame, frame
 
 
+def get_position(frame, old_list):
+    th = 1000
+    # region get Sizes
+    h = frame.shape[0]
+    w = frame.shape[1]
+    x1 = int(0.3 * w)
+    x2 = int(0.7 * w)
+    y = int(0.5 * h)
+    # endregion
+
+    # region get Histogram
+    img_mask = np.zeros((h, w), np.uint8)
+    img_mask[0:y, 0:x1] = 255
+    hist_img1, hist1 = calc_and_draw_hist(frame, (0, 0, 255), img_mask)
+    # cv2.imshow("hist1", hist_img1)
+
+    img_mask = np.zeros((h, w), np.uint8)
+    img_mask[0:y, x1:x2] = 255
+    hist_img2, hist2 = calc_and_draw_hist(frame, (0, 0, 255), img_mask)
+    # cv2.imshow("hist2", hist_img2)
+
+    img_mask = np.zeros((h, w), np.uint8)
+    img_mask[0:y, x2:w] = 255
+    hist_img3, hist3 = calc_and_draw_hist(frame, (0, 0, 255), img_mask)
+    # cv2.imshow("hist3", hist_img3)
+
+    img_mask = np.zeros((h, w), np.uint8)
+    img_mask[y:h, 0:x1] = 255
+    hist_img4, hist4 = calc_and_draw_hist(frame, (0, 0, 255), img_mask)
+    # cv2.imshow("hist1", hist_img1)
+
+    img_mask = np.zeros((h, w), np.uint8)
+    img_mask[y:h, x1:x2] = 255
+    hist_img5, hist5 = calc_and_draw_hist(frame, (0, 0, 255), img_mask)
+    # cv2.imshow("hist2", hist_img2)
+
+    img_mask = np.zeros((h, w), np.uint8)
+    img_mask[y:h, x2:w] = 255
+    hist_img6, hist6 = calc_and_draw_hist(frame, (0, 0, 255), img_mask)
+    # cv2.imshow("hist3", hist_img3)
+    # endregion
+
+    hist_list = [hist1, hist2, hist3, hist4, hist5, hist6]
+    p, old, sig = trigger(hist_list, old_list, th)
+
+    old1, old2, old3, old4, old5, old6 = old
+    position = p
+    return position, [old1, old2, old3, old4, old5, old6]
+
+
 def start_test_new(
+        file_path="Samples\\Sample.mp4",
+):
+    sample = cv2.VideoCapture(file_path)
+    old1 = None
+    old2 = None
+    old3 = None
+    old4 = None
+    old5 = None
+    old6 = None
+    old_frame = None
+    current_frame = 0
+    while sample.isOpened():
+        current_frame += 1
+
+    pass
+
+
+def start_test_lite(
         src_id,
         file_path="Samples\\Sample.mp4",
         output_path="Outputs",
@@ -71,7 +139,7 @@ def start_test_new(
     sample = cv2.VideoCapture(file_path)
     # sample = cv2.VideoCapture(url)
     # record = []
-    th = 1000
+
     file_count = 0
     next_move = 200
     first_frame = True
@@ -168,59 +236,14 @@ def start_test_new(
             frame = cut_timestamp(cut_box=cut_box, vis=frame)
 
             old_frame, frame = get_diff(frame, old_frame)
-            # old_frame = old_frame
-            # frame -= frame
 
-            # endregion
-
-            # region get Sizes
-            h = frame.shape[0]
-            w = frame.shape[1]
-            x1 = int(0.3 * w)
-            x2 = int(0.7 * w)
-            y = int(0.5 * h)
             # endregion
 
             flicker_points = valid_shape(frame)
 
-            # region get Histogram
-            img_mask = np.zeros((h, w), np.uint8)
-            img_mask[0:y, 0:x1] = 255
-            hist_img1, hist1 = calc_and_draw_hist(frame, (0, 0, 255), img_mask)
-            # cv2.imshow("hist1", hist_img1)
-
-            img_mask = np.zeros((h, w), np.uint8)
-            img_mask[0:y, x1:x2] = 255
-            hist_img2, hist2 = calc_and_draw_hist(frame, (0, 0, 255), img_mask)
-            # cv2.imshow("hist2", hist_img2)
-
-            img_mask = np.zeros((h, w), np.uint8)
-            img_mask[0:y, x2:w] = 255
-            hist_img3, hist3 = calc_and_draw_hist(frame, (0, 0, 255), img_mask)
-            # cv2.imshow("hist3", hist_img3)
-
-            img_mask = np.zeros((h, w), np.uint8)
-            img_mask[y:h, 0:x1] = 255
-            hist_img4, hist4 = calc_and_draw_hist(frame, (0, 0, 255), img_mask)
-            # cv2.imshow("hist1", hist_img1)
-
-            img_mask = np.zeros((h, w), np.uint8)
-            img_mask[y:h, x1:x2] = 255
-            hist_img5, hist5 = calc_and_draw_hist(frame, (0, 0, 255), img_mask)
-            # cv2.imshow("hist2", hist_img2)
-
-            img_mask = np.zeros((h, w), np.uint8)
-            img_mask[y:h, x2:w] = 255
-            hist_img6, hist6 = calc_and_draw_hist(frame, (0, 0, 255), img_mask)
-            # cv2.imshow("hist3", hist_img3)
-            # endregion
-
-            hist_list = [hist1, hist2, hist3, hist4, hist5, hist6]
             old_list = [old1, old2, old3, old4, old5, old6]
-            p, old, sig = trigger(hist_list, old_list, th)
-
-            old1, old2, old3, old4, old5, old6 = old
-            position = p
+            position, old_list = get_position(frame=frame, old_list=old_list)
+            old1, old2, old3, old4, old5, old6 = old_list
 
             if position in [0, 1, 2, 3, 4, 5] and not flicker_points:
                 if next_move == 0 or file_count == 0:
