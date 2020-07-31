@@ -273,20 +273,6 @@ def start_test_lite(
     return src_id
 
 
-def start_test_time(src_id, file_path):
-    sample = cv2.VideoCapture(file_path)
-    while sample.isOpened():
-        ret, frame = sample.read()
-        if frame is None:
-            break
-        # frame = cv2.resize(frame, (1024, 768))
-        # cv2.imshow('frame', frame)
-        # cv2.waitKey(1)
-    sample.release()
-    cv2.destroyAllWindows()
-    return src_id
-
-
 def start_test_new(
         src_id,
         file_path="Samples\\Sample.mp4",
@@ -403,10 +389,19 @@ def start_test_new(
                             record_now = True
                 # endregion
 
-
-
     sample.release()
     if vw.isOpened:
         vw.release()
+    cv2.destroyAllWindows()
+    return src_id
+
+
+def start_test_time(src_id, file_path):
+    sample = cv2.VideoCapture(file_path)
+    while sample.isOpened():
+        ret, frame = sample.read()
+        if frame is None:
+            break
+    sample.release()
     cv2.destroyAllWindows()
     return src_id
