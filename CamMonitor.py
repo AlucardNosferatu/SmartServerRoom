@@ -65,7 +65,7 @@ def process_dir(
             #     show_diff=False
             # )
             src_id = start_test_new(
-                src_id=src_id,
+                src_id=request_id,
                 file_path=flv_path,
                 output_path=output_path,
                 file_name=i
