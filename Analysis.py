@@ -319,9 +319,9 @@ def mode_switch(position, current_mode, wait_rewind, wait_record):
             raise ValueError("状态异常")
 
 
-def fast_forward(sample, current_frame, skip_frame):
+def fast_forward(sample, current_time, skip_frame):
     # 当不处于倒带和摄影模式时快速读取当前帧的数据但不解码，节省时间
-    if current_frame % (skip_frame + 1) != 0:
+    if current_time % (skip_frame * 80) != 0:
         sample.grab()
         return "skip_diff"
     else:
@@ -332,16 +332,17 @@ def fast_forward(sample, current_frame, skip_frame):
             return "end_of_stream"
 
 
-def rewind(current_frame, sample):
-    if current_frame >= 5:
-        current_frame -= 5
+def rewind(current_time, sample):
+    if current_time >= (80 * 20):
+        current_time -= (80 * 20)
     else:
-        current_frame = 0
-    sample.set(cv2.CAP_PROP_POS_FRAMES, current_frame)
+        current_time = 0
+
+    sample.set(cv2.CAP_PROP_POS_MSEC, current_time)
     ret, frame = sample.read()
     if frame is None:
         frame = "end_of_stream"
-    return sample, current_frame, frame
+    return sample, current_time, frame
 
 
 def start_record(frame, output_path, file_name, file_count, fps, size, vw=None):
@@ -370,12 +371,12 @@ def stop_record(vw, frame):
     return vw
 
 
-def process_and_inspect(frame, new_size, current_frame, old_frame, cut_box):
+def process_and_inspect(frame, new_size, first_frame, old_frame, cut_box):
     # region process and inspect
     src_frame = frame.copy()
     frame = cv2.resize(frame, new_size)
 
-    if current_frame == 0:
+    if first_frame:
         cut_box = get_boxes(frame)
 
     frame = cut_timestamp(cut_box=cut_box, vis=frame)
@@ -401,7 +402,7 @@ def start_test_new(
         file_path="Samples\\Sample.mp4",
         output_path="Outputs",
         file_name='Sample.mp4',
-        skip_frame=25
+        skip_frame=6
 ):
     file_name = file_name.split(".")[0]
     cut_box = [[57, 25, 500]]
@@ -409,7 +410,7 @@ def start_test_new(
     sample = cv2.VideoCapture(file_path)
 
     vw = None
-    fps = int(sample.get(cv2.CAP_PROP_FRAME_WIDTH)/2)
+    fps = int(sample.get(cv2.CAP_PROP_FPS) / 2)
     size = (
         int(sample.get(cv2.CAP_PROP_FRAME_WIDTH)),
         int(sample.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -421,8 +422,9 @@ def start_test_new(
     wait_rewind = 5
     wait_record = 100
     current_mode = "fast_forward"
+    first_frame = True
     while sample.isOpened():
-        current_frame = int(sample.get(cv2.CAP_PROP_POS_FRAMES))
+        # current_frame = int(sample.get(cv2.CAP_PROP_POS_FRAMES))
         current_time = int(sample.get(cv2.CAP_PROP_POS_MSEC))
         current_mode, wait_rewind, wait_record = mode_switch(
             position=position,
@@ -430,21 +432,19 @@ def start_test_new(
             wait_rewind=wait_rewind,
             wait_record=wait_record
         )
-        print(current_mode, current_frame, wait_rewind, wait_record, file_count)
-        print(current_time)
+        print(current_mode, current_time, wait_rewind, wait_record, file_count)
         if current_mode == "fast_forward":
-            frame = fast_forward(sample=sample, current_frame=current_frame, skip_frame=skip_frame)
+            frame = fast_forward(sample=sample, current_time=current_time, skip_frame=skip_frame)
             if type(frame) is str:
                 if frame == "skip_diff":
                     continue
                 else:
                     break
         elif current_mode == "rewind":
-            sample, current_frame, frame = rewind(current_frame=current_frame, sample=sample)
+            sample, current_frame, frame = rewind(current_time=current_time, sample=sample)
             if type(frame) is str:
                 break
         elif current_mode in ['start_record', 'recording', 'stop_record']:
-            current_frame = int(sample.get(cv2.CAP_PROP_POS_FRAMES))
             ret, frame = sample.read()
             sample.grab()
             if frame is None:
@@ -459,13 +459,14 @@ def start_test_new(
         position, src_frame, temp, cut_box = process_and_inspect(
             frame=frame,
             new_size=new_size,
-            current_frame=current_frame,
+            first_frame=first_frame,
             old_frame=old_frame,
             cut_box=cut_box
         )
-        assert temp.shape == (new_size[1], new_size[0])
 
+        assert temp.shape == (new_size[1], new_size[0])
         assert src_frame.shape == (size[1], size[0], 3)
+
         if current_mode == "start_record":
             vw, file_count = start_record(
                 frame=src_frame,
@@ -481,6 +482,7 @@ def start_test_new(
         elif current_mode == "stop_record":
             stop_record(vw=vw, frame=src_frame)
 
+        first_frame = False
     sample.release()
     if vw is not None and vw.isOpened:
         vw.release()
