@@ -41,7 +41,6 @@ def process_dir(
         output_path="C:\\Users\\16413\\Desktop\\FFCS\\SVN\\CV_Toolbox\\SmartServerRoom\\Outputs"
 ):
     indices = range(245, 289)
-    # print("before start_test: ", request_id)
     if type(dir_path) == list:
         dir_path = dir_path[0]
     if type(output_path) == list:
@@ -81,10 +80,8 @@ def process_dir(
             file_path = os.path.join(output_path, i)
             snap_shot(calc_and_draw_hist, file_path=file_path)
             dst_num += 1
-            # print(os.listdir(output_path))
     assert src_id == request_id
-    # print("after start_test: ", request_id)
-    post_result(request_id, src_num, dst_num)
+    # post_result(request_id, src_num, dst_num)
 
 
 def delete_file(dir_path, i):
