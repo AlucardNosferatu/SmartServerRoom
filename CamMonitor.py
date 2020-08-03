@@ -53,7 +53,7 @@ def process_dir(
             file_path = os.path.join(dir_path, i)
             print('file_path is:', file_path)
             start = datetime.datetime.now()
-            # convert(file_path=file_path)
+            convert(file_path=file_path)
             flv_path = file_path.replace('.mp4', '.MP4').replace('.MP4', '.flv')
             # src_id = start_test_lite(
             #     src_id=request_id,
