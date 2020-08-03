@@ -334,13 +334,14 @@ def fast_forward(sample, current_time, skip_time):
 
 
 def rewind(current_time, sample):
-    if current_time >= (80 * 5):
-        current_time -= (80 * 5)
+    if current_time >= 1600:
+        current_time -= 1600
     else:
         current_time = 0
 
     sample.set(cv2.CAP_PROP_POS_MSEC, current_time)
     ret, frame = sample.read()
+    current_time = sample.get(cv2.CAP_PROP_POS_MSEC)
     if frame is None:
         frame = "end_of_stream"
     return sample, current_time, frame
@@ -411,7 +412,7 @@ def start_test_new(
     sample = cv2.VideoCapture(file_path)
 
     vw = None
-    fps = int(sample.get(cv2.CAP_PROP_FPS) / 2)
+    fps = int(sample.get(cv2.CAP_PROP_FRAME_COUNT) / (2 * 5 * 60))
     size = (
         int(sample.get(cv2.CAP_PROP_FRAME_WIDTH)),
         int(sample.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -419,7 +420,8 @@ def start_test_new(
 
     temp = None
     old_frame = None
-    t2o_count = 200
+    t2o_count = 300
+
     file_count = 0
     position = -1
     wait_rewind = 5
@@ -444,7 +446,7 @@ def start_test_new(
                 else:
                     break
         elif current_mode == "rewind":
-            sample, current_frame, frame = rewind(current_time=current_time, sample=sample)
+            sample, current_time, frame = rewind(current_time=current_time, sample=sample)
             if type(frame) is str:
                 break
         elif current_mode in ['start_record', 'recording', 'stop_record']:
@@ -462,7 +464,7 @@ def start_test_new(
             t2o_count -= 1
         else:
             old_frame = temp
-            t2o_count = 200
+            t2o_count = 300
 
         position, src_frame, temp, cut_box = process_and_inspect(
             frame=frame,
@@ -507,3 +509,7 @@ def start_test_time(src_id, file_path):
     sample.release()
     cv2.destroyAllWindows()
     return src_id
+
+
+def rewind_test(src_id, file_path):
+    pass
