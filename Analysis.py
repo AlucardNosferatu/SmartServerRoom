@@ -273,48 +273,47 @@ def start_test_lite(
     return src_id
 
 
-def mode_switch(position, current_mode, wait_rewind, wait_record):
+def mode_switch(position, current_mode, wait):
     if position in [0, 1, 2, 3, 4, 5]:
         if current_mode == "fast_forward":
-            return "rewind", wait_rewind, wait_record
+            return "rewind", wait
         elif current_mode == "rewind":
-            wait_rewind = 5
-            return "rewind", wait_rewind, wait_record
+            return "rewind", wait
         elif current_mode == "start_record":
-            return "recording", wait_rewind, wait_record
+            return "recording", wait
         elif current_mode == "recording":
-            wait_record = 100
-            return "recording", wait_rewind, wait_record
+            wait = 200
+            return "recording", wait
         elif current_mode == "stop_record":
-            return "start_record", wait_rewind, wait_record
+            return "start_record", wait
         else:
             raise ValueError("状态异常")
     else:
         if current_mode == "fast_forward":
-            return "fast_forward", wait_rewind, wait_record
+            return "fast_forward", wait
         elif current_mode == "rewind":
-            wait_rewind -= 1
-            if wait_rewind <= 0:
-                wait_rewind = 5
-                return "start_record", wait_rewind, wait_record
+            wait -= 1
+            if wait <= 0:
+                wait = 200
+                return "start_record", wait
             else:
-                return "rewind", wait_rewind, wait_record
+                return "rewind", wait
         elif current_mode == "start_record":
-            wait_record -= 1
-            if wait_record <= 0:
-                wait_record = 100
-                return "stop_record", wait_rewind, wait_record
+            wait -= 1
+            if wait <= 0:
+                wait = 200
+                return "stop_record", wait
             else:
-                return "recording", wait_rewind, wait_record
+                return "recording", wait
         elif current_mode == "recording":
-            wait_record -= 1
-            if wait_record <= 0:
-                wait_record = 100
-                return "stop_record", wait_rewind, wait_record
+            wait -= 1
+            if wait <= 0:
+                wait = 200
+                return "stop_record", wait
             else:
-                return "recording", wait_rewind, wait_record
+                return "recording", wait
         elif current_mode == "stop_record":
-            return "fast_forward", wait_rewind, wait_record
+            return "fast_forward", wait
         else:
             raise ValueError("状态异常")
 
@@ -415,21 +414,16 @@ def start_test_new(
         int(sample.get(cv2.CAP_PROP_FRAME_HEIGHT))
     )
 
+    old_frame = None
     temp = None
     file_count = 0
     position = -1
-    wait_rewind = 5
-    wait_record = 100
+    wait = 100
     current_mode = "fast_forward"
     while sample.isOpened():
         current_frame = int(sample.get(cv2.CAP_PROP_POS_FRAMES))
-        current_mode, wait_rewind, wait_record = mode_switch(
-            position=position,
-            current_mode=current_mode,
-            wait_rewind=wait_rewind,
-            wait_record=wait_record
-        )
-        print(current_mode, current_frame, wait_rewind, wait_record, file_count)
+        current_mode, wait = mode_switch(position=position, current_mode=current_mode, wait=wait)
+        print(current_mode, current_frame, wait, file_count)
 
         if current_mode == "fast_forward":
             frame = fast_forward(sample=sample, current_frame=current_frame, skip_frame=skip_frame)
