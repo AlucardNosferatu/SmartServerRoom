@@ -42,7 +42,7 @@ def get_diff(frame, old_frame):
 
 def get_position(frame, sizes):
     # region get Sizes
-    th = 5000
+    th = 20000
     w, h = sizes
     x1 = int(0.3 * w)
     x2 = int(0.7 * w)
@@ -412,7 +412,7 @@ def start_test_new(
     sample = cv2.VideoCapture(file_path)
 
     vw = None
-    fps = int(sample.get(cv2.CAP_PROP_FRAME_COUNT) / (2 * 5 * 60))
+    fps = int(sample.get(cv2.CAP_PROP_FRAME_COUNT) / (3 * 5 * 60))
     size = (
         int(sample.get(cv2.CAP_PROP_FRAME_WIDTH)),
         int(sample.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -451,6 +451,7 @@ def start_test_new(
                 break
         elif current_mode in ['start_record', 'recording', 'stop_record']:
             ret, frame = sample.read()
+            sample.grab()
             sample.grab()
             if frame is None:
                 break
