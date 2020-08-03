@@ -113,8 +113,8 @@ def mark_motion(new_size, position, frame, src_frame, flicker_points=False, show
             frame = cv2.rectangle(frame, (x2, y), (w, h), (255, 255, 255), 5, cv2.LINE_AA)
         else:
             pass
-        cv2.imshow("diff", frame)
-        cv2.imshow("origin", cv2.resize(src_frame, (1024, 768)))
+        cv2.imshow("diff", cv2.resize(frame, (512, 384)))
+        cv2.imshow("origin", cv2.resize(src_frame, (512, 384)))
         cv2.waitKey()
 
 
@@ -273,124 +273,210 @@ def start_test_lite(
     return src_id
 
 
+def mode_switch(position, current_mode, wait):
+    if position in [0, 1, 2, 3, 4, 5]:
+        if current_mode == "fast_forward":
+            return "rewind", wait
+        elif current_mode == "rewind":
+            return "rewind", wait
+        elif current_mode == "start_record":
+            return "recording", wait
+        elif current_mode == "recording":
+            wait = 200
+            return "recording", wait
+        elif current_mode == "stop_record":
+            return "start_record", wait
+        else:
+            raise ValueError("状态异常")
+    else:
+        if current_mode == "fast_forward":
+            return "fast_forward", wait
+        elif current_mode == "rewind":
+            wait -= 1
+            if wait <= 0:
+                wait = 200
+                return "start_record", wait
+            else:
+                return "rewind", wait
+        elif current_mode == "start_record":
+            wait -= 1
+            if wait <= 0:
+                wait = 200
+                return "stop_record", wait
+            else:
+                return "recording", wait
+        elif current_mode == "recording":
+            wait -= 1
+            if wait <= 0:
+                wait = 200
+                return "stop_record", wait
+            else:
+                return "recording", wait
+        elif current_mode == "stop_record":
+            return "fast_forward", wait
+        else:
+            raise ValueError("状态异常")
+
+
+def fast_forward(sample, current_frame, skip_frame):
+    # 当不处于倒带和摄影模式时快速读取当前帧的数据但不解码，节省时间
+    if current_frame % (skip_frame + 1) != 0:
+        sample.grab()
+        return "skip_diff"
+    else:
+        ret, frame = sample.read()
+        if frame is not None:
+            return frame
+        else:
+            return "end_of_stream"
+
+
+def rewind(current_frame, sample):
+    if current_frame >= 5:
+        current_frame -= 5
+    else:
+        current_frame = 0
+    sample.set(cv2.CAP_PROP_POS_FRAMES, current_frame)
+    ret, frame = sample.read()
+    if frame is None:
+        frame = "end_of_stream"
+    return sample, current_frame, frame
+
+
+def start_record(frame, output_path, file_name, file_count, fps, size, vw=None):
+    if vw is None or not vw.isOpened():
+        vw = cv2.VideoWriter(
+            output_path + "/" + file_name + "_" + str(file_count) + '.mp4',
+            cv2.VideoWriter_fourcc(*'mp4v'),
+            fps,
+            size
+        )
+        file_count += 1
+    vw.write(frame)
+    return vw, file_count
+
+
+def recording(vw, frame):
+    assert vw.isOpened()
+    vw.write(frame)
+
+
+def stop_record(vw, frame):
+    assert vw.isOpened
+    vw.write(frame)
+    vw.release()
+    vw = None
+    return vw
+
+
+def process_and_inspect(frame, new_size, current_frame, old_frame, cut_box):
+    # region process and inspect
+    src_frame = frame.copy()
+    frame = cv2.resize(frame, new_size)
+
+    if current_frame == 0:
+        cut_box = get_boxes(frame)
+
+    frame = cut_timestamp(cut_box=cut_box, vis=frame)
+
+    temp, frame = get_diff(frame, old_frame)
+
+    position = get_position(
+        frame=frame,
+        sizes=new_size
+    )
+    mark_motion(
+        new_size=new_size,
+        position=position,
+        frame=frame,
+        src_frame=src_frame
+    )
+    # endregion
+    return position, src_frame, temp, cut_box
+
+
 def start_test_new(
         src_id,
         file_path="Samples\\Sample.mp4",
         output_path="Outputs",
         file_name='Sample.mp4',
-        skip_frame=100
+        skip_frame=200
 ):
     file_name = file_name.split(".")[0]
     cut_box = [[57, 25, 500]]
     new_size = (1024, 768)
     sample = cv2.VideoCapture(file_path)
-    old_frame = None
-    current_frame = -1
-    skip_read = True
-    record_now = False
+
     vw = None
     fps = 15
     size = (
         int(sample.get(cv2.CAP_PROP_FRAME_WIDTH)),
         int(sample.get(cv2.CAP_PROP_FRAME_HEIGHT))
     )
+
+    old_frame = None
+    temp = None
     file_count = 0
+    position = -1
+    wait = 100
+    current_mode = "fast_forward"
     while sample.isOpened():
         current_frame = int(sample.get(cv2.CAP_PROP_POS_FRAMES))
-        if skip_read:
-            if record_now:
-                print('Error! Cannot record during skip mode!')
-            else:
-                print('Skip Mode')
-        else:
-            if record_now:
-                print('Record Mode')
-            else:
-                print('Rewind Mode')
-        if current_frame % (skip_frame + 1) != 0 and skip_read and not record_now:
-            # 当不处于倒带和摄影模式时快速读取当前帧的数据但不解码，节省时间
-            sample.grab()
-            print('Skip', current_frame, 'frame.')
-        else:
-            ret, frame = sample.read()
-            if frame is not None:
+        current_mode, wait = mode_switch(position=position, current_mode=current_mode, wait=wait)
+        print(current_mode, current_frame, wait, file_count)
 
-                # region process and inspect
-                src_frame = frame.copy()
-                frame = cv2.resize(frame, new_size)
-
-                if current_frame == 0:
-                    cut_box = get_boxes(frame)
-                frame = cut_timestamp(cut_box=cut_box, vis=frame)
-
-                temp, frame = get_diff(frame, old_frame)
-
-                position = get_position(
-                    frame=frame,
-                    sizes=new_size
-                )
-                mark_motion(
-                    new_size=new_size,
-                    position=position,
-                    frame=frame,
-                    src_frame=src_frame
-                )
-                # endregion
-
-                # region switch modes
-                if position in [0, 1, 2, 3, 4, 5]:
-                    if skip_read:
-                        assert not record_now
-                        old_frame = old_frame
-                        # 如果画面出现变化且不处于倒带状态，则开始倒带（倒带2帧），正向状态切为倒带状态（skip_read=False）
-                        if current_frame >= 2:
-                            current_frame -= 2
-                        else:
-                            current_frame = 0
-                        sample.set(cv2.CAP_PROP_POS_FRAMES, current_frame)
-                        skip_read = False
-                    else:
-                        if record_now:
-                            old_frame = temp
-                            print('Recording...')
-                            if vw is None:
-                                vw = cv2.VideoWriter(
-                                    output_path + "/" + file_name + "_" + str(file_count) + '.mp4',
-                                    cv2.VideoWriter_fourcc(*'mp4v'),
-                                    fps,
-                                    size
-                                )
-                            vw.write(frame)
-                        else:
-                            old_frame = old_frame
-                            # 如果画面出现变化且处于倒带状态，则继续倒带（倒带2帧）
-                            if current_frame >= 2:
-                                current_frame -= 2
-                            else:
-                                current_frame = 0
-                            sample.set(cv2.CAP_PROP_POS_FRAMES, current_frame)
-                            skip_read = False
+        if current_mode == "fast_forward":
+            frame = fast_forward(sample=sample, current_frame=current_frame, skip_frame=skip_frame)
+            if type(frame) is str:
+                if frame == "skip_diff":
+                    continue
                 else:
-                    old_frame = temp
-                    if skip_read:
-                        # 如果画面无变化且不处于倒带状态，则继续运行，下一次将读取skip_frame个帧数后的那一帧
-                        # 录像模式若开启，则关闭
-                        assert not record_now
-                    else:
-                        if record_now:
-                            record_now = False
-                        if vw is not None:
-                            if vw.isOpened():
-                                vw.release()
-                                file_count += 1
-                        else:
-                            # 如果画面无变化且处于倒带状态，则意味着到达有动作状态的开头，此时关闭倒带模式，开启录像模式
-                            skip_read = False
-                            record_now = True
-                # endregion
+                    break
+        elif current_mode == "rewind":
+            sample, current_frame, frame = rewind(current_frame=current_frame, sample=sample)
+            if type(frame) is str:
+                break
+        elif current_mode in ['start_record', 'recording', 'stop_record']:
+            current_frame = int(sample.get(cv2.CAP_PROP_POS_FRAMES))
+            ret, frame = sample.read()
+            sample.grab()
+            sample.grab()
+            if frame is None:
+                break
+        else:
+            raise ValueError('状态异常')
+
+        assert frame.shape == (size[1], size[0], 3)
+
+        old_frame = temp
+
+        position, src_frame, temp, cut_box = process_and_inspect(
+            frame=frame,
+            new_size=new_size,
+            current_frame=current_frame,
+            old_frame=old_frame,
+            cut_box=cut_box
+        )
+        assert temp.shape == (new_size[1], new_size[0])
+
+        assert src_frame.shape == (size[1], size[0], 3)
+        if current_mode == "start_record":
+            vw, file_count = start_record(
+                frame=src_frame,
+                output_path=output_path,
+                file_name=file_name,
+                file_count=file_count,
+                fps=fps,
+                size=size,
+                vw=vw
+            )
+        elif current_mode == "recording":
+            recording(vw=vw, frame=src_frame)
+        elif current_mode == "stop_record":
+            stop_record(vw=vw, frame=src_frame)
 
     sample.release()
-    if vw.isOpened:
+    if vw is not None and vw.isOpened:
         vw.release()
     cv2.destroyAllWindows()
     return src_id
