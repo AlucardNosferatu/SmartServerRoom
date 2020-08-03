@@ -42,7 +42,7 @@ def get_diff(frame, old_frame):
 
 def get_position(frame, sizes):
     # region get Sizes
-    th = 1000
+    th = 5000
     w, h = sizes
     x1 = int(0.3 * w)
     x2 = int(0.7 * w)
@@ -116,6 +116,7 @@ def mark_motion(new_size, position, frame, src_frame, flicker_points=False, show
         cv2.imshow("diff", cv2.resize(frame, (512, 384)))
         cv2.imshow("origin", cv2.resize(src_frame, (512, 384)))
         cv2.waitKey()
+        cv2.waitKey(1)
 
 
 def start_test_lite(
@@ -319,9 +320,9 @@ def mode_switch(position, current_mode, wait_rewind, wait_record):
             raise ValueError("状态异常")
 
 
-def fast_forward(sample, current_time, skip_frame):
+def fast_forward(sample, current_time, skip_time):
     # 当不处于倒带和摄影模式时快速读取当前帧的数据但不解码，节省时间
-    if current_time % (skip_frame * 80) != 0:
+    if current_time % skip_time != 0:
         sample.grab()
         return "skip_diff"
     else:
@@ -333,8 +334,8 @@ def fast_forward(sample, current_time, skip_frame):
 
 
 def rewind(current_time, sample):
-    if current_time >= (80 * 20):
-        current_time -= (80 * 20)
+    if current_time >= (80 * 5):
+        current_time -= (80 * 5)
     else:
         current_time = 0
 
@@ -402,7 +403,7 @@ def start_test_new(
         file_path="Samples\\Sample.mp4",
         output_path="Outputs",
         file_name='Sample.mp4',
-        skip_frame=6
+        skip_time=400
 ):
     file_name = file_name.split(".")[0]
     cut_box = [[57, 25, 500]]
@@ -417,6 +418,8 @@ def start_test_new(
     )
 
     temp = None
+    old_frame = None
+    t2o_count = 200
     file_count = 0
     position = -1
     wait_rewind = 5
@@ -434,7 +437,7 @@ def start_test_new(
         )
         print(current_mode, current_time, wait_rewind, wait_record, file_count)
         if current_mode == "fast_forward":
-            frame = fast_forward(sample=sample, current_time=current_time, skip_frame=skip_frame)
+            frame = fast_forward(sample=sample, current_time=current_time, skip_time=skip_time)
             if type(frame) is str:
                 if frame == "skip_diff":
                     continue
@@ -454,7 +457,12 @@ def start_test_new(
 
         assert frame.shape == (size[1], size[0], 3)
 
-        old_frame = temp
+        if current_mode == "recording" and t2o_count > 0:
+            old_frame = old_frame
+            t2o_count -= 1
+        else:
+            old_frame = temp
+            t2o_count = 200
 
         position, src_frame, temp, cut_box = process_and_inspect(
             frame=frame,
