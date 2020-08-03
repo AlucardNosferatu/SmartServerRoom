@@ -42,7 +42,7 @@ def get_diff(frame, old_frame):
 
 def get_position(frame, sizes):
     # region get Sizes
-    th = 20000
+    th = 25000
     w, h = sizes
     x1 = int(0.3 * w)
     x2 = int(0.7 * w)
