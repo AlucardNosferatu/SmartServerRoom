@@ -400,7 +400,7 @@ def start_test_new(
         file_path="Samples\\Sample.mp4",
         output_path="Outputs",
         file_name='Sample.mp4',
-        skip_frame=200
+        skip_frame=25
 ):
     file_name = file_name.split(".")[0]
     cut_box = [[57, 25, 500]]
@@ -408,7 +408,7 @@ def start_test_new(
     sample = cv2.VideoCapture(file_path)
 
     vw = None
-    fps = 15
+    fps = int(sample.get(cv2.CAP_PROP_FRAME_WIDTH)/2)
     size = (
         int(sample.get(cv2.CAP_PROP_FRAME_WIDTH)),
         int(sample.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -439,7 +439,6 @@ def start_test_new(
         elif current_mode in ['start_record', 'recording', 'stop_record']:
             current_frame = int(sample.get(cv2.CAP_PROP_POS_FRAMES))
             ret, frame = sample.read()
-            sample.grab()
             sample.grab()
             if frame is None:
                 break
