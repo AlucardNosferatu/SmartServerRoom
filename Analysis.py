@@ -423,6 +423,7 @@ def start_test_new(
     current_mode = "fast_forward"
     while sample.isOpened():
         current_frame = int(sample.get(cv2.CAP_PROP_POS_FRAMES))
+        current_time = int(sample.get(cv2.CAP_PROP_POS_MSEC))
         current_mode, wait_rewind, wait_record = mode_switch(
             position=position,
             current_mode=current_mode,
@@ -430,7 +431,7 @@ def start_test_new(
             wait_record=wait_record
         )
         print(current_mode, current_frame, wait_rewind, wait_record, file_count)
-
+        print(current_time)
         if current_mode == "fast_forward":
             frame = fast_forward(sample=sample, current_frame=current_frame, skip_frame=skip_frame)
             if type(frame) is str:
