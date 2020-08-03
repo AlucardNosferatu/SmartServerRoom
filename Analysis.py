@@ -389,12 +389,12 @@ def process_and_inspect(frame, new_size, first_frame, old_frame, cut_box):
         frame=frame,
         sizes=new_size
     )
-    mark_motion(
-        new_size=new_size,
-        position=position,
-        frame=frame,
-        src_frame=src_frame
-    )
+    # mark_motion(
+    #     new_size=new_size,
+    #     position=position,
+    #     frame=frame,
+    #     src_frame=src_frame
+    # )
     # endregion
     return position, src_frame, temp, cut_box
 
@@ -404,7 +404,7 @@ def start_test_new(
         file_path="Samples\\Sample.mp4",
         output_path="Outputs",
         file_name='Sample.mp4',
-        skip_time=400
+        skip_time=800
 ):
     file_name = file_name.split(".")[0]
     cut_box = [[57, 25, 500]]
