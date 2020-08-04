@@ -68,7 +68,7 @@ def train_model():
     )
     print("es_checkpoint added.")
     tb_checkpoint = TensorBoard(
-        log_dir='TensorBoard',
+        log_dir='../TensorBoard',
         histogram_freq=1,
         write_images=True,
         update_freq='epoch'
