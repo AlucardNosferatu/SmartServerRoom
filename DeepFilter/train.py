@@ -50,9 +50,44 @@ def data_generator():
 
 def train_model():
     model = build_model()
-
-    model.compile(loss=tf.keras.losses.categorical_crossentropy)
-    model.fit_generator(generator=data_generator(), steps_per_epoch=100, epochs=100)
+    cp_checkpoint = ModelCheckpoint(
+        filepath='Models/QRCode_Detector.h5',
+        monitor='val_loss',
+        verbose=1,
+        save_best_only=True,
+        save_freq='epoch',
+        save_weights_only=True
+    )
+    print("cp_checkpoint added.")
+    es_checkpoint = EarlyStopping(
+        monitor='val_loss',
+        min_delta=0,
+        patience=5,
+        verbose=1,
+        mode='auto'
+    )
+    print("es_checkpoint added.")
+    tb_checkpoint = TensorBoard(
+        log_dir='TensorBoard',
+        histogram_freq=1,
+        write_images=True,
+        update_freq='epoch'
+    )
+    print("tb_checkpoint added.")
+    model.compile(
+        loss=tf.keras.losses.categorical_crossentropy,
+        optimizer=tf.keras.optimizers.Adam(lr=0.001)
+    )
+    model.fit_generator(
+        generator=data_generator(),
+        steps_per_epoch=100,
+        epochs=100,
+        callbacks=[
+            cp_checkpoint,
+            es_checkpoint,
+            tb_checkpoint
+        ]
+    )
 
 
 if __name__ == '__main__':
