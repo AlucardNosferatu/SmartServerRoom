@@ -23,11 +23,17 @@ def build_model():
     return new_vgg
 
 
-def data_generator():
+def data_generator(mode='train'):
     labels = []
     images = []
     with open('../valid_file.txt', mode='r', encoding='utf-8') as f:
         lines = f.readlines()
+        if mode == 'train':
+            lines = lines[:70000]
+        elif mode == 'test':
+            lines = lines[70000:]
+        else:
+            raise ValueError('Mode must be "train" or "test".')
     while True:
         while len(images) < batch_size:
             line = random.choice(lines)
@@ -51,7 +57,7 @@ def data_generator():
 def train_model():
     model = build_model()
     cp_checkpoint = ModelCheckpoint(
-        filepath='Models/QRCode_Detector.h5',
+        filepath='../Models/QRCode_Detector.h5',
         monitor='val_loss',
         verbose=1,
         save_best_only=True,
@@ -78,16 +84,21 @@ def train_model():
         loss=tf.keras.losses.categorical_crossentropy,
         optimizer=tf.keras.optimizers.Adam(lr=0.001)
     )
-    model.fit_generator(
-        generator=data_generator(),
-        steps_per_epoch=100,
-        epochs=100,
-        callbacks=[
-            cp_checkpoint,
-            es_checkpoint,
-            tb_checkpoint
-        ]
-    )
+    if os.path.exists('../Models/QRCode_Detector.h5'):
+        model.load_weights(filepath='../Models/QRCode_Detector.h5')
+    with tf.device("/gpu:0"):
+        model.fit_generator(
+            generator=data_generator(mode='train'),
+            validation_data=data_generator(mode='test'),
+            steps_per_epoch=100,
+            validation_steps=2,
+            epochs=100,
+            callbacks=[
+                cp_checkpoint,
+                es_checkpoint,
+                tb_checkpoint
+            ]
+        )
 
 
 if __name__ == '__main__':
