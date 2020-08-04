@@ -55,22 +55,22 @@ def process_dir(
             start = datetime.datetime.now()
             convert(file_path=file_path)
             flv_path = file_path.replace('.mp4', '.MP4').replace('.MP4', '.flv')
-            # src_id = start_test_lite(
-            #     src_id=request_id,
-            #     file_path=flv_path,
-            #     output_path=output_path,
-            #     file_name=i,
-            #     skip_read=False,
-            #     show_diff=False
-            # )
-            src_id = start_test_new(
+            src_id = start_test_lite(
                 src_id=request_id,
                 file_path=flv_path,
                 output_path=output_path,
-                file_name=i
+                file_name=i,
+                skip_read=False,
+                show_diff=False
             )
-            # if os.path.exists(flv_path):
-            #     os.remove(flv_path)
+            # src_id = start_test_new(
+            #     src_id=request_id,
+            #     file_path=flv_path,
+            #     output_path=output_path,
+            #     file_name=i
+            # )
+            if os.path.exists(flv_path):
+                os.remove(flv_path)
             end = datetime.datetime.now()
             print(str(end - start))
             src_num += 1
@@ -124,5 +124,5 @@ def convert(file_path='Samples/010tMonitorCollect20200729025635377826769671_171.
 
 
 if __name__ == '__main__':
-    # start_server()
-    process_dir(_=None, request_id='1')
+    start_server()
+    # process_dir(_=None, request_id='1')
