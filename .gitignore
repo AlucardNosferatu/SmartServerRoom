@@ -9,5 +9,4 @@ TensorBoard/train/
 TensorBoard/validation/
 __pycache__/
 *.dat
-valid_file.txt
 *.flv
