@@ -252,14 +252,14 @@ def start_test_lite(
                 end = datetime.datetime.now()
                 diff_time += (end - start)
 
-            mark_motion(
-                new_size=new_size,
-                position=position,
-                frame=frame,
-                src_frame=src_frame,
-                flicker_points=flicker_points,
-                show_diff=show_diff
-            )
+            # mark_motion(
+            #     new_size=new_size,
+            #     position=position,
+            #     frame=frame,
+            #     src_frame=src_frame,
+            #     flicker_points=flicker_points,
+            #     show_diff=show_diff
+            # )
         else:
             break
         first_frame = False
