@@ -11,8 +11,9 @@ from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.utils import to_categorical
 
 batch_size = 32
-img_dir_path = 'C:/BaiduNetdiskDownload/202005/202005.v2'
-# img_dir_path = '/tmp/PR'
+train_steps = 800
+# img_dir_path = 'C:/BaiduNetdiskDownload/202005/202005.v2'
+img_dir_path = '/tmp/PR'
 
 
 def build_model():
@@ -31,9 +32,9 @@ def data_generator(mode='train'):
     with open('../valid_file.txt', mode='r', encoding='utf-8') as f:
         lines = f.readlines()
         if mode == 'train':
-            lines = lines[:70000]
+            lines = lines[:train_steps * batch_size]
         elif mode == 'test':
-            lines = lines[70000:]
+            lines = lines[-4 * batch_size:]
         else:
             raise ValueError('Mode must be "train" or "test".')
     while True:
@@ -64,9 +65,9 @@ def data_processor(mode='train'):
     with open('../valid_file.txt', mode='r', encoding='utf-8') as f:
         lines = f.readlines()
         if mode == 'train':
-            lines = lines[:1000]
+            lines = lines[:train_steps * batch_size]
         elif mode == 'test':
-            lines = lines[-100:]
+            lines = lines[-4 * batch_size:]
         else:
             raise ValueError('Mode must be "train" or "test".')
     for line in lines:
@@ -87,7 +88,7 @@ def train_model(use_generator=True):
     model = build_model()
     cp_checkpoint = ModelCheckpoint(
         filepath='../Models/QRCode_Detector.h5',
-        monitor='loss',
+        monitor='val_loss',
         verbose=1,
         save_best_only=True,
         save_freq='epoch',
@@ -95,7 +96,7 @@ def train_model(use_generator=True):
     )
     print("cp_checkpoint added.")
     es_checkpoint = EarlyStopping(
-        monitor='loss',
+        monitor='val_loss',
         min_delta=0,
         patience=5,
         verbose=1,
@@ -130,7 +131,7 @@ def train_model(use_generator=True):
             model.fit_generator(
                 generator=data_generator(mode='train'),
                 validation_data=data_generator(mode='test'),
-                steps_per_epoch=2000,
+                steps_per_epoch=train_steps,
                 validation_steps=2,
                 epochs=100,
                 callbacks=[
@@ -145,7 +146,7 @@ def train_model(use_generator=True):
                 y=y_train,
                 validation_data=[x_test, y_test],
                 batch_size=batch_size,
-                steps_per_epoch=2,
+                steps_per_epoch=train_steps,
                 validation_steps=2,
                 epochs=100,
                 callbacks=[
