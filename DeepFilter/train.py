@@ -1,14 +1,14 @@
 import os
 import random
+
 import numpy as np
 import tensorflow as tf
-from tqdm import tqdm
 from tensorflow.keras import Model
-from tensorflow.keras.utils import to_categorical
-from tensorflow.keras.layers import Input, Dense, Flatten
-from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
+from tensorflow.keras.layers import Input, Dense, Flatten
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
+from tensorflow.keras.utils import to_categorical
 
 batch_size = 32
 img_dir_path = 'C:/BaiduNetdiskDownload/202005/202005.v2'
@@ -64,12 +64,12 @@ def data_processor(mode='train'):
     with open('../valid_file.txt', mode='r', encoding='utf-8') as f:
         lines = f.readlines()
         if mode == 'train':
-            lines = lines[:70000]
+            lines = lines[:1000]
         elif mode == 'test':
-            lines = lines[70000:]
+            lines = lines[-100:]
         else:
             raise ValueError('Mode must be "train" or "test".')
-    for line in tqdm(lines):
+    for line in lines:
         img_name, label = line.strip().split('\t')
         labels.append(int(label))
         img_path = os.path.join(img_dir_path, img_name)
@@ -77,8 +77,8 @@ def data_processor(mode='train'):
         image = img_to_array(img=image)
         image = preprocess_input(image)
         images.append(image)
-    x = np.array(images[:batch_size])
-    y = np.array(labels[:batch_size])
+    x = np.array(images)
+    y = np.array(labels)
     y = to_categorical(y, num_classes=2)
     return x, y
 
@@ -117,11 +117,14 @@ def train_model(use_generator=True):
     if os.path.exists('../Models/QRCode_Detector.h5'):
         model.load_weights(filepath='../Models/QRCode_Detector.h5')
 
-    x_train, y_train = data_processor(mode='train')
-    print('train data loaded.')
-    x_test, y_test = data_processor(mode='test')
-    print('test data loaded.')
-
+    if not use_generator:
+        x_train, y_train = data_processor(mode='train')
+        print('train data loaded.')
+        x_test, y_test = data_processor(mode='test')
+        print('test data loaded.')
+    else:
+        x_train, y_train = np.zeros((1, 224, 224, 3)), np.zeros((1,))
+        x_test, y_test = np.zeros((1, 224, 224, 3)), np.zeros((1,))
     with tf.device("/gpu:0"):
         if use_generator:
             model.fit_generator(
@@ -140,20 +143,18 @@ def train_model(use_generator=True):
             model.fit(
                 x=x_train,
                 y=y_train,
-                validation_data=[x_test,y_test],
+                validation_data=[x_test, y_test],
                 batch_size=batch_size,
-                validation_batch_size=batch_size,
-                steps_per_epoch=2000,
+                steps_per_epoch=2,
                 validation_steps=2,
                 epochs=100,
                 callbacks=[
                     cp_checkpoint,
-                    es_checkpoint,
-                    tb_checkpoint
+                    es_checkpoint
                 ]
             )
 
 
 if __name__ == '__main__':
     # data_generator()
-    train_model()
+    train_model(use_generator=False)
