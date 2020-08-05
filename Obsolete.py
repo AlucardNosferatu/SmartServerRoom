@@ -68,7 +68,7 @@ def start_test(
     ct = base_time
     diff_t = base_time
     flicker = base_time
-    histo_t = base_time
+    histogram_t = base_time
     trigger_t = base_time
     record_t = base_time
     mm_t = base_time
@@ -221,7 +221,7 @@ def start_test(
             # endregion
             then = datetime.datetime.now()
             print("get histo: ", str(then - now))
-            histo_t += (then - now)
+            histogram_t += (then - now)
             now = then
 
             count += 1
@@ -326,7 +326,7 @@ def start_test(
     ct -= base_time
     diff_t -= base_time
     flicker -= base_time
-    histo_t -= base_time
+    histogram_t -= base_time
     trigger_t -= base_time
     record_t -= base_time
     mm_t -= base_time
@@ -336,7 +336,7 @@ def start_test(
     print('total_ct: ', str(ct))
     print('total_diff: ', str(diff_t))
     print('total_flicker: ', str(flicker))
-    print('total_histo: ', str(histo_t))
+    print('total_histo: ', str(histogram_t))
     print('total_trigger: ', str(trigger_t))
     print('total_record: ', str(record_t))
     print('total_motion:', str(mm_t))
