@@ -81,7 +81,7 @@ def process_dir(
             snap_shot(calc_and_draw_hist, file_path=file_path)
             dst_num += 1
     assert src_id == request_id
-    # post_result(request_id, src_num, dst_num)
+    post_result(request_id, src_num, dst_num)
 
 
 def delete_file(dir_path, i):
