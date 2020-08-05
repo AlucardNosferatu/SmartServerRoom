@@ -2,6 +2,7 @@ import os
 import random
 import numpy as np
 import tensorflow as tf
+from tqdm import tqdm
 from tensorflow.keras import Model
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.layers import Input, Dense, Flatten
@@ -11,6 +12,7 @@ from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoa
 
 batch_size = 32
 img_dir_path = 'C:/BaiduNetdiskDownload/202005/202005.v2'
+# img_dir_path = '/tmp/PR'
 
 
 def build_model():
@@ -56,7 +58,32 @@ def data_generator(mode='train'):
             images = []
 
 
-def train_model():
+def data_processor(mode='train'):
+    labels = []
+    images = []
+    with open('../valid_file.txt', mode='r', encoding='utf-8') as f:
+        lines = f.readlines()
+        if mode == 'train':
+            lines = lines[:70000]
+        elif mode == 'test':
+            lines = lines[70000:]
+        else:
+            raise ValueError('Mode must be "train" or "test".')
+    for line in tqdm(lines):
+        img_name, label = line.strip().split('\t')
+        labels.append(int(label))
+        img_path = os.path.join(img_dir_path, img_name)
+        image = load_img(path=img_path, target_size=(224, 224))
+        image = img_to_array(img=image)
+        image = preprocess_input(image)
+        images.append(image)
+    x = np.array(images[:batch_size])
+    y = np.array(labels[:batch_size])
+    y = to_categorical(y, num_classes=2)
+    return x, y
+
+
+def train_model(use_generator=True):
     model = build_model()
     cp_checkpoint = ModelCheckpoint(
         filepath='../Models/QRCode_Detector.h5',
@@ -89,19 +116,42 @@ def train_model():
     )
     if os.path.exists('../Models/QRCode_Detector.h5'):
         model.load_weights(filepath='../Models/QRCode_Detector.h5')
+
+    x_train, y_train = data_processor(mode='train')
+    print('train data loaded.')
+    x_test, y_test = data_processor(mode='test')
+    print('test data loaded.')
+
     with tf.device("/gpu:0"):
-        model.fit_generator(
-            generator=data_generator(mode='train'),
-            validation_data=data_generator(mode='test'),
-            steps_per_epoch=1000,
-            validation_steps=2,
-            epochs=100,
-            callbacks=[
-                cp_checkpoint,
-                es_checkpoint,
-                tb_checkpoint
-            ]
-        )
+        if use_generator:
+            model.fit_generator(
+                generator=data_generator(mode='train'),
+                validation_data=data_generator(mode='test'),
+                steps_per_epoch=2000,
+                validation_steps=2,
+                epochs=100,
+                callbacks=[
+                    cp_checkpoint,
+                    es_checkpoint,
+                    tb_checkpoint
+                ]
+            )
+        else:
+            model.fit(
+                x=x_train,
+                y=y_train,
+                validation_data=[x_test,y_test],
+                batch_size=batch_size,
+                validation_batch_size=batch_size,
+                steps_per_epoch=2000,
+                validation_steps=2,
+                epochs=100,
+                callbacks=[
+                    cp_checkpoint,
+                    es_checkpoint,
+                    tb_checkpoint
+                ]
+            )
 
 
 if __name__ == '__main__':
