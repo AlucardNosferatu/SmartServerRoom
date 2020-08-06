@@ -179,12 +179,34 @@ def out_most_only(up, down, left, right):
     return u_d_l_r
 
 
+def get_u_d_l_r(img):
+    up, down, left, right = get_4edges(img)
+    # up = csl_via_centers(lines=up, mode='h')
+    up = csl_with_slope(lines=up, img_h=img.shape[0], img_w=img.shape[1], mode='h')
+    up = length_filter(lines=up, img_h=img.shape[0], img_w=img.shape[1], mode='h')
+
+    # down = csl_via_centers(lines=down, mode='h')
+    down = csl_with_slope(lines=down, img_h=img.shape[0], img_w=img.shape[1], mode='h')
+    down = length_filter(lines=down, img_h=img.shape[0], img_w=img.shape[1], mode='h')
+
+    # left = csl_via_centers(lines=left, mode='v')
+    left = csl_with_slope(lines=left, img_h=img.shape[0], img_w=img.shape[1], mode='v')
+    left = length_filter(lines=left, img_h=img.shape[0], img_w=img.shape[1], mode='v')
+
+    # right = csl_via_centers(lines=right, mode='v')
+    right = csl_with_slope(lines=right, img_h=img.shape[0], img_w=img.shape[1], mode='v')
+    right = length_filter(lines=right, img_h=img.shape[0], img_w=img.shape[1], mode='v')
+
+    u_d_l_r = out_most_only(up, down, left, right)
+    return u_d_l_r
+
+
 def test_cam():
     sample = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
     while sample.isOpened():
         ret, img = sample.read()
         if img is not None:
-            # img = cv2.imread("Samples/LCD.jpg")
+            img = cv2.imread("Samples/HMI2.jpg")
             up, down, left, right = get_4edges(img)
             # up = csl_via_centers(lines=up, mode='h')
             up = csl_with_slope(lines=up, img_h=img.shape[0], img_w=img.shape[1], mode='h')
