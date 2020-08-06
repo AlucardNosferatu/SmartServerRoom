@@ -45,7 +45,6 @@ def combine_short_lines(lines, img_h, img_w, mode='h'):
     min_c = min(c_list)
     if min_c - 1 > 0:
         min_c -= 1
-    
 
 
 if __name__ == "__main__":
