@@ -49,24 +49,27 @@ def km_1d(lines, mode='h'):
 
 
 if __name__ == "__main__":
-    
-    img = cv2.imread("Samples/Edges.jpg")
-    img = cv2.resize(img, (768, 1024))
-    lines = get_edges(img)
-    h, v = sort_directions(lines)
-    u, d = km_1d(h, 'h')
-    l, r = km_1d(v, 'v')
-    for line in u:
-        x1, y1, x2, y2 = line[0]
-        img = cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
-    for line in d:
-        x1, y1, x2, y2 = line[0]
-        img = cv2.line(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
-    for line in l:
-        x1, y1, x2, y2 = line[0]
-        img = cv2.line(img, (x1, y1), (x2, y2), (255, 0, 0), 2)
-    for line in r:
-        x1, y1, x2, y2 = line[0]
-        img = cv2.line(img, (x1, y1), (x2, y2), (255, 255, 0), 2)
-    cv2.imshow("line_detect_possible_demo", img)
-    cv2.waitKey()
+    sample = cv2.VideoCapture()
+    while sample.isOpened():
+        ret, frame = sample.read()
+        if frame is not None:
+            # frame = cv2.imread("Samples/Edges.jpg")
+            # frame = cv2.resize(img, (768, 1024))
+            lines = get_edges(frame)
+            h, v = sort_directions(lines)
+            u, d = km_1d(h, 'h')
+            l, r = km_1d(v, 'v')
+            for line in u:
+                x1, y1, x2, y2 = line[0]
+                frame = cv2.line(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
+            for line in d:
+                x1, y1, x2, y2 = line[0]
+                frame = cv2.line(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            for line in l:
+                x1, y1, x2, y2 = line[0]
+                frame = cv2.line(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
+            for line in r:
+                x1, y1, x2, y2 = line[0]
+                frame = cv2.line(frame, (x1, y1), (x2, y2), (255, 255, 0), 2)
+            cv2.imshow("line_detect_possible_demo", frame)
+            cv2.waitKey(1)
