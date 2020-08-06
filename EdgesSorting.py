@@ -14,9 +14,9 @@ def sort_directions(lines):
         x1, y1, x2, y2 = line[0]
         dx = abs(x2 - x1)
         dy = abs(y2 - y1)
-        if dx >= 20 >= dy:
+        if dx >= 30 >= dy:
             horizontal.append([line[0]])
-        elif dy >= 20 >= dx:
+        elif dy >= 30 >= dx:
             vertical.append([line[0]])
     return horizontal, vertical
 
