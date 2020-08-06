@@ -8,6 +8,8 @@ from EdgesDetection import get_edges
 def sort_directions(lines):
     horizontal = []
     vertical = []
+    if lines is None:
+        return horizontal, vertical
     for line in lines:
         x1, y1, x2, y2 = line[0]
         dx = abs(x2 - x1)
