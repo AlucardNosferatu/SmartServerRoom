@@ -5,7 +5,8 @@ import cv2
 
 predictor_path = 'Models/shape_predictor_68_face_landmarks.dat'
 face_rc_model_path = 'Models/dlib_face_recognition_resnet_model_v1.dat'
-face_folder_path = 'C:/Users/16413/Documents/GitHub/YOLO/faces/Faces/forDlib'
+# face_folder_path = 'C:/Users/16413/Documents/GitHub/YOLO/faces/Faces/forDlib'
+face_folder_path = 'Backup/Faces'
 test_img_path = "Samples/test.jpg"
 
 
@@ -17,6 +18,7 @@ def read_data(path):
         for i in pic_name_list:
             whole_path = os.path.join(path, i)
             img = cv2.imread(whole_path)
+            img = cv2.resize(img, (int(img.shape[1] / 4), int(img.shape[0] / 4)))
             pic_list.append(img)
     except IOError:
         print('read error')
@@ -67,8 +69,8 @@ def get_recorded_features():
 
 
 def test_single_image():
-    detector, feature_point, feature_model = init_detectors
-    descriptors, name_list = get_recorded_features
+    detector, feature_point, feature_model = init_detectors()
+    descriptors, name_list = get_recorded_features()
     '''
     对单张人脸进行识别
     '''
@@ -102,12 +104,15 @@ def test_cam():
     '''
     对单张人脸进行识别
     '''
-    sample = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
+    # sample = cv2.VideoCapture(0 +
+    file_path = "Outputs/010tMonitorCollect202008030345203367831f74d7_281_0.mp4"
+    sample = cv2.VideoCapture(file_path)
     while sample.isOpened():
         ret, test_img = sample.read()
         if test_img is not None:
             dets = detector(test_img, 1)
             test_feature = None
+            cv2.imshow('detected face:', test_img)
             for k, d in enumerate(dets):
                 shape = feature_point(test_img, d)
                 key_points = list(shape.parts())
@@ -134,6 +139,7 @@ def test_cam():
             break
     sample.release()
     cv2.destroyAllWindows()
+
 
 if __name__ == '__main__':
     test_cam()
