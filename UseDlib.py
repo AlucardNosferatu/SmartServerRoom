@@ -120,20 +120,20 @@ def test_cam():
                 for point in key_points:
                     test_img_copy = cv2.circle(test_img_copy, (point.x, point.y), 1, (255, 0, 0), 4)
                 cv2.imshow('detected face:', test_img_copy)
-                test_feature = feature_model.compute_face_descriptor(test_img, shape)
-                test_feature = numpy.array(test_feature)
-                dist = []
-                count = 0
-                for i in descriptors:
-                    dist_ = numpy.linalg.norm(i - test_feature)
-                    print('%s : %f' % (name_list[count], dist_))
-                    dist.append(dist_)
-                    count += 1
-                # 返回距离最小的下标
-                min_dist = numpy.argmin(dist)
-                # 截取姓名字符串，去掉末尾的.jpg
-                result = name_list[min_dist][:-4]
-                print(result)
+                # test_feature = feature_model.compute_face_descriptor(test_img, shape)
+                # test_feature = numpy.array(test_feature)
+                # dist = []
+                # count = 0
+                # for i in descriptors:
+                #     dist_ = numpy.linalg.norm(i - test_feature)
+                #     print('%s : %f' % (name_list[count], dist_))
+                #     dist.append(dist_)
+                #     count += 1
+                # # 返回距离最小的下标
+                # min_dist = numpy.argmin(dist)
+                # # 截取姓名字符串，去掉末尾的.jpg
+                # result = name_list[min_dist][:-4]
+                # print(result)
         k = cv2.waitKey(50)
         if k & 0xff == ord('q'):
             break
