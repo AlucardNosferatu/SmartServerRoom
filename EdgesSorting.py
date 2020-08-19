@@ -93,4 +93,4 @@ def test_cam():
 
 
 if __name__ == "__main__":
-    pass
+    test_cam()

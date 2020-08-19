@@ -40,4 +40,6 @@ if __name__ == "__main__":
             if box is not None:
                 img = cv2.polylines(img, [box], True, (0, 0, 255), 2)
                 cv2.imshow("line_detect_possible_demo", img)
-                cv2.waitKey(1)
+            else:
+                cv2.imshow("line_detect_possible_demo", img)
+            cv2.waitKey(1)
