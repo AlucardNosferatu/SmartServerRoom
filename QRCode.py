@@ -33,7 +33,7 @@ def single_image_test(zx, file_path):
     zx_data = zx.decode(new_path)
     image = cv2.imread(new_path)
     count = 0
-    while zx_data is not None and len(zx_data.raw) > 0:
+    while zx_data is not None and len(zx_data.points) == 4:
         if 'http://xfujian.189.cn' not in zx_data.raw:
             image = cv2.fillPoly(image, np.array([zx_data.points], dtype=np.int32), (255, 255, 255))
             new_path = new_path.replace('.jpg', str(count).join(['_', '.jpg']))
@@ -47,7 +47,7 @@ def single_image_test(zx, file_path):
 
 
 if __name__ == '__main__':
-    batch_filter()
-    # zx = zxing.BarCodeReader()
-    # file_path = 'Samples/2code.jpg'
-    # single_image_test(zx, file_path)
+    # batch_filter()
+    zx = zxing.BarCodeReader()
+    file_path = 'Samples/photo (10014) - 副本.jpg'
+    single_image_test(zx, file_path)
