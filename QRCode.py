@@ -18,30 +18,32 @@ def batch_filter():
         f.seek(checked_length)
         for file_name in tqdm(img_list[checked_length:]):
             file_path = os.path.join(path, file_name)
-            zx_data = zx.decode(file_path)
-            if zx_data is not None and len(zx_data.raw) > 0:
-                if 'http://xfujian.189.cn' in zx_data.raw:
-                    f.write(file_name + '\t' + '1' + '\n')
-                    f.flush()
+            has_qr = single_image_test(zx, file_path)
+            if has_qr:
+                f.write(file_name + '\t' + '1' + '\n')
+                f.flush()
             else:
                 f.write(file_name + '\t' + '0' + '\n')
                 f.flush()
-
     print('Done')
 
 
-def single_image_test():
-    zx = zxing.BarCodeReader()
-    file_path = 'Samples/2Code/2code.jpg'
-    zx_data = zx.decode(file_path)
-    if 'http://xfujian.189.cn' not in zx_data.raw:
-        image = cv2.imread(file_path)
-        image = cv2.fillPoly(image, np.array([zx_data.points], dtype=np.int32), (255, 255, 255))
-        file_path = file_path.replace('2code', '1code')
-        cv2.imwrite(file_path, image)
-        zx_data = zx.decode(file_path)
-    print('Done')
+def single_image_test(zx, file_path):
+    new_path = file_path
+    zx_data = zx.decode(new_path)
+    count = 0
+    while zx_data is not None and len(zx_data.raw) > 0:
+        if 'http://xfujian.189.cn' not in zx_data.raw:
+            image = cv2.imread(new_path)
+            image = cv2.fillPoly(image, np.array([zx_data.points], dtype=np.int32), (255, 255, 255))
+            new_path = new_path.replace('.jpg', str(count).join(['_', '.jpg']))
+            cv2.imwrite(new_path, image)
+            count += 1
+            zx_data = zx.decode(new_path)
+        else:
+            return True
+    return False
 
 
 if __name__ == '__main__':
-    single_image_test()
+    batch_filter()
