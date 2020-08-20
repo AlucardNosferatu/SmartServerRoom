@@ -83,9 +83,10 @@ def process_dir(
                     # )
                     if os.path.exists(flv_path):
                         os.remove(flv_path)
-                    retry -= 1
+                    retry = 0
                 except Exception as e:
                     print(repr(e))
+                    retry -= 1
                     time.sleep(1)
                     continue
             end = datetime.datetime.now()
@@ -102,7 +103,16 @@ def process_dir(
     for e, i in enumerate(out_files):
         if i.endswith('mp4') and True:
             file_path = os.path.join(output_path, i)
-            snap_shot(calc_and_draw_hist, file_path=file_path)
+            retry = 5
+            while retry > 0:
+                try:
+                    snap_shot(calc_and_draw_hist, file_path=file_path)
+                    retry = 0
+                except Exception as e:
+                    print(repr(e))
+                    retry -= 1
+                    time.sleep(1)
+                    continue
             dst_num += 1
     assert src_id == request_id
     post_result(request_id, src_num, dst_num)
