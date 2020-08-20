@@ -5,8 +5,8 @@ from tqdm import tqdm
 
 
 def batch_filter():
-    # path = 'C:/BaiduNetdiskDownload/202005/202005.v2'
-    path = '/tmp/Photos'
+    path = 'C:/BaiduNetdiskDownload/202005/202005.v2'
+    # path = '/tmp/Photos'
     zx = zxing.BarCodeReader()
     img_list = os.listdir(path)
     img_list.sort()

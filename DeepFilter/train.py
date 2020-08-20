@@ -167,9 +167,10 @@ def test_model():
         lines = f.readlines()
     for file in file_list:
         img_path = os.path.join(img_dir_path, file)
-        image = load_img(path=img_path, target_size=(224, 224))
+        image = load_img(path=img_path)
         image = img_to_array(img=image)
         show_image = image.copy().astype('uint8')
+        image = cv2.resize(image, (224, 224))
         image = preprocess_input(image)
         result = model.predict(np.expand_dims(image, axis=0))
         result = str(np.argmax(result[0]))
