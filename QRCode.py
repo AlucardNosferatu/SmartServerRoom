@@ -18,7 +18,7 @@ def batch_filter():
         f.seek(checked_length)
         for file_name in tqdm(img_list[checked_length:]):
             file_path = os.path.join(path, file_name)
-            has_qr = single_image_test(zx, file_path)
+            has_qr = single_image_test(zx, file_path, use_enhance=True)
             if has_qr:
                 f.write(file_name + '\t' + '1' + '\n')
                 f.flush()
@@ -28,26 +28,30 @@ def batch_filter():
     print('Done')
 
 
-def single_image_test(zx, file_path):
+def single_image_test(zx, file_path, use_enhance):
     new_path = file_path
-    zx_data = zx.decode(new_path)
     image = cv2.imread(new_path)
+    zx_data = zx.decode(new_path, try_harder=True)
     count = 0
-    while zx_data is not None and len(zx_data.points) == 4:
+    while zx_data is not None and len(zx_data.points) >= 3:
         if 'http://xfujian.189.cn' not in zx_data.raw:
             image = cv2.fillPoly(image, np.array([zx_data.points], dtype=np.int32), (255, 255, 255))
             new_path = new_path.replace('.jpg', str(count).join(['_', '.jpg']))
             cv2.imwrite(new_path, image)
             count += 1
-            zx_data = zx.decode(new_path)
+            zx_data = zx.decode(new_path, try_harder=True)
             os.remove(new_path)
         else:
             return True
+    if count == 0 and use_enhance:
+        image_e = cv2.convertScaleAbs(image, alpha=1.8, beta=-90)
+        cv2.imwrite(new_path, image_e)
+        return single_image_test(zx, file_path, use_enhance=False)
     return False
 
 
 if __name__ == '__main__':
     # batch_filter()
     zx = zxing.BarCodeReader()
-    file_path = 'Samples/photo (10014) - 副本.jpg'
-    single_image_test(zx, file_path)
+    file_path = 'Samples/photo (10042).jpg'
+    single_image_test(zx, file_path, use_enhance=True)
