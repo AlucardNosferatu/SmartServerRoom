@@ -1,5 +1,6 @@
 import datetime
 import os
+import time
 
 import cv2
 import numpy as np
@@ -48,33 +49,56 @@ def process_dir(
     src_num = 0
     dst_num = 0
     src_id = 0
-    for e, i in enumerate(os.listdir(dir_path)):
+    busy = True
+    in_files = []
+    while busy:
+        try:
+            in_files = os.listdir(dir_path)
+        except OSError:
+            continue
+        busy = False
+    for e, i in enumerate(in_files):
         if (i.endswith('mp4') or i.endswith('MP4')) and True:
             file_path = os.path.join(dir_path, i)
             print('file_path is:', file_path)
             start = datetime.datetime.now()
-            convert(file_path=file_path)
-            flv_path = file_path.replace('.mp4', '.MP4').replace('.MP4', '.flv')
-            src_id = start_test_lite(
-                src_id=request_id,
-                file_path=flv_path,
-                output_path=output_path,
-                file_name=i,
-                skip_read=False,
-                show_diff=False
-            )
-            # src_id = start_test_new(
-            #     src_id=request_id,
-            #     file_path=flv_path,
-            #     output_path=output_path,
-            #     file_name=i
-            # )
-            if os.path.exists(flv_path):
-                os.remove(flv_path)
+            retry = 5
+            while retry > 0:
+                try:
+                    convert(file_path=file_path)
+                    flv_path = file_path.replace('.mp4', '.MP4').replace('.MP4', '.flv')
+                    src_id = start_test_lite(
+                        src_id=request_id,
+                        file_path=flv_path,
+                        output_path=output_path,
+                        file_name=i,
+                        skip_read=False,
+                        show_diff=False
+                    )
+                    # src_id = start_test_new(
+                    #     src_id=request_id,
+                    #     file_path=flv_path,
+                    #     output_path=output_path,
+                    #     file_name=i
+                    # )
+                    if os.path.exists(flv_path):
+                        os.remove(flv_path)
+                    retry -= 1
+                except Exception as e:
+                    print(repr(e))
+                    time.sleep(1)
+                    continue
             end = datetime.datetime.now()
             print(str(end - start))
             src_num += 1
-    out_files = os.listdir(output_path)
+    busy = True
+    out_files = []
+    while busy:
+        try:
+            out_files = os.listdir(output_path)
+        except OSError:
+            continue
+        busy = False
     for e, i in enumerate(out_files):
         if i.endswith('mp4') and True:
             file_path = os.path.join(output_path, i)
@@ -124,5 +148,5 @@ def convert(file_path='Samples/010tMonitorCollect20200729025635377826769671_171.
 
 
 if __name__ == '__main__':
-    start_server()
-    # process_dir(_=None, request_id='1')
+    # start_server()
+    process_dir(_=None, request_id='1')
