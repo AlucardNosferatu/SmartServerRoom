@@ -51,7 +51,7 @@ def single_image_test(zx, file_path, use_enhance):
 
 
 if __name__ == '__main__':
-    # batch_filter()
-    zx = zxing.BarCodeReader()
-    file_path = 'Samples/temp.jpg'
-    single_image_test(zx, file_path, use_enhance=True)
+    batch_filter()
+    # zx = zxing.BarCodeReader()
+    # file_path = 'Samples/temp.jpg'
+    # single_image_test(zx, file_path, use_enhance=True)
