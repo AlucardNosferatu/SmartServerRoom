@@ -158,5 +158,5 @@ def convert(file_path='Samples/010tMonitorCollect20200729025635377826769671_171.
 
 
 if __name__ == '__main__':
-    # start_server()
-    process_dir(_=None, request_id='1')
+    start_server()
+    # process_dir(_=None, request_id='1')
