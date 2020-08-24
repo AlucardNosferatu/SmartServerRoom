@@ -1,13 +1,15 @@
-from flask import Flask, request
-import os
-import cv2
-import json
-import time
-from QRCode import test_on_array
 import base64
-from skimage import io
-import numpy as np
+import json
 import logging
+import os
+import time
+
+import cv2
+import numpy as np
+from flask import Flask, request
+from skimage import io
+
+from DeepFilter.test import test_on_array, load_weight
 
 app = Flask(__name__)
 
@@ -40,7 +42,7 @@ def img_start():
     return json.dumps({"system": 0}, ensure_ascii=False)
 
 
-@app.route('/decode', methods=['POST'])
+@app.route('/detect', methods=['POST'])
 def img_test():
     log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
     log_file_str = log_file_folder + os.sep + log_file_name
@@ -84,12 +86,21 @@ def img_test():
             app.logger.info("recognition  return:{d},use time:{t}".format(d=result, t=time_take))
             return json.dumps({data['fileName']: [{'value': result}]}, ensure_ascii=False)
         # os.remove(path)
-        return json.dumps({'res': result, 'timeTake': round(time_take, 4)},
-                          ensure_ascii=False)
+        return json.dumps(
+            {
+                'res': {
+                    'classification': result[0],
+                    'value': result[1]
+                },
+                'timeTake': round(time_take, 4)
+            },
+            ensure_ascii=False
+        )
 
 
 if __name__ == '__main__':
+    load_weight(file_path='Models/QRCode_Detector.h5')
     app.run(
         host="0.0.0.0",
-        port=int("2029"),
+        port=int("1224"),
         debug=False, threaded=True)

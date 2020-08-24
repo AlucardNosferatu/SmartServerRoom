@@ -1,7 +1,6 @@
 import os
 import random
 
-import cv2
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import Model
@@ -159,31 +158,7 @@ def train_model(use_generator=True):
             )
 
 
-def test_model():
-    model = build_model()
-    model.load_weights(filepath='../Models/QRCode_Detector.h5')
-    file_list = os.listdir(img_dir_path)
-    with open('../valid_file.txt', mode='r', encoding='utf-8') as f:
-        lines = f.readlines()
-    for file in file_list:
-        img_path = os.path.join(img_dir_path, file)
-        image = load_img(path=img_path)
-        image = img_to_array(img=image)
-        show_image = image.copy().astype('uint8')
-        image = cv2.resize(image, (224, 224))
-        image = preprocess_input(image)
-        result = model.predict(np.expand_dims(image, axis=0))
-        result = str(np.argmax(result[0]))
-        label = file + '\t' + result + '\n'
-        print(file)
-        if label in lines:
-            cv2.imshow(result + ' ok', show_image)
-        else:
-            cv2.imshow(result + ' ng', show_image)
-        cv2.waitKey()
-
-
 if __name__ == '__main__':
-    # data_generator()
-    # train_model(use_generator=False)
-    test_model()
+    data_generator()
+    train_model(use_generator=False)
+
