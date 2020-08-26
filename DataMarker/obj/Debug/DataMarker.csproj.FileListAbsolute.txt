@@ -1,0 +1,10 @@
+C:\Users\16413\Desktop\FFCS\SVN\CV_Toolbox\SmartServerRoom\DataMarker\bin\Debug\DataMarker.exe.config
+C:\Users\16413\Desktop\FFCS\SVN\CV_Toolbox\SmartServerRoom\DataMarker\bin\Debug\DataMarker.exe
+C:\Users\16413\Desktop\FFCS\SVN\CV_Toolbox\SmartServerRoom\DataMarker\bin\Debug\DataMarker.pdb
+C:\Users\16413\Desktop\FFCS\SVN\CV_Toolbox\SmartServerRoom\DataMarker\obj\Debug\DataMarker.csprojAssemblyReference.cache
+C:\Users\16413\Desktop\FFCS\SVN\CV_Toolbox\SmartServerRoom\DataMarker\obj\Debug\DataMarker.Form1.resources
+C:\Users\16413\Desktop\FFCS\SVN\CV_Toolbox\SmartServerRoom\DataMarker\obj\Debug\DataMarker.Properties.Resources.resources
+C:\Users\16413\Desktop\FFCS\SVN\CV_Toolbox\SmartServerRoom\DataMarker\obj\Debug\DataMarker.csproj.GenerateResource.cache
+C:\Users\16413\Desktop\FFCS\SVN\CV_Toolbox\SmartServerRoom\DataMarker\obj\Debug\DataMarker.csproj.CoreCompileInputs.cache
+C:\Users\16413\Desktop\FFCS\SVN\CV_Toolbox\SmartServerRoom\DataMarker\obj\Debug\DataMarker.exe
+C:\Users\16413\Desktop\FFCS\SVN\CV_Toolbox\SmartServerRoom\DataMarker\obj\Debug\DataMarker.pdb

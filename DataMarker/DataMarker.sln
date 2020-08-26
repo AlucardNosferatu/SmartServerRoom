@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30330.147
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataMarker", "DataMarker.csproj", "{559C758E-0844-47F5-82B7-0109F32F97A3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{559C758E-0844-47F5-82B7-0109F32F97A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{559C758E-0844-47F5-82B7-0109F32F97A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{559C758E-0844-47F5-82B7-0109F32F97A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{559C758E-0844-47F5-82B7-0109F32F97A3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B7BED979-B0F0-4933-88C1-1B4C5709B086}
+	EndGlobalSection
+EndGlobal
