@@ -40,6 +40,9 @@ namespace DataMarker
                     this.recorded_labels.Add(content[0], content[1].Equals("1"));
                 }
             }
+            SR.Close();
+            FS.Close();
+
             DirectoryInfo DI = new DirectoryInfo(this.data_path);
             this.file_list = DI.GetFiles().ToList<FileInfo>();
             this.file_list.Remove(this.file_list[this.file_list.Count - 1]);
@@ -122,6 +125,19 @@ namespace DataMarker
                 recorded_labels.Add(current_file, false);
             }
             this.refresh_label();
+        }
+
+        private void save_list_Click(object sender, EventArgs e)
+        {
+            FileStream FS = new FileStream(this.list_path, FileMode.OpenOrCreate);
+            StreamWriter SW = new StreamWriter(FS);
+            List<string> file_out = this.recorded_labels.Keys.ToList<string>();
+            foreach(string file in file_out)
+            {
+                SW.WriteLine(file + "\t" + Convert.ToInt32(this.recorded_labels[file]).ToString());
+            }
+            SW.Close();
+            FS.Close();
         }
     }
 }

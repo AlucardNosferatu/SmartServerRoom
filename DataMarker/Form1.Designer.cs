@@ -64,6 +64,7 @@
             this.save_list.TabIndex = 2;
             this.save_list.Text = "💾";
             this.save_list.UseVisualStyleBackColor = true;
+            this.save_list.Click += new System.EventHandler(this.save_list_Click);
             // 
             // next_img
             // 
