@@ -73,8 +73,8 @@ def img_test():
 
         if len(img_string) > 200:
             img_string = base64.b64decode(img_string)
-            nparr = np.frombuffer(img_string, np.uint8)
-            img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            np_array = np.frombuffer(img_string, np.uint8)
+            img = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
 
         time_take = time.time()
 
