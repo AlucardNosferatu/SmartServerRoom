@@ -51,6 +51,7 @@
             this.prev_img.TabIndex = 1;
             this.prev_img.Text = "👈";
             this.prev_img.UseVisualStyleBackColor = true;
+            this.prev_img.Click += new System.EventHandler(this.prev_img_Click);
             // 
             // save_list
             // 
@@ -75,6 +76,7 @@
             this.next_img.TabIndex = 3;
             this.next_img.Text = "👉";
             this.next_img.UseVisualStyleBackColor = true;
+            this.next_img.Click += new System.EventHandler(this.next_img_Click);
             // 
             // mark_pass
             // 
@@ -87,6 +89,7 @@
             this.mark_pass.TabIndex = 4;
             this.mark_pass.Text = "√";
             this.mark_pass.UseVisualStyleBackColor = true;
+            this.mark_pass.Click += new System.EventHandler(this.mark_pass_Click);
             // 
             // load_list
             // 
@@ -112,6 +115,7 @@
             this.mark_fail.TabIndex = 6;
             this.mark_fail.Text = "×";
             this.mark_fail.UseVisualStyleBackColor = true;
+            this.mark_fail.Click += new System.EventHandler(this.mark_fail_Click);
             // 
             // tableLayoutPanel1
             // 
@@ -138,7 +142,7 @@
             this.ImageBox.Location = new System.Drawing.Point(12, 13);
             this.ImageBox.Name = "ImageBox";
             this.ImageBox.Size = new System.Drawing.Size(983, 655);
-            this.ImageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.ImageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.ImageBox.TabIndex = 8;
             this.ImageBox.TabStop = false;
             // 
