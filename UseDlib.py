@@ -11,6 +11,21 @@ face_folder_path = 'Backup/Faces'
 test_img_path = "Samples/test.jpg"
 
 
+def init_detectors():
+    # 人脸检测器
+    d = dlib.get_frontal_face_detector()
+
+    # 关键点检测器
+    fp_d = dlib.shape_predictor(predictor_path)
+
+    # 人脸参数模型
+    fm = dlib.face_recognition_model_v1(face_rc_model_path)
+    return d, fp_d, fm
+
+
+detector, feature_point, feature_model = init_detectors()
+
+
 # 读取人脸集、人脸标签
 def read_data(path):
     try:
@@ -29,20 +44,7 @@ def read_data(path):
         return pic_name_list, pic_list
 
 
-def init_detectors():
-    # 人脸检测器
-    detector = dlib.get_frontal_face_detector()
-
-    # 关键点检测器
-    feature_point = dlib.shape_predictor(predictor_path)
-
-    # 人脸参数模型
-    feature_model = dlib.face_recognition_model_v1(face_rc_model_path)
-    return detector, feature_point, feature_model
-
-
 def get_recorded_features():
-    detector, feature_point, feature_model = init_detectors()
     # 候选人特征向量列表
     descriptors = []
     name_list, img_list = read_data(face_folder_path)
@@ -70,7 +72,6 @@ def get_recorded_features():
 
 
 def test_single_image():
-    detector, feature_point, feature_model = init_detectors()
     descriptors, name_list = get_recorded_features()
     '''
     对单张人脸进行识别
@@ -99,11 +100,7 @@ def test_single_image():
         print(result)
 
 
-def test_cam(detectors=None, file_path="Samples/00010001689000000.mp4", file_name='00010001689000000.mp4'):
-    if detectors is None:
-        detector, feature_point, feature_model = init_detectors()
-    else:
-        detector, feature_point, feature_mode = detectors
+def test_cam(file_path="Samples/00010001689000000.mp4", file_name='00010001689000000.mp4'):
     # descriptors, name_list = get_recorded_features()
     sample = cv2.VideoCapture(file_path)
     # sample.set(cv2.CAP_PROP_POS_FRAMES, 7000)
@@ -172,14 +169,23 @@ def test_cam(detectors=None, file_path="Samples/00010001689000000.mp4", file_nam
     cv2.destroyAllWindows()
 
 
+def test_detector(img_array):
+    detected = list(detector(img_array, 1))
+    detected = [
+        [
+            rect.tl_corner().x,
+            rect.tl_corner().y,
+            rect.br_corner().x,
+            rect.br_corner().y
+        ] for rect in detected
+    ]
+    return detected
+
+
 if __name__ == '__main__':
-    print("Start loading")
-    detector, feature_point, feature_model = init_detectors()
-    detectors = [detector, feature_point, feature_model]
-    print("Model loaded")
     dir_path = '../Faces'
     file_list = os.listdir(dir_path)
     for i in file_list:
         if i.endswith('.mp4'):
-            file_path = os.path.join(dir_path, i)
-            test_cam(detectors=detectors, file_path=file_path, file_name=i)
+            fp = os.path.join(dir_path, i)
+            test_cam(file_path=fp, file_name=i)

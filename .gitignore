@@ -10,3 +10,4 @@ TensorBoard/validation/
 *.dat
 __pycache__/
 *.flv
+logs/
