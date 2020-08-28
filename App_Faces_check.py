@@ -38,7 +38,7 @@ def file_request(function_string, req_id):
     if function_string == 'query':
         file_url = result['data']['server'] + '/' + result['data']['url']
         r = requests.get(file_url)
-        with open('Face_Temp/' + result['data']['fileName'], 'wb') as f:
+        with open('Faces_Temp/' + result['data']['fileName'], 'wb') as f:
             f.write(r.content)
         return result['data']['fileName']
 
@@ -55,6 +55,7 @@ def process_request(function_string, req_dict):
     response.raise_for_status()
     result = eval(response.content.decode('utf-8').replace('true', 'True'))
     return result
+
 
 # log init start
 log_dir_name = "logs"
@@ -92,21 +93,21 @@ def img_test():
         data = str(c_da, "utf-8")
 
         data = eval(c_da.decode())
-        img_string = data['imgString'].encode()
-        img_string = img_string.decode()
+        file_id = data['fileID'].encode()
+        file_id = file_id.decode()
         # print(imgString)
         img = np.array([])
 
         app.logger.info(data)
-        img_string = img_string.replace("\n", "")
-
-        img_rgb = io.imread(img_string)
-        img = cv2.cvtColor(np.array(img_rgb), cv2.COLOR_RGB2BGR)
-
+        file_id = file_id.replace("\n", "")
         time_take = time.time()
+        file_name = file_request(function_string='query', req_id=file_id)
 
-        result = test_detector(img)
-
+        with open('Faces_Temp/' + file_name, 'rb') as f:
+            b64_string = base64.b64encode(f.read())
+            b64_string = b64_string.decode()
+            b64_string = 'data:image/jpeg;base64,' + b64_string
+        result = process_request('fd', req_dict={'imgString': b64_string})
         time_take = time.time() - time_take
 
         if "fileName" in data.keys():
