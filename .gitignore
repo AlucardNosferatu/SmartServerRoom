@@ -12,3 +12,4 @@ __pycache__/
 valid_file.txt
 Outputs/
 *.flv
+logs/
