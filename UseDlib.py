@@ -3,11 +3,12 @@ import os
 import cv2
 import dlib
 import numpy
+from dlib import rectangle
 
 predictor_path = 'Models/shape_predictor_68_face_landmarks.dat'
 face_rc_model_path = 'Models/dlib_face_recognition_resnet_model_v1.dat'
-# face_folder_path = 'C:/Users/16413/Documents/GitHub/YOLO/faces/Faces/forDlib'
-face_folder_path = 'Backup/Faces'
+face_folder_path = 'C:/Users/16413/Documents/GitHub/YOLO/faces/Faces/forDlib'
+# face_folder_path = 'Backup/Faces'
 test_img_path = "Samples/test.jpg"
 
 
@@ -53,26 +54,27 @@ def get_recorded_features():
         dets = detector(i, 1)
 
         for k, d in enumerate(dets):
-            cv2.imshow('detected face:', i[d.top():d.bottom(), d.left():d.right(), :])
-            cv2.waitKey()
+            # cv2.imshow('detected face:', i[d.top():d.bottom(), d.left():d.right(), :])
+            # cv2.waitKey()
             # 关键点检测 68点
             shape = feature_point(i, d)
             key_points = list(shape.parts())
             i_copy = i.copy()
             for point in key_points:
                 i_copy = cv2.circle(i_copy, (point.x, point.y), 1, (255, 0, 0), 4)
-            cv2.imshow('detected face:', i_copy)
-            cv2.waitKey()
+            # cv2.imshow('detected face:', i_copy)
+            # cv2.waitKey()
             # 提取特征，128维
             face_feature = feature_model.compute_face_descriptor(i, shape)
-
             v = numpy.array(face_feature)
             descriptors.append(v)
     return descriptors, name_list
 
 
+descriptors, name_list = get_recorded_features()
+
+
 def test_single_image():
-    descriptors, name_list = get_recorded_features()
     '''
     对单张人脸进行识别
     '''
@@ -180,6 +182,35 @@ def test_detector(img_array):
         ] for rect in detected
     ]
     return detected
+
+
+def test_landmarks(img_array):
+    d_rect = rectangle(0, 0, img_array.shape[1] - 1, img_array.shape[0] - 1)
+    shape = feature_point(img_array, d_rect)
+    key_points = list(shape.parts())
+    key_points = [[point.x, point.y] for point in key_points]
+    return key_points
+
+
+def test_recognizer(img_array):
+    d_rect = rectangle(0, 0, img_array.shape[1] - 1, img_array.shape[0] - 1)
+    shape = feature_point(img_array, d_rect)
+    test_feature = feature_model.compute_face_descriptor(img_array, shape)
+    test_feature = numpy.array(test_feature)
+    dist = []
+    count = 0
+    for i in descriptors:
+        dist_ = numpy.linalg.norm(i - test_feature)
+        print('%s : %f' % (name_list[count], dist_))
+        dist.append(dist_)
+        count += 1
+
+    # 返回距离最小的下标
+    min_dist = numpy.argmin(dist)
+
+    # 截取姓名字符串，去掉末尾的.jpg
+    result = name_list[min_dist][:-4]
+    return result
 
 
 if __name__ == '__main__':
