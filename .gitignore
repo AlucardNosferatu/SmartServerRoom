@@ -7,3 +7,7 @@
 *.h5
 TensorBoard/train/
 TensorBoard/validation/
+Backup/
+*.pyc
+logs/
+Models/
