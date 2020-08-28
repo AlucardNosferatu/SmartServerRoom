@@ -1,3 +1,4 @@
+import requests
 from flask import Flask, request
 import os
 import cv2
@@ -11,6 +12,8 @@ import logging
 
 from UseDlib import test_detector
 
+CEPH_code = {'query': '/imr-ceph-server/ceph/query/'}
+ATOM_code = {'fd': '/faces_detect'}
 app = Flask(__name__)
 
 
@@ -20,8 +23,38 @@ def make_dir(make_dir_path):
         os.makedirs(path)
     return path
 
-def request_CEPH():
-    CEPH_url='http'
+
+def file_request(function_string, req_id):
+    server_url = 'http://134.134.13.81:8788'
+    server_url += CEPH_code[function_string]
+    server_url += req_id
+    headers = {
+        "Content-Type": "application/json; charset=UTF-8"
+    }
+    response = requests.post(server_url, headers=headers)
+    print("Complete post")
+    response.raise_for_status()
+    result = eval(response.content.decode('utf-8').replace('true', 'True'))
+    if function_string == 'query':
+        file_url = result['data']['server'] + '/' + result['data']['url']
+        r = requests.get(file_url)
+        with open('Face_Temp/' + result['data']['fileName'], 'wb') as f:
+            f.write(r.content)
+        return result['data']['fileName']
+
+
+def process_request(function_string, req_dict):
+    server_url = 'http://127.0.0.1:2029'
+    server_url += ATOM_code[function_string]
+    headers = {
+        "Content-Type": "application/json; charset=UTF-8"
+    }
+    json_dict = json.dumps(req_dict)
+    response = requests.post(server_url, data=json_dict, headers=headers)
+    print("Complete post")
+    response.raise_for_status()
+    result = eval(response.content.decode('utf-8').replace('true', 'True'))
+    return result
 
 # log init start
 log_dir_name = "logs"
@@ -67,8 +100,6 @@ def img_test():
         app.logger.info(data)
         img_string = img_string.replace("\n", "")
 
-
-
         img_rgb = io.imread(img_string)
         img = cv2.cvtColor(np.array(img_rgb), cv2.COLOR_RGB2BGR)
 
@@ -87,7 +118,8 @@ def img_test():
 
 
 if __name__ == '__main__':
-    app.run(
-        host="0.0.0.0",
-        port=int("7120"),
-        debug=False, threaded=True)
+    # app.run(
+    #     host="0.0.0.0",
+    #     port=int("7120"),
+    #     debug=False, threaded=True)
+    file_request('query', '2020082710274358500036c4d1')

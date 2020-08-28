@@ -9,10 +9,9 @@ from tensorflow.keras.layers import Lambda
 from tensorflow.keras.optimizers import RMSprop
 from tensorflow.keras.utils import to_categorical
 
-from CelebA import get_celeb_a
-from Configs import epochs, batch_size
-from Data import load_4_faces
-from Networks import create_base_net, euclid_dis, eucl_dist_output_shape, awt
+from Backend.Configs import epochs, batch_size
+from Backend.Data import load_4_faces
+from Backend.Networks import create_base_net, euclid_dis, eucl_dist_output_shape, awt
 
 
 def two_losses(y_true, y_pred):
@@ -104,10 +103,10 @@ def get_data_2_labels():
 def train_with_2_losses():
     trp, tra_y, tep, tes_y, num_classes = get_data_2_labels()
     m, bn, wd = get_model_2_outputs(extended_num_classes=num_classes)
-    if os.path.exists(path='Models/Conv.h5'):
-        wd.load_weights(filepath='Models/Conv.h5')
+    if os.path.exists(path='../Models/Conv.h5'):
+        wd.load_weights(filepath='../Models/Conv.h5')
     cp_checkpoint = ModelCheckpoint(
-        filepath='Models/Siamese.h5',
+        filepath='../Models/Siamese.h5',
         monitor='val_loss',
         verbose=1,
         save_best_only=True,
@@ -144,9 +143,9 @@ def train_with_2_losses():
             es_checkpoint
         ]
     )
-    m.save_weights(filepath='Models/Siamese.h5')
-    bn.save_weights(filepath='Models/Softmax.h5')
-    wd.save_weights(filepath='Models/Conv.h5')
+    m.save_weights(filepath='../Models/Siamese.h5')
+    bn.save_weights(filepath='../Models/Softmax.h5')
+    wd.save_weights(filepath='../Models/Conv.h5')
 
 
 if __name__ == '__main__':

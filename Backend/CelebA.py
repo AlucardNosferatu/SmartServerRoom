@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tqdm import tqdm
 
-from Configs import test_ratio
+from Backend.Configs import test_ratio
 
 num_classes_celeb_a = 200
 limiter_test = int(num_classes_celeb_a * 40 * test_ratio)

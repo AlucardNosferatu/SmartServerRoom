@@ -8,10 +8,10 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 
-from CelebA import get_celeb_a
-from Configs import batch_size, epochs, new_epochs, number_of_tested_items
-from Data import get_data, load_4_faces
-from Networks import get_model, compute_accuracy
+from Backend.CelebA import get_celeb_a
+from Backend.Configs import batch_size, epochs, new_epochs, number_of_tested_items
+from Backend.Data import get_data, load_4_faces
+from Backend.Networks import get_model, compute_accuracy
 
 ep = epochs
 new_ep = new_epochs
@@ -27,10 +27,10 @@ def train(x_train, y_train, x_test, y_test):
     model, base_network, without_dense = get_model(input_shape)
     print('Model loaded.')
     assert model.input_shape[0][1:] == input_shape
-    if os.path.exists(path='Models/Conv.h5'):
-        without_dense.load_weights(filepath='Models/Conv.h5')
+    if os.path.exists(path='../Models/Conv.h5'):
+        without_dense.load_weights(filepath='../Models/Conv.h5')
     cp_checkpoint = ModelCheckpoint(
-        filepath='Models/Siamese.h5',
+        filepath='../Models/Siamese.h5',
         monitor='val_loss',
         verbose=1,
         save_best_only=True,
@@ -47,7 +47,7 @@ def train(x_train, y_train, x_test, y_test):
     )
     print("es_checkpoint added.")
     tb_checkpoint = TensorBoard(
-        log_dir='TensorBoard',
+        log_dir='../TensorBoard',
         histogram_freq=1,
         write_images=True,
         update_freq='epoch'
@@ -67,9 +67,9 @@ def train(x_train, y_train, x_test, y_test):
                 tb_checkpoint
             ]
         )
-    model.save_weights(filepath='Models/Siamese.h5')
-    base_network.save_weights(filepath='Models/Softmax.h5')
-    without_dense.save_weights(filepath='Models/Conv.h5')
+    model.save_weights(filepath='../Models/Siamese.h5')
+    base_network.save_weights(filepath='../Models/Softmax.h5')
+    without_dense.save_weights(filepath='../Models/Conv.h5')
 
 
 def train_classification(x_train, y_train, x_test, y_test):
@@ -85,14 +85,14 @@ def train_classification(x_train, y_train, x_test, y_test):
     model, base_network, without_dense = get_model(input_shape)
     print('Model loaded.')
     assert base_network.input_shape[1:] == input_shape
-    if os.path.exists(path='Models/Siamese.h5'):
-        model.load_weights(filepath='Models/Siamese.h5')
-    if os.path.exists(path='Models/Softmax.h5'):
-        base_network.load_weights(filepath='Models/Softmax.h5')
-    if os.path.exists(path='Models/Conv.h5'):
-        without_dense.load_weights(filepath='Models/Conv.h5')
+    if os.path.exists(path='../Models/Siamese.h5'):
+        model.load_weights(filepath='../Models/Siamese.h5')
+    if os.path.exists(path='../Models/Softmax.h5'):
+        base_network.load_weights(filepath='../Models/Softmax.h5')
+    if os.path.exists(path='../Models/Conv.h5'):
+        without_dense.load_weights(filepath='../Models/Conv.h5')
     cp_checkpoint = ModelCheckpoint(
-        filepath='Models/Softmax.h5',
+        filepath='../Models/Softmax.h5',
         monitor='val_loss',
         verbose=1,
         save_best_only=True,
@@ -107,7 +107,7 @@ def train_classification(x_train, y_train, x_test, y_test):
         mode='auto'
     )
     tb_checkpoint = TensorBoard(
-        log_dir='TensorBoard',
+        log_dir='../TensorBoard',
         histogram_freq=1,
         write_images=True,
         update_freq='epoch'
@@ -126,9 +126,9 @@ def train_classification(x_train, y_train, x_test, y_test):
                 tb_checkpoint
             ]
         )
-    model.save_weights(filepath='Models/Siamese.h5')
-    base_network.save_weights(filepath='Models/Softmax.h5')
-    without_dense.save_weights(filepath='Models/Conv.h5')
+    model.save_weights(filepath='../Models/Siamese.h5')
+    base_network.save_weights(filepath='../Models/Softmax.h5')
+    without_dense.save_weights(filepath='../Models/Conv.h5')
 
 
 def train_increment(x_train, y_train, x_test, y_test, extended_num_classes):
@@ -144,8 +144,8 @@ def train_increment(x_train, y_train, x_test, y_test, extended_num_classes):
         extended_num_classes
     )
     print('Model loaded.')
-    if os.path.exists(path='Models/Conv.h5'):
-        without_dense.load_weights(filepath='Models/Conv.h5')
+    if os.path.exists(path='../Models/Conv.h5'):
+        without_dense.load_weights(filepath='../Models/Conv.h5')
     es_checkpoint = EarlyStopping(
         monitor='val_loss',
         min_delta=0,
@@ -171,9 +171,9 @@ def train_increment(x_train, y_train, x_test, y_test, extended_num_classes):
         validation_steps=2,
         callbacks=[es_checkpoint]
     )
-    model.save_weights(filepath='Models/Siamese.h5')
-    base_network.save_weights(filepath='Models/Softmax.h5')
-    without_dense.save_weights(filepath='Models/Conv.h5')
+    model.save_weights(filepath='../Models/Siamese.h5')
+    base_network.save_weights(filepath='../Models/Softmax.h5')
+    without_dense.save_weights(filepath='../Models/Conv.h5')
 
 
 def test(x_train, y_train, x_test, y_test, extended_num_classes=None):
@@ -190,12 +190,12 @@ def test(x_train, y_train, x_test, y_test, extended_num_classes=None):
         extended_num_classes
     )
     print('Model loaded.')
-    if os.path.exists(path='Models/Siamese.h5'):
-        model.load_weights(filepath='Models/Siamese.h5')
-    if os.path.exists(path='Models/Softmax.h5'):
-        base_network.load_weights(filepath='Models/Softmax.h5')
-    if os.path.exists(path='Models/Conv.h5'):
-        without_dense.load_weights(filepath='Models/Conv.h5')
+    if os.path.exists(path='../Models/Siamese.h5'):
+        model.load_weights(filepath='../Models/Siamese.h5')
+    if os.path.exists(path='../Models/Softmax.h5'):
+        base_network.load_weights(filepath='../Models/Softmax.h5')
+    if os.path.exists(path='../Models/Conv.h5'):
+        without_dense.load_weights(filepath='../Models/Conv.h5')
     assert model.input_shape[0][1:] == input_shape
     tf.keras.utils.plot_model(
         model=model,
