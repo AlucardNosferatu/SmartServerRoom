@@ -1,16 +1,11 @@
-import requests
-from flask import Flask, request
-import os
-import cv2
+import base64
 import json
+import logging
+import os
 import time
 
-import base64
-from skimage import io
-import numpy as np
-import logging
-
-from UseDlib import test_detector
+import requests
+from flask import Flask, request
 
 CEPH_code = {'query': '/imr-ceph-server/ceph/query/'}
 ATOM_code = {'fd': '/faces_detect'}
@@ -78,8 +73,8 @@ def img_start():
     return json.dumps({"system": 0}, ensure_ascii=False)
 
 
-@app.route('/check', methods=['POST'])
-def img_test():
+@app.route('/imr-face-service/face_collection/checkimage/<file_id>', methods=['POST'])
+def img_test(file_id):
     log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
     log_file_str = log_file_folder + os.sep + log_file_name
     if not os.path.exists(log_file_str):
@@ -88,17 +83,6 @@ def img_test():
         app.logger.addHandler(handler)
 
     if request.method == "POST":
-        start_time = time.time()
-        c_da = request.data
-        data = str(c_da, "utf-8")
-
-        data = eval(c_da.decode())
-        file_id = data['fileID'].encode()
-        file_id = file_id.decode()
-        # print(imgString)
-        img = np.array([])
-
-        app.logger.info(data)
         file_id = file_id.replace("\n", "")
         time_take = time.time()
 
@@ -111,17 +95,14 @@ def img_test():
         os.remove('Faces_Temp/' + file_name)
         time_take = time.time() - time_take
 
-        if "fileName" in data.keys():
-            app.logger.info("recognition  return:{d},use time:{t}".format(d=result, t=time_take))
-            return json.dumps({data['fileName']: [{'value': result}]}, ensure_ascii=False)
         # os.remove(path)
         return json.dumps({'res': result, 'timeTake': round(time_take, 4)},
                           ensure_ascii=False)
 
 
 if __name__ == '__main__':
-    # app.run(
-    #     host="0.0.0.0",
-    #     port=int("7120"),
-    #     debug=False, threaded=True)
-    file_request('query', '2020082710274358500036c4d1')
+    app.run(
+        host="0.0.0.0",
+        port=int("7120"),
+        debug=False, threaded=True)
+    # file_request('query', '2020082710274358500036c4d1')
