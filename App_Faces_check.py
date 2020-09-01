@@ -101,13 +101,14 @@ def img_test():
         app.logger.info(data)
         file_id = file_id.replace("\n", "")
         time_take = time.time()
-        file_name = file_request(function_string='query', req_id=file_id)
 
+        file_name = file_request(function_string='query', req_id=file_id)
         with open('Faces_Temp/' + file_name, 'rb') as f:
             b64_string = base64.b64encode(f.read())
             b64_string = b64_string.decode()
             b64_string = 'data:image/jpeg;base64,' + b64_string
         result = process_request('fd', req_dict={'imgString': b64_string})
+        os.remove('Faces_Temp/' + file_name)
         time_take = time.time() - time_take
 
         if "fileName" in data.keys():
