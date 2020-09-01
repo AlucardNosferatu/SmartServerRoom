@@ -9,7 +9,7 @@ from skimage import io
 import numpy as np
 import logging
 
-from UseDlib import test_detector
+from UseDlib import test_detector, test_landmarks
 
 app = Flask(__name__)
 
@@ -42,50 +42,74 @@ def img_start():
     return json.dumps({"system": 0}, ensure_ascii=False)
 
 
-@app.route('/faces_detect', methods=['POST'])
-def img_test():
+@app.route('/imr-ai-service/atomic_functions/faces_detect', methods=['POST'])
+def faces_detect():
     log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
     log_file_str = log_file_folder + os.sep + log_file_name
     if not os.path.exists(log_file_str):
         handler = logging.FileHandler(log_file_str, encoding='UTF-8')
         handler.setFormatter(logging_format)
         app.logger.addHandler(handler)
-
     if request.method == "POST":
-        start_time = time.time()
         c_da = request.data
-        data = str(c_da, "utf-8")
-
         data = eval(c_da.decode())
         img_string = data['imgString'].encode()
         img_string = img_string.decode()
-        # print(imgString)
         img = np.array([])
         if "base64," in str(img_string):
             img_string = data['imgString'].encode().split(b';base64,')[-1]
-
         if ".jpg" in str(img_string) or ".png" in str(img_string):
             # print(imgString)
             app.logger.info(data)
             img_string = img_string.replace("\n", "")
             img_rgb = io.imread(img_string)
             img = cv2.cvtColor(np.array(img_rgb), cv2.COLOR_RGB2BGR)
-
         if len(img_string) > 200:
             img_string = base64.b64decode(img_string)
             np_array = np.frombuffer(img_string, np.uint8)
             img = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
-
         time_take = time.time()
-
         result = test_detector(img)
-
         time_take = time.time() - time_take
-
         if "fileName" in data.keys():
             app.logger.info("recognition  return:{d},use time:{t}".format(d=result, t=time_take))
             return json.dumps({data['fileName']: [{'value': result}]}, ensure_ascii=False)
         # os.remove(path)
+        return json.dumps({'res': result, 'timeTake': round(time_take, 4)},
+                          ensure_ascii=False)
+
+
+@app.route('/imr-ai-service/atomic_functions/landmarks_detect', methods=['POST'])
+def landmarks_detect():
+    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
+    log_file_str = log_file_folder + os.sep + log_file_name
+    if not os.path.exists(log_file_str):
+        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
+        handler.setFormatter(logging_format)
+        app.logger.addHandler(handler)
+    if request.method == "POST":
+        c_da = request.data
+        data = eval(c_da.decode())
+        img_string = data['imgString'].encode()
+        img_string = img_string.decode()
+        img = np.array([])
+        if "base64," in str(img_string):
+            img_string = data['imgString'].encode().split(b';base64,')[-1]
+        if ".jpg" in str(img_string) or ".png" in str(img_string):
+            app.logger.info(data)
+            img_string = img_string.replace("\n", "")
+            img_rgb = io.imread(img_string)
+            img = cv2.cvtColor(np.array(img_rgb), cv2.COLOR_RGB2BGR)
+        if len(img_string) > 200:
+            img_string = base64.b64decode(img_string)
+            np_array = np.frombuffer(img_string, np.uint8)
+            img = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
+        time_take = time.time()
+        result = test_landmarks(img)
+        time_take = time.time() - time_take
+        if "fileName" in data.keys():
+            app.logger.info("recognition  return:{d},use time:{t}".format(d=result, t=time_take))
+            return json.dumps({data['fileName']: [{'value': result}]}, ensure_ascii=False)
         return json.dumps({'res': result, 'timeTake': round(time_take, 4)},
                           ensure_ascii=False)
 

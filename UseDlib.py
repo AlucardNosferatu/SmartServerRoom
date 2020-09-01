@@ -173,15 +173,30 @@ def test_cam(file_path="Samples/00010001689000000.mp4", file_name='0001000168900
 
 def test_detector(img_array):
     detected = list(detector(img_array, 1))
-    detected = [
-        [
-            rect.tl_corner().x,
-            rect.tl_corner().y,
-            rect.br_corner().x,
-            rect.br_corner().y
-        ] for rect in detected
-    ]
-    return detected
+    out_d = []
+    for d in detected:
+        x1 = d.left()
+        x2 = d.right()
+        y1 = d.top()
+        y2 = d.bottom()
+        w = x2 - x1
+        h = y2 - y1
+        dw = int(0.25 * w)
+        dh = int(0.25 * h)
+        x1 -= dw
+        if x1 < 0:
+            x1 = 0
+        x2 += dw
+        if x2 > img_array.shape[1] - 1:
+            x2 = img_array.shape[1] - 1
+        y1 -= dh
+        if y1 < 0:
+            y1 = 0
+        y2 += dh
+        if y2 > img_array.shape[0] - 1:
+            y2 = img_array.shape[0] - 1
+        out_d.append([x1, y1, x2, y2])
+    return out_d
 
 
 def test_landmarks(img_array):

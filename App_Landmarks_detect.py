@@ -42,7 +42,7 @@ def img_start():
     return json.dumps({"system": 0}, ensure_ascii=False)
 
 
-@app.route('/detect', methods=['POST'])
+@app.route('/imr-ai-service/atomic_functions/landmarks_detect', methods=['POST'])
 def img_test():
     log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
     log_file_str = log_file_folder + os.sep + log_file_name
@@ -93,5 +93,5 @@ def img_test():
 if __name__ == '__main__':
     app.run(
         host="0.0.0.0",
-        port=int("2016"),
+        port=int("2029"),
         debug=False, threaded=True)

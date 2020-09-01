@@ -4,11 +4,19 @@ import logging
 import os
 import time
 
+import cv2
 import requests
 from flask import Flask, request
 
-CEPH_code = {'query': '/imr-ceph-server/ceph/query/'}
-ATOM_code = {'fd': '/faces_detect'}
+CEPH_code = {
+    'query': '/imr-ceph-server/ceph/query/',
+    'upload': '/imr-ceph-server/ceph/upload/',
+    'save': '/imr-ceph-server/ceph/save/'
+}
+ATOM_code = {
+    'fd': '/imr-ai-service/atomic_functions/faces_detect',
+    'ld': '/imr-ai-service/atomic_functions/landmarks_detect'
+}
 app = Flask(__name__)
 
 
@@ -22,20 +30,36 @@ def make_dir(make_dir_path):
 def file_request(function_string, req_id):
     server_url = 'http://134.134.13.81:8788'
     server_url += CEPH_code[function_string]
-    server_url += req_id
-    headers = {
-        "Content-Type": "application/json; charset=UTF-8"
-    }
-    response = requests.post(server_url, headers=headers)
+    if function_string in ['query', 'save']:
+        server_url += req_id
+        response = requests.post(server_url)
+    elif function_string == 'upload':
+        assert type(req_id) is dict
+        assert 'file' in req_id
+        bucket_dict = {'bucketName': 'face'}
+        response = requests.post(server_url, data=bucket_dict, files=req_id)
+    else:
+        response = {}
     print("Complete post")
     response.raise_for_status()
-    result = eval(response.content.decode('utf-8').replace('true', 'True'))
+    result = eval(
+        response.content.decode('utf-8').replace('true', 'True').replace('false', 'False').replace('null', 'None')
+    )
     if function_string == 'query':
         file_url = result['data']['server'] + '/' + result['data']['url']
         r = requests.get(file_url)
         with open('Faces_Temp/' + result['data']['fileName'], 'wb') as f:
             f.write(r.content)
         return result['data']['fileName']
+    elif function_string == 'save':
+        if result['msg'] == '成功':
+            return req_id
+        else:
+            return -1
+    elif function_string == 'upload':
+        return result['data']['cephId']
+    else:
+        return None
 
 
 def process_request(function_string, req_dict):
@@ -73,7 +97,7 @@ def img_start():
     return json.dumps({"system": 0}, ensure_ascii=False)
 
 
-@app.route('/imr-face-service/face_collection/checkimage/<file_id>', methods=['POST'])
+@app.route('/imr-ai-service/face_features/check/<file_id>', methods=['POST'])
 def img_test(file_id):
     log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
     log_file_str = log_file_folder + os.sep + log_file_name
@@ -92,12 +116,50 @@ def img_test(file_id):
             b64_string = b64_string.decode()
             b64_string = 'data:image/jpeg;base64,' + b64_string
         result = process_request('fd', req_dict={'imgString': b64_string})
+        if len(result['res']) > 0:
+            new_result = []
+            for rect in result['res']:
+                img = cv2.imread('Faces_Temp/' + file_name)
+                img = img[rect[1]:rect[3], rect[0]:rect[2]]
+                cv2.imwrite('Faces_Temp/cropped_' + file_name, img)
+                with open('Faces_Temp/cropped_' + file_name, 'rb') as fc:
+                    b64_string = base64.b64encode(fc.read())
+                    b64_string = b64_string.decode()
+                    b64_string = 'data:image/jpeg;base64,' + b64_string
+                points = process_request('ld', req_dict={'imgString': b64_string})
+                for point in points['res']:
+                    img = cv2.circle(img, tuple(point), 2, (255, 0, 0), 1)
+                cv2.imwrite('Faces_Temp/cropped_' + file_name, img)
+                uploaded_id = file_request(
+                    'upload',
+                    {
+                        'file': open(
+                            'Faces_Temp/cropped_' + file_name,
+                            'rb'
+                        )
+                    }
+                )
+                ret = file_request('save', uploaded_id)
+                if ret == uploaded_id:
+                    new_result.append(uploaded_id)
+            os.remove('Faces_Temp/cropped_' + file_name)
+            result = new_result
+        else:
+            result = -1
         os.remove('Faces_Temp/' + file_name)
         time_take = time.time() - time_take
 
-        # os.remove(path)
-        return json.dumps({'res': result, 'timeTake': round(time_take, 4)},
-                          ensure_ascii=False)
+        ret = not (result == -1)
+        msg = {True: '成功', False: '未检测到人脸'}
+        return json.dumps(
+            {
+                'ret': ret,
+                'msg': msg[ret],
+                'data': result,
+                'timeTake': round(time_take, 4)
+            },
+            ensure_ascii=False
+        )
 
 
 if __name__ == '__main__':
