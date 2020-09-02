@@ -29,9 +29,11 @@ detector, feature_point, feature_model = init_detectors()
 
 # 读取人脸集、人脸标签
 def read_data(path):
+    print(path)
     try:
         pic_name_list = os.listdir(path)
         pic_list = []
+        print(pic_name_list)
         for i in pic_name_list:
             whole_path = os.path.join(path, i)
             img = cv2.imread(whole_path)
