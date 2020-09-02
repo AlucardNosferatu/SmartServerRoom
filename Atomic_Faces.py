@@ -5,7 +5,6 @@ import json
 import time
 
 import base64
-from skimage import io
 import numpy as np
 import logging
 
@@ -62,8 +61,7 @@ def faces_detect():
             # print(imgString)
             app.logger.info(data)
             img_string = img_string.replace("\n", "")
-            img_rgb = io.imread(img_string)
-            img = cv2.cvtColor(np.array(img_rgb), cv2.COLOR_RGB2BGR)
+            img = cv2.imread(img_string)
         if len(img_string) > 200:
             img_string = base64.b64decode(img_string)
             np_array = np.frombuffer(img_string, np.uint8)
@@ -98,8 +96,7 @@ def landmarks_detect():
         if ".jpg" in str(img_string) or ".png" in str(img_string):
             app.logger.info(data)
             img_string = img_string.replace("\n", "")
-            img_rgb = io.imread(img_string)
-            img = cv2.cvtColor(np.array(img_rgb), cv2.COLOR_RGB2BGR)
+            img = cv2.imread(img_string)
         if len(img_string) > 200:
             img_string = base64.b64decode(img_string)
             np_array = np.frombuffer(img_string, np.uint8)
@@ -137,8 +134,7 @@ def recognize():
         if ".jpg" in str(img_string) or ".png" in str(img_string):
             app.logger.info(data)
             img_string = img_string.replace("\n", "")
-            img_rgb = io.imread(img_string)
-            img = cv2.cvtColor(np.array(img_rgb), cv2.COLOR_RGB2BGR)
+            img = cv2.imread(img_string)
 
         if len(img_string) > 200:
             img_string = base64.b64decode(img_string)
