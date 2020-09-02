@@ -72,6 +72,19 @@ def get_recorded_features():
 
 
 descriptors, name_list = get_recorded_features()
+a = 1
+b = 2
+
+
+def reload_records():
+    global descriptors, name_list
+    global a, b
+    a += 1
+    b += 1
+    prev = len(name_list)
+    descriptors, name_list = get_recorded_features()
+    now = len(name_list)
+    return now, now - prev
 
 
 def test_single_image():
@@ -208,6 +221,7 @@ def test_landmarks(img_array):
 
 
 def test_recognizer(img_array):
+    print(a, b)
     d_rect = rectangle(0, 0, img_array.shape[1] - 1, img_array.shape[0] - 1)
     shape = feature_point(img_array, d_rect)
     test_feature = feature_model.compute_face_descriptor(img_array, shape)
@@ -224,8 +238,9 @@ def test_recognizer(img_array):
     min_dist = numpy.argmin(dist)
 
     # 截取姓名字符串，去掉末尾的.jpg
-    result = name_list[min_dist][:-4]
-    return result
+    result = name_list[int(min_dist)][:-4]
+    dist_min = float(dist[int(min_dist)])
+    return result, dist_min
 
 
 if __name__ == '__main__':

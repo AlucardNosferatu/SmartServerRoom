@@ -15,7 +15,9 @@ CEPH_code = {
 }
 ATOM_code = {
     'fd': '/imr-ai-service/atomic_functions/faces_detect',
-    'ld': '/imr-ai-service/atomic_functions/landmarks_detect'
+    'ld': '/imr-ai-service/atomic_functions/landmarks_detect',
+    'fr': '/imr-ai-service/atomic_functions/recognize',
+    'rr': '/imr-ai-service/atomic_functions/reload',
 }
 app = Flask(__name__)
 
@@ -68,8 +70,11 @@ def process_request(function_string, req_dict):
     headers = {
         "Content-Type": "application/json; charset=UTF-8"
     }
-    json_dict = json.dumps(req_dict)
-    response = requests.post(server_url, data=json_dict, headers=headers)
+    if req_dict is not None:
+        json_dict = json.dumps(req_dict)
+        response = requests.post(server_url, data=json_dict, headers=headers)
+    else:
+        response = requests.post(server_url, headers=headers)
     print("Complete post")
     response.raise_for_status()
     result = eval(response.content.decode('utf-8').replace('true', 'True'))
@@ -98,7 +103,7 @@ def img_start():
 
 
 @app.route('/imr-ai-service/face_features/check/<file_id>', methods=['POST'])
-def img_test(file_id):
+def check(file_id):
     log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
     log_file_str = log_file_folder + os.sep + log_file_name
     if not os.path.exists(log_file_str):
@@ -155,6 +160,73 @@ def img_test(file_id):
             {
                 'ret': ret,
                 'msg': msg[ret],
+                'data': result,
+                'timeTake': round(time_take, 4)
+            },
+            ensure_ascii=False
+        )
+
+
+@app.route('/imr-ai-service/face_features/recognize/<file_id>', methods=['POST'])
+def recognize(file_id):
+    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
+    log_file_str = log_file_folder + os.sep + log_file_name
+    if not os.path.exists(log_file_str):
+        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
+        handler.setFormatter(logging_format)
+        app.logger.addHandler(handler)
+
+    if request.method == "POST":
+        file_id = file_id.replace("\n", "")
+        time_take = time.time()
+        c_da = request.data
+
+        data = eval(c_da.decode())
+        x1 = int(data['x1'].encode().decode())
+        y1 = int(data['y1'].encode().decode())
+        x2 = int(data['x2'].encode().decode())
+        y2 = int(data['y2'].encode().decode())
+
+        file_name = file_request(function_string='query', req_id=file_id)
+
+        cv2.imwrite('Faces_Temp/cropped_' + file_name, cv2.imread('Faces_Temp/' + file_name)[y1:y2, x1:x2])
+
+        with open('Faces_Temp/cropped_' + file_name, 'rb') as f:
+            b64_string = base64.b64encode(f.read())
+            b64_string = b64_string.decode()
+            b64_string = 'data:image/jpeg;base64,' + b64_string
+        result = process_request('fr', req_dict={'imgString': b64_string})
+        os.remove('Faces_Temp/cropped_' + file_name)
+        os.remove('Faces_Temp/' + file_name)
+        time_take = time.time() - time_take
+        return json.dumps(
+            {
+                'ret': True,
+                'msg': '成功',
+                'data': result,
+                'timeTake': round(time_take, 4)
+            },
+            ensure_ascii=False
+        )
+
+
+@app.route('/imr-ai-service/face_features/reload', methods=['POST'])
+def reload():
+    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
+    log_file_str = log_file_folder + os.sep + log_file_name
+    if not os.path.exists(log_file_str):
+        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
+        handler.setFormatter(logging_format)
+        app.logger.addHandler(handler)
+
+    if request.method == "POST":
+        time_take = time.time()
+
+        result = process_request('rr', None)
+        return json.dumps(
+            {
+                'ret': True,
+                'msg': '成功',
                 'data': result,
                 'timeTake': round(time_take, 4)
             },
