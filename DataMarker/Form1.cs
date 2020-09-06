@@ -41,8 +41,17 @@ namespace DataMarker
             this.file_list = DI.GetFiles().ToList<FileInfo>();
             this.file_list.Remove(this.file_list[this.file_list.Count - 1]);
             this.current_index = 0;
-            this.ImageBox.Load(this.file_list[this.current_index].FullName);
-            this.refresh_label();
+            string initial_pic = this.file_list[this.current_index].FullName;
+            if (initial_pic.Replace(".jpg",".JPG").EndsWith(".JPG")|| initial_pic.Replace(".png", ".PNG").EndsWith(".PNG"))
+            {
+                this.ImageBox.Load(this.file_list[this.current_index].FullName);
+                this.refresh_label();
+            }
+            else
+            {
+                MessageBox.Show("所选目录存在非图片文件，请重新选择。");
+                this.file_list = null;
+            }
         }
 
         private void refresh_label()
@@ -66,72 +75,116 @@ namespace DataMarker
             OFD.Description = "选择数据及列表所在目录";
             if (OFD.ShowDialog() == DialogResult.OK)
             {
-                this.data_path = OFD.SelectedPath;
-                this.init_status();
+                try
+                {
+                    this.data_path = OFD.SelectedPath;
+                    this.init_status();
+                }
+                catch (Exception) {
+                    MessageBox.Show("所选目录无效且引发异常，请重新选择。");
+                }
             }
         }
 
         private void prev_img_Click(object sender, EventArgs e)
         {
-            this.current_index--;
-            if (this.current_index < 0)
+            if (this.file_list != null)
             {
-                this.current_index = 0;
+                this.current_index--;
+                if (this.current_index < 0)
+                {
+                    this.current_index = 0;
+                }
+                this.ImageBox.Load(this.file_list[this.current_index].FullName);
+                this.refresh_label();
             }
-            this.ImageBox.Load(this.file_list[this.current_index].FullName);
-            this.refresh_label();
+            else
+            {
+                MessageBox.Show("未指定数据所在目录，请先选择图片数据文件夹。");
+            }
         }
 
         private void next_img_Click(object sender, EventArgs e)
         {
-            this.current_index++;
-            if (this.current_index >= this.file_list.Count)
+            if (this.file_list != null)
             {
-                this.current_index = this.file_list.Count - 1;
+                this.current_index++;
+                if (this.current_index >= this.file_list.Count)
+                {
+                    this.current_index = this.file_list.Count - 1;
+                }
+                this.ImageBox.Load(this.file_list[this.current_index].FullName);
+                this.refresh_label();
             }
-            this.ImageBox.Load(this.file_list[this.current_index].FullName);
-            this.refresh_label();
+            else
+            {
+                MessageBox.Show("未指定数据所在目录，请先选择图片数据文件夹。");
+            }
         }
 
         private void mark_pass_Click(object sender, EventArgs e)
         {
-            string current_file = this.file_list[this.current_index].Name;
-            if (this.recorded_labels.ContainsKey(current_file))
+            if (this.file_list != null)
             {
-                recorded_labels[current_file] = true;
+                string current_file = this.file_list[this.current_index].Name;
+                if (this.recorded_labels.ContainsKey(current_file))
+                {
+                    recorded_labels[current_file] = true;
+                }
+                else
+                {
+                    recorded_labels.Add(current_file, true);
+                }
+                this.refresh_label();
             }
             else
             {
-                recorded_labels.Add(current_file, true);
+                MessageBox.Show("未指定数据所在目录，请先选择图片数据文件夹。");
             }
-            this.refresh_label();
+
         }
 
         private void mark_fail_Click(object sender, EventArgs e)
         {
-            string current_file = this.file_list[this.current_index].Name;
-            if (this.recorded_labels.ContainsKey(current_file))
+            if (this.file_list != null)
             {
-                recorded_labels[current_file] = false;
+                string current_file = this.file_list[this.current_index].Name;
+                if (this.recorded_labels.ContainsKey(current_file))
+                {
+                    recorded_labels[current_file] = false;
+                }
+                else
+                {
+                    recorded_labels.Add(current_file, false);
+                }
+                this.refresh_label();
+
             }
             else
             {
-                recorded_labels.Add(current_file, false);
+                MessageBox.Show("未指定数据所在目录，请先选择图片数据文件夹。");
             }
-            this.refresh_label();
         }
 
         private void save_list_Click(object sender, EventArgs e)
         {
-            FileStream FS = new FileStream(this.list_path, FileMode.OpenOrCreate);
-            StreamWriter SW = new StreamWriter(FS);
-            List<string> file_out = this.recorded_labels.Keys.ToList<string>();
-            foreach(string file in file_out)
+            if (this.list_path != null)
             {
-                SW.WriteLine(file + "\t" + Convert.ToInt32(this.recorded_labels[file]).ToString());
+                FileStream FS = new FileStream(this.list_path, FileMode.OpenOrCreate);
+                StreamWriter SW = new StreamWriter(FS);
+                List<string> file_out = this.recorded_labels.Keys.ToList<string>();
+                foreach (string file in file_out)
+                {
+                    SW.WriteLine(file + "\t" + Convert.ToInt32(this.recorded_labels[file]).ToString());
+                }
+                SW.Close();
+                FS.Close();
+
             }
-            SW.Close();
-            FS.Close();
+            else
+            {
+                MessageBox.Show("未指定数据所在目录，请先选择图片数据文件夹。");
+            }
         }
     }
 }
