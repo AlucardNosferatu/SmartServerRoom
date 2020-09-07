@@ -8,6 +8,11 @@ import cv2
 import requests
 from flask import Flask, request
 
+# CEPH_code = {
+#     'query': '/imr-ceph-server/ceph/query/',
+#     'upload': '/imr-ceph-server/ceph/upload/',
+#     'save': '/imr-ceph-server/ceph/save/'
+# }
 CEPH_code = {
     'query': '/imr-ceph-server/ceph/query/',
     'upload': '/imr-ceph-server/ceph/upload/',
@@ -30,7 +35,8 @@ def make_dir(make_dir_path):
 
 
 def file_request(function_string, req_id):
-    server_url = 'http://134.134.13.81:8788'
+    # server_url = 'http://134.134.13.81:8788'
+    server_url = 'http://192.168.14.212:29999'
     server_url += CEPH_code[function_string]
     if function_string in ['query', 'save']:
         server_url += req_id
