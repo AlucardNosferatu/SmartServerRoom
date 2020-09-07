@@ -8,16 +8,16 @@ import cv2
 import requests
 from flask import Flask, request
 
+CEPH_code = {
+    'query': '/ceph-server/ceph/query/',
+    'upload': '/ceph-server/ceph/upload/',
+    'save': '/ceph-server/ceph/save/'
+}
 # CEPH_code = {
 #     'query': '/imr-ceph-server/ceph/query/',
 #     'upload': '/imr-ceph-server/ceph/upload/',
 #     'save': '/imr-ceph-server/ceph/save/'
 # }
-CEPH_code = {
-    'query': '/imr-ceph-server/ceph/query/',
-    'upload': '/imr-ceph-server/ceph/upload/',
-    'save': '/imr-ceph-server/ceph/save/'
-}
 ATOM_code = {
     'fd': '/imr-ai-service/atomic_functions/faces_detect',
     'ld': '/imr-ai-service/atomic_functions/landmarks_detect',
