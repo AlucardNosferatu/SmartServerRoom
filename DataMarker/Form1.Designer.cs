@@ -49,7 +49,7 @@
             this.prev_img.Name = "prev_img";
             this.prev_img.Size = new System.Drawing.Size(321, 68);
             this.prev_img.TabIndex = 1;
-            this.prev_img.Text = "👈";
+            this.prev_img.Text = "👈 上一张";
             this.prev_img.UseVisualStyleBackColor = true;
             this.prev_img.Click += new System.EventHandler(this.prev_img_Click);
             // 
@@ -62,7 +62,7 @@
             this.save_list.Name = "save_list";
             this.save_list.Size = new System.Drawing.Size(321, 68);
             this.save_list.TabIndex = 2;
-            this.save_list.Text = "💾";
+            this.save_list.Text = "💾 保存";
             this.save_list.UseVisualStyleBackColor = true;
             this.save_list.Click += new System.EventHandler(this.save_list_Click);
             // 
@@ -75,7 +75,7 @@
             this.next_img.Name = "next_img";
             this.next_img.Size = new System.Drawing.Size(323, 68);
             this.next_img.TabIndex = 3;
-            this.next_img.Text = "👉";
+            this.next_img.Text = "下一张 👉";
             this.next_img.UseVisualStyleBackColor = true;
             this.next_img.Click += new System.EventHandler(this.next_img_Click);
             // 
@@ -88,7 +88,7 @@
             this.mark_pass.Name = "mark_pass";
             this.mark_pass.Size = new System.Drawing.Size(321, 68);
             this.mark_pass.TabIndex = 4;
-            this.mark_pass.Text = "√";
+            this.mark_pass.Text = "√ 有效";
             this.mark_pass.UseVisualStyleBackColor = true;
             this.mark_pass.Click += new System.EventHandler(this.mark_pass_Click);
             // 
@@ -101,7 +101,7 @@
             this.load_list.Name = "load_list";
             this.load_list.Size = new System.Drawing.Size(321, 68);
             this.load_list.TabIndex = 5;
-            this.load_list.Text = "▶";
+            this.load_list.Text = "▶ 读取";
             this.load_list.UseVisualStyleBackColor = true;
             this.load_list.Click += new System.EventHandler(this.load_list_Click);
             // 
@@ -114,7 +114,7 @@
             this.mark_fail.Name = "mark_fail";
             this.mark_fail.Size = new System.Drawing.Size(323, 68);
             this.mark_fail.TabIndex = 6;
-            this.mark_fail.Text = "×";
+            this.mark_fail.Text = "无效 ×";
             this.mark_fail.UseVisualStyleBackColor = true;
             this.mark_fail.Click += new System.EventHandler(this.mark_fail_Click);
             // 

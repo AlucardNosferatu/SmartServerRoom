@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -39,7 +40,14 @@ namespace DataMarker
 
             DirectoryInfo DI = new DirectoryInfo(this.data_path);
             this.file_list = DI.GetFiles().ToList<FileInfo>();
-            this.file_list.Remove(this.file_list[this.file_list.Count - 1]);
+            for(int i = 0; i < this.file_list.Count; i++)
+            {
+                if (this.file_list[i].Name == "valid_file.txt")
+                {
+                    this.file_list.RemoveAt(i);
+                    break;
+                }
+            }
             this.current_index = 0;
             string initial_pic = this.file_list[this.current_index].FullName;
             if (initial_pic.Replace(".jpg",".JPG").EndsWith(".JPG")|| initial_pic.Replace(".png", ".PNG").EndsWith(".PNG"))
@@ -95,8 +103,20 @@ namespace DataMarker
                 {
                     this.current_index = 0;
                 }
-                this.ImageBox.Load(this.file_list[this.current_index].FullName);
-                this.refresh_label();
+                string next_file = this.file_list[this.current_index].FullName;
+                if (next_file.Replace(".jpg", ".JPG").EndsWith(".JPG") || next_file.Replace(".png", ".PNG").EndsWith(".PNG"))
+                {
+                    this.ImageBox.Load(this.file_list[this.current_index].FullName);
+                    this.refresh_label();
+                }
+                else
+                {
+                    MessageBox.Show("所选目录存在非图片文件，请重新选择。");
+                    this.current_index = 0;
+                    Graphics g = this.ImageBox.CreateGraphics();
+                    g.Clear(Color.WhiteSmoke);
+                    this.file_list = null;
+                }
             }
             else
             {
@@ -113,8 +133,20 @@ namespace DataMarker
                 {
                     this.current_index = this.file_list.Count - 1;
                 }
-                this.ImageBox.Load(this.file_list[this.current_index].FullName);
-                this.refresh_label();
+                string next_file = this.file_list[this.current_index].FullName;
+                if (next_file.Replace(".jpg", ".JPG").EndsWith(".JPG") || next_file.Replace(".png", ".PNG").EndsWith(".PNG"))
+                {
+                    this.ImageBox.Load(this.file_list[this.current_index].FullName);
+                    this.refresh_label();
+                }
+                else
+                {
+                    MessageBox.Show("所选目录存在非图片文件，请重新选择。");
+                    this.current_index = 0;
+                    Graphics g = this.ImageBox.CreateGraphics();
+                    g.Clear(Color.WhiteSmoke);
+                    this.file_list = null;
+                }
             }
             else
             {
