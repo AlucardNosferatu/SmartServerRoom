@@ -154,6 +154,10 @@
             this.ClientSize = new System.Drawing.Size(1007, 862);
             this.Controls.Add(this.ImageBox);
             this.Controls.Add(this.tableLayoutPanel1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(1025, 909);
+            this.MinimumSize = new System.Drawing.Size(1025, 909);
             this.Name = "Form1";
             this.Text = "Form1";
             this.tableLayoutPanel1.ResumeLayout(false);
