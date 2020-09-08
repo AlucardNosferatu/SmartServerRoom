@@ -161,7 +161,7 @@ def check(file_id):
         time_take = time.time() - time_take
 
         ret = not (result == -1)
-        msg = {True: '成功', False: '未检测到人脸'}
+        msg = {True: '成功', False: '失败'}
         return json.dumps(
             {
                 'ret': ret,
@@ -187,15 +187,66 @@ def recognize(file_id):
         time_take = time.time()
         c_da = request.data
 
-        data = eval(c_da.decode())
-        x1 = int(data['x1'].encode().decode())
-        y1 = int(data['y1'].encode().decode())
-        x2 = int(data['x2'].encode().decode())
-        y2 = int(data['y2'].encode().decode())
-
         file_name = file_request(function_string='query', req_id=file_id)
 
-        cv2.imwrite('Faces_Temp/cropped_' + file_name, cv2.imread('Faces_Temp/' + file_name)[y1:y2, x1:x2])
+        given_c = len(c_da.decode()) > 0
+        data = {}
+        if given_c:
+            try:
+                data = eval(c_da.decode())
+                given_c = 'x1' in data
+                given_c = given_c and 'y1' in data
+                given_c = given_c and 'x2' in data
+                given_c = given_c and 'y2' in data
+            except Exception as e:
+                print(repr(e))
+                given_c = False
+        if given_c:
+            x1 = int(data['x1'].encode().decode())
+            y1 = int(data['y1'].encode().decode())
+            x2 = int(data['x2'].encode().decode())
+            y2 = int(data['y2'].encode().decode())
+        else:
+            with open('Faces_Temp/' + file_name, 'rb') as f:
+                b64_string = base64.b64encode(f.read())
+                b64_string = b64_string.decode()
+                b64_string = 'data:image/jpeg;base64,' + b64_string
+            result = process_request('fd', req_dict={'imgString': b64_string})
+            if len(result['res']) > 0:
+                area = [(rect[2] - rect[0]) * (rect[3] - rect[1]) for rect in result['res']]
+                index = area.index(max(area))
+                x1 = result['res'][index][0]
+                y1 = result['res'][index][1]
+                x2 = result['res'][index][2]
+                y2 = result['res'][index][3]
+            else:
+                os.remove('Faces_Temp/' + file_name)
+                time_take = time.time() - time_take
+                return json.dumps(
+                    {
+                        'ret': False,
+                        'msg': '失败',
+                        'data': '未检测到人脸',
+                        'timeTake': round(time_take, 4)
+                    },
+                    ensure_ascii=False
+                )
+        img = cv2.imread('Faces_Temp/' + file_name)
+        try:
+            cv2.imwrite('Faces_Temp/cropped_' + file_name, img[y1:y2, x1:x2])
+        except Exception as e:
+            print(repr(e))
+            os.remove('Faces_Temp/' + file_name)
+            time_take = time.time() - time_take
+            return json.dumps(
+                {
+                    'ret': False,
+                    'msg': '失败',
+                    'data': '给定坐标超出图片尺寸范围',
+                    'timeTake': round(time_take, 4)
+                },
+                ensure_ascii=False
+            )
 
         with open('Faces_Temp/cropped_' + file_name, 'rb') as f:
             b64_string = base64.b64encode(f.read())
@@ -209,6 +260,45 @@ def recognize(file_id):
             {
                 'ret': True,
                 'msg': '成功',
+                'data': result,
+                'timeTake': round(time_take, 4)
+            },
+            ensure_ascii=False
+        )
+
+
+@app.route('/imr-ai-service/face_features/locate/<file_id>', methods=['POST'])
+def locate(file_id):
+    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
+    log_file_str = log_file_folder + os.sep + log_file_name
+    if not os.path.exists(log_file_str):
+        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
+        handler.setFormatter(logging_format)
+        app.logger.addHandler(handler)
+
+    if request.method == "POST":
+        file_id = file_id.replace("\n", "")
+        time_take = time.time()
+
+        file_name = file_request(function_string='query', req_id=file_id)
+        with open('Faces_Temp/' + file_name, 'rb') as f:
+            b64_string = base64.b64encode(f.read())
+            b64_string = b64_string.decode()
+            b64_string = 'data:image/jpeg;base64,' + b64_string
+        result = process_request('fd', req_dict={'imgString': b64_string})
+        if len(result['res']) > 0:
+            result = result['res']
+        else:
+            result = -1
+        os.remove('Faces_Temp/' + file_name)
+        time_take = time.time() - time_take
+
+        ret = not (result == -1)
+        msg = {True: '成功', False: '失败'}
+        return json.dumps(
+            {
+                'ret': ret,
+                'msg': msg[ret],
                 'data': result,
                 'timeTake': round(time_take, 4)
             },
