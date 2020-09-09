@@ -138,7 +138,7 @@ def specify_index(indices, i):
     return False
 
 
-def convert(file_path='Samples/010tMonitorCollect20200729025635377826769671_171.mp4'):
+def convert(file_path='Samples/010tMonitorCollect2020081904122222936335c5b4_10.mp4'):
     output_path = file_path.replace('.mp4', '.MP4').replace('.MP4', '.flv')
     start = datetime.datetime.now()
     FFmpeg(
@@ -158,5 +158,6 @@ def convert(file_path='Samples/010tMonitorCollect20200729025635377826769671_171.
 
 
 if __name__ == '__main__':
-    start_server()
+    # start_server()
+    convert()
     # process_dir(_=None, request_id='1')
