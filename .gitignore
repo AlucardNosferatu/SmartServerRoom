@@ -11,3 +11,4 @@ TensorBoard/validation/
 __pycache__/
 *.flv
 logs/
+DataMarker/.vs
