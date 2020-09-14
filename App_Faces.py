@@ -154,7 +154,9 @@ def check(file_id):
                 if ret == uploaded_id:
                     new_result.append(uploaded_id)
             os.remove('Faces_Temp/cropped_' + file_name)
+            new_result = ','.join(new_result)
             result = new_result
+            print(new_result)
         else:
             result = -1
         os.remove('Faces_Temp/' + file_name)
