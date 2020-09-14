@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from math import sqrt
-from EdgesSorting import get_4edges
+from Obsolete.EdgesSorting import get_4edges
 
 
 def length_filter(lines, img_h, img_w, mode='h'):

@@ -105,7 +105,7 @@ def get_edges(image):
 
 
 if __name__ == "__main__":
-    img = cv2.imread("Samples/LCD.jpg")
+    img = cv2.imread("../Samples/LCD.jpg")
     # img = cv2.resize(img, (768, 1024))
     cv2.namedWindow("input image", cv2.WINDOW_AUTOSIZE)
     cv2.imshow("input image", img)

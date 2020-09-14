@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from numpy.linalg import norm
 from sklearn.cluster import KMeans
-from EdgesDetection import get_edges
+from Obsolete.EdgesDetection import get_edges
 
 
 def sort_directions(lines):

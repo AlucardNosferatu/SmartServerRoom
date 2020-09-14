@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from EdgesFilter import get_u_d_l_r, get_k_and_b_and_c
+from Obsolete.EdgesFilter import get_u_d_l_r, get_k_and_b_and_c
 
 
 def get_cross_point(line_a, line_b):
