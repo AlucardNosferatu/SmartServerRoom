@@ -11,3 +11,4 @@ __pycache__/
 *.dat
 *.flv
 logs/
+DataMarker/.vs/
