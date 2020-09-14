@@ -218,5 +218,31 @@ namespace DataMarker
                 MessageBox.Show("未指定数据所在目录，请先选择图片数据文件夹。");
             }
         }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            DialogResult DR = MessageBox.Show("是否保存?", "退出前保存提示", MessageBoxButtons.YesNo);
+            if (DR == DialogResult.Yes)
+            {
+                if (this.list_path != null)
+                {
+                    FileStream FS = new FileStream(this.list_path, FileMode.OpenOrCreate);
+                    StreamWriter SW = new StreamWriter(FS);
+                    List<string> file_out = this.recorded_labels.Keys.ToList<string>();
+                    foreach (string file in file_out)
+                    {
+                        SW.WriteLine(file + "\t" + Convert.ToInt32(this.recorded_labels[file]).ToString());
+                    }
+                    SW.Close();
+                    FS.Close();
+                    MessageBox.Show("保存完毕\n现在将退出");
+                }
+                else
+                {
+                    MessageBox.Show("未指定数据所在目录，请先选择图片数据文件夹\n现在将不保存并退出");
+                }
+
+            }
+        }
     }
 }
