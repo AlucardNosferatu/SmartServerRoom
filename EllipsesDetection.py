@@ -1,5 +1,6 @@
 import math
 import cv2
+import numpy as np
 from Enhance import sharpen, close
 
 
@@ -48,8 +49,8 @@ def fit_cont(thresh_in, img_in, img_param):
     img = img_in.copy()
     cnt_length = max(int(img_param / 4000), 5)
     area_param_1 = int(img_param * 0.075)
-    area_param_2 = int(img_param * 0.4)
-    ab_diff_param = 1.15
+    area_param_2 = int(img_param * 0.9)
+    ab_diff_param = 1.2
     contours = get_cont(thresh)  # contours为轮廓集，可以计算轮廓的长度、面积等
     cv2.drawContours(img, contours, -1, (255, 255, 0), 1)
     output_ellipses = []
@@ -87,5 +88,13 @@ def get_ellipse(img):
 
 
 if __name__ == "__main__":
-    test = cv2.imread("Samples/watch9.jpg", 3)
+    test = cv2.imread("Samples/watch.jpg", 3)
     o_e = get_ellipse(test)
+    print(o_e)
+    newImg = np.zeros_like(test).astype(np.uint8)
+    for ell in o_e:
+        newImg = cv2.ellipse(newImg, ell, (255, 255, 255), -1)
+        break
+    test = cv2.add(test, np.zeros(np.shape(test), dtype=np.uint8), mask=newImg[:, :, 0])
+    cv2.imshow('2', test)
+    cv2.waitKey()
