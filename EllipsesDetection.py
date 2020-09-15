@@ -88,7 +88,7 @@ def get_ellipse(img):
 
 
 if __name__ == "__main__":
-    test = cv2.imread("Samples/watch.jpg", 3)
+    test = cv2.imread("Samples/watch1.jpg", 3)
     o_e = get_ellipse(test)
     print(o_e)
     newImg = np.zeros_like(test).astype(np.uint8)
