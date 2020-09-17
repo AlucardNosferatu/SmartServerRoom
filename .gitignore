@@ -13,3 +13,5 @@ valid_file.txt
 Outputs/
 *.flv
 logs/
+DataMarker/.vs/
+Samples/
