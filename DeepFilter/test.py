@@ -36,7 +36,7 @@ def test_model():
         cv2.waitKey()
 
 
-def test_on_array(img_array):
+def dl_test(img_array):
     img_array = cv2.resize(img_array, (224, 224))
     result = model.predict(np.expand_dims(img_array, axis=0))
     cls = np.argmax(result[0])

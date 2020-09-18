@@ -51,7 +51,7 @@ def single_image_test(file_path, use_enhance):
     return False
 
 
-def test_on_array(img_array):
+def qr_test(img_array):
     cv2.imwrite('QRC_Temp/Temp.jpg', img_array)
     result = single_image_test('QRC_Temp/Temp.jpg', use_enhance=True)
     os.remove('QRC_Temp/Temp.jpg')

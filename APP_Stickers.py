@@ -4,7 +4,7 @@ import os
 import cv2
 import json
 import time
-from QRCode import test_on_array
+from QRCode import qr_test
 import base64
 from skimage import io
 import numpy as np
@@ -76,7 +76,7 @@ def file_request(function_string, req_id, save_path='QRC_Temp'):
 
 
 def process_request(function_string, req_dict):
-    server_url = 'http://127.0.0.1:2029'
+    server_url = 'http://127.0.0.1:1224'
     server_url += ATOM_code[function_string]
     headers = {
         "Content-Type": "application/json; charset=UTF-8"
@@ -88,7 +88,18 @@ def process_request(function_string, req_dict):
         response = requests.post(server_url, headers=headers)
     print("Complete post")
     response.raise_for_status()
-    result = eval(response.content.decode('utf-8').replace('true', 'True'))
+    result = eval(
+        response.content.decode('utf-8').replace(
+            'true',
+            'True'
+        ).replace(
+            'false',
+            'False'
+        ).replace(
+            'null',
+            'None'
+        )
+    )
     return result
 
 
@@ -136,38 +147,12 @@ def check(file_id):
                 b64_string = base64.b64encode(f.read())
                 b64_string = b64_string.decode()
                 b64_string = 'data:image/jpeg;base64,' + b64_string
-            result = process_request('fd', req_dict={'imgString': b64_string})
-            if len(result['res']) > 0:
-                new_result = []
-                for rect in result['res']:
-                    img = cv2.imread('QRC_Temp/' + file_name)
-                    img = img[rect[1]:rect[3], rect[0]:rect[2]]
-                    cv2.imwrite('QRC_Temp/cropped_' + file_name, img)
-                    with open('QRC_Temp/cropped_' + file_name, 'rb') as fc:
-                        b64_string = base64.b64encode(fc.read())
-                        b64_string = b64_string.decode()
-                        b64_string = 'data:image/jpeg;base64,' + b64_string
-                    points = process_request('ld', req_dict={'imgString': b64_string})
-                    for point in points['res']:
-                        img = cv2.circle(img, tuple(point), 2, (255, 0, 0), 1)
-                    cv2.imwrite('QRC_Temp/cropped_' + file_name, img)
-                    uploaded_id = file_request(
-                        'upload',
-                        {
-                            'file': open(
-                                'QRC_Temp/cropped_' + file_name,
-                                'rb'
-                            )
-                        }
-                    )
-                    ret = file_request('save', uploaded_id)
-                    if ret == uploaded_id:
-                        new_result.append(uploaded_id)
-                os.remove('QRC_Temp/cropped_' + file_name)
-                new_result = ','.join(new_result)
-                result = new_result
-                print(new_result)
-            else:
+            try:
+                result_1 = process_request('qr', req_dict={'imgString': b64_string})
+                result_2 = process_request('dl', req_dict={'imgString': b64_string})
+                result = [result_1, result_2]
+            except Exception as e:
+                print(repr(e))
                 result = -1
             os.remove('QRC_Temp/' + file_name)
         time_take = time.time() - time_take
@@ -186,8 +171,9 @@ def check(file_id):
             ensure_ascii=False
         )
 
+
 if __name__ == '__main__':
     app.run(
         host="0.0.0.0",
-        port=int("1224"),
+        port=int("1225"),
         debug=False, threaded=True)

@@ -3,7 +3,9 @@ import os
 import cv2
 import json
 import time
-from QRCode import test_on_array
+
+from DeepFilter.test import dl_test
+from QRCode import qr_test
 import base64
 from skimage import io
 import numpy as np
@@ -76,7 +78,7 @@ def qr_decode():
 
         time_take = time.time()
 
-        result = test_on_array(img)
+        result = qr_test(img)
 
         time_take = time.time() - time_take
 
@@ -124,7 +126,7 @@ def sticker_detect():
 
         time_take = time.time()
 
-        result = test_on_array(img)
+        result = dl_test(img)
 
         time_take = time.time() - time_take
 
