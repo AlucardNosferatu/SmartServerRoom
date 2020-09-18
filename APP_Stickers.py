@@ -150,7 +150,11 @@ def check(file_id):
             try:
                 result_1 = process_request('qr', req_dict={'imgString': b64_string})
                 result_2 = process_request('dl', req_dict={'imgString': b64_string})
-                result = [result_1, result_2]
+                result = {'qr_evidence': result_1, 'dl_evidence': result_2}
+                if result_1['res'].startswith('http://xfujian.189.cn') and result_2['res']['classification'] == '1':
+                    result['final_result'] = True
+                else:
+                    result['final_result'] = False
             except Exception as e:
                 print(repr(e))
                 result = -1
