@@ -12,3 +12,4 @@ __pycache__/
 *.flv
 logs/
 DataMarker/.vs/
+Samples/
