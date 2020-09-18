@@ -11,7 +11,11 @@ model = build_model()
 
 
 def load_weight(file_path='../Models/QRCode_Detector.h5'):
+    global model
     model.load_weights(filepath=file_path)
+
+
+load_weight()
 
 
 def test_model():
