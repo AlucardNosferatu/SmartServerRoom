@@ -1,14 +1,15 @@
-from flask import Flask, request
-import os
-import cv2
+import base64
 import json
+import logging
+import os
 import time
 
-import base64
+import cv2
 import numpy as np
-import logging
-from VideoTest import snap, async_response
+from flask import Flask, request
+
 from UseDlib import test_detector, test_landmarks, test_recognizer, reload_records
+from VideoTest import snap
 
 app = Flask(__name__)
 
@@ -56,7 +57,7 @@ def faces_detect():
         img_string = img_string.decode()
         img = np.array([])
         if "base64," in str(img_string):
-            img_string = data['imgString'].encode().split(b';base64,')[-1]
+            img_string = img_string.encode().split(b';base64,')[-1]
         if ".jpg" in str(img_string) or ".png" in str(img_string):
             app.logger.info(data)
             img_string = img_string.replace("\n", "")
@@ -194,15 +195,9 @@ def snapshot():
         data = eval(c_da.decode())
         rtsp_address = data['RTSP_ADDR'].encode()
         rtsp_address = rtsp_address.decode()
-        post_result = data['POST_RESULT'].encode()
-        post_result = post_result.decode()
-        post_result = post_result.replace('true', 'True')
-        post_result = post_result.replace('false', 'False')
-        post_result = eval(post_result)
         time_take = time.time()
         result = snap(rtsp_address)
         time_take = time.time() - time_take
-
         ret = result is not None
         msg = {True: "成功", False: "失败"}
         output = json.dumps(
@@ -214,9 +209,21 @@ def snapshot():
             },
             ensure_ascii=False
         )
-        if post_result:
-            async_response(output)
         return output
+
+
+def b64string2array(img_string):
+    img = np.array([])
+    if "base64," in str(img_string):
+        img_string = img_string.encode().split(b';base64,')[-1]
+    if ".jpg" in str(img_string) or ".png" in str(img_string):
+        img_string = img_string.replace("\n", "")
+        img = cv2.imread(img_string)
+    if len(img_string) > 200:
+        img_string = base64.b64decode(img_string)
+        np_array = np.frombuffer(img_string, np.uint8)
+        img = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
+    return img
 
 
 if __name__ == '__main__':

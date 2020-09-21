@@ -7,9 +7,12 @@ import time
 import cv2
 import requests
 from flask import Flask, request
+
 from UseDlib import face_folder_path
 
 # no_found = 'no such id'
+from VideoTest import camera_async
+
 no_found = -1
 
 CEPH_code = {
@@ -480,21 +483,18 @@ def camera():
 
         time_take = time.time()
         if sync:
-            result = process_request('ss', {'RTSP_ADDR': rtsp, 'POST_RESULT': False})
+            result = camera_async(rtsp)
         else:
-            t_snap = threading.Thread(target=process_request, args=('ss', {'RTSP_ADDR': rtsp, 'POST_RESULT': True}))
+            t_snap = threading.Thread(target=camera_async, args=(rtsp,))
             t_snap.start()
             result = None
 
         time_take = time.time() - time_take
-        if sync:
-            pass
-        ret = not (result == -1)
-        msg = {True: '成功', False: '失败'}
+
         return json.dumps(
             {
-                'ret': ret,
-                'msg': msg[ret],
+                'Code': req_id,
+                'msg': "请求成功",
                 'data': result,
                 'timeTake': round(time_take, 4)
             },
