@@ -7,7 +7,7 @@ import time
 import base64
 import numpy as np
 import logging
-
+from VideoTest import snap, async_response
 from UseDlib import test_detector, test_landmarks, test_recognizer, reload_records
 
 app = Flask(__name__)
@@ -58,7 +58,6 @@ def faces_detect():
         if "base64," in str(img_string):
             img_string = data['imgString'].encode().split(b';base64,')[-1]
         if ".jpg" in str(img_string) or ".png" in str(img_string):
-            # print(imgString)
             app.logger.info(data)
             img_string = img_string.replace("\n", "")
             img = cv2.imread(img_string)
@@ -179,6 +178,45 @@ def reload():
             },
             ensure_ascii=False
         )
+
+
+@app.route('/imr-ai-service/atomic_functions/snapshot', methods=['POST'])
+def snapshot():
+    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
+    log_file_str = log_file_folder + os.sep + log_file_name
+    if not os.path.exists(log_file_str):
+        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
+        handler.setFormatter(logging_format)
+        app.logger.addHandler(handler)
+
+    if request.method == "POST":
+        c_da = request.data
+        data = eval(c_da.decode())
+        rtsp_address = data['RTSP_ADDR'].encode()
+        rtsp_address = rtsp_address.decode()
+        post_result = data['POST_RESULT'].encode()
+        post_result = post_result.decode()
+        post_result = post_result.replace('true', 'True')
+        post_result = post_result.replace('false', 'False')
+        post_result = eval(post_result)
+        time_take = time.time()
+        result = snap(rtsp_address)
+        time_take = time.time() - time_take
+
+        ret = result is not None
+        msg = {True: "成功", False: "失败"}
+        output = json.dumps(
+            {
+                'ret': ret,
+                'msg': msg[ret],
+                'result': result,
+                'timeTake': round(time_take, 4)
+            },
+            ensure_ascii=False
+        )
+        if post_result:
+            async_response(output)
+        return output
 
 
 if __name__ == '__main__':

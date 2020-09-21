@@ -2,12 +2,11 @@ import base64
 import json
 import logging
 import os
+import threading
 import time
-
 import cv2
 import requests
 from flask import Flask, request
-
 from UseDlib import face_folder_path
 
 # no_found = 'no such id'
@@ -28,6 +27,7 @@ ATOM_code = {
     'ld': '/imr-ai-service/atomic_functions/landmarks_detect',
     'fr': '/imr-ai-service/atomic_functions/recognize',
     'rr': '/imr-ai-service/atomic_functions/reload',
+    'ss': '/imr-ai-service/atomic_functions/snapshot'
 }
 app = Flask(__name__)
 
@@ -90,7 +90,18 @@ def process_request(function_string, req_dict):
         response = requests.post(server_url, headers=headers)
     print("Complete post")
     response.raise_for_status()
-    result = eval(response.content.decode('utf-8').replace('true', 'True'))
+    result = eval(
+        response.content.decode('utf-8').replace(
+            'true',
+            'True'
+        ).replace(
+            'false',
+            'False'
+        ).replace(
+            'null',
+            'None'
+        )
+    )
     return result
 
 
@@ -438,6 +449,52 @@ def reload():
             {
                 'ret': True,
                 'msg': '成功',
+                'data': result,
+                'timeTake': round(time_take, 4)
+            },
+            ensure_ascii=False
+        )
+
+
+@app.route('/imr-ai-service/face_features/camera_recognize', methods=['POST'])
+def camera():
+    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
+    log_file_str = log_file_folder + os.sep + log_file_name
+    if not os.path.exists(log_file_str):
+        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
+        handler.setFormatter(logging_format)
+        app.logger.addHandler(handler)
+
+    if request.method == "POST":
+        c_da = request.data
+        data = eval(c_da.decode())
+        req_id = data['CameraRecognId'].encode()
+        req_id = req_id.decode()
+        rtsp = data['RTSP_ADDR'].encode()
+        rtsp = rtsp.decode()
+        sync = data['sync'].encode()
+        sync = sync.decode()
+        sync = sync.replace('true', 'True')
+        sync = sync.replace('false', 'False')
+        sync = eval(sync)
+
+        time_take = time.time()
+        if sync:
+            result = process_request('ss', {'RTSP_ADDR': rtsp, 'POST_RESULT': False})
+        else:
+            t_snap = threading.Thread(target=process_request, args=('ss', {'RTSP_ADDR': rtsp, 'POST_RESULT': True}))
+            t_snap.start()
+            result = None
+
+        time_take = time.time() - time_take
+        if sync:
+            pass
+        ret = not (result == -1)
+        msg = {True: '成功', False: '失败'}
+        return json.dumps(
+            {
+                'ret': ret,
+                'msg': msg[ret],
                 'data': result,
                 'timeTake': round(time_take, 4)
             },
