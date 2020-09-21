@@ -50,7 +50,7 @@ def faces_detect():
         app.logger.addHandler(handler)
     if request.method == "POST":
         c_da = request.data
-        data = eval(c_da.decode())
+        data = eval(c_da.decode().replace('true', 'True').replace('false', 'False').replace('null', 'None'))
         img_string = data['imgString'].encode()
         img_string = img_string.decode()
         img = b64string2array(img_string)
@@ -75,7 +75,7 @@ def landmarks_detect():
         app.logger.addHandler(handler)
     if request.method == "POST":
         c_da = request.data
-        data = eval(c_da.decode())
+        data = eval(c_da.decode().replace('true', 'True').replace('false', 'False').replace('null', 'None'))
         img_string = data['imgString'].encode()
         img_string = img_string.decode()
         img = b64string2array(img_string)
@@ -99,7 +99,7 @@ def recognize():
         app.logger.addHandler(handler)
     if request.method == "POST":
         c_da = request.data
-        data = eval(c_da.decode())
+        data = eval(c_da.decode().replace('true', 'True').replace('false', 'False').replace('null', 'None'))
         img_string = data['imgString'].encode()
         img_string = img_string.decode()
         img = b64string2array(img_string)
@@ -146,19 +146,19 @@ def snapshot():
 
     if request.method == "POST":
         c_da = request.data
-        data = eval(c_da.decode())
+        data = eval(c_da.decode().replace('true', 'True').replace('false', 'False').replace('null', 'None'))
         rtsp_address = data['RTSP_ADDR'].encode()
         rtsp_address = rtsp_address.decode()
         time_take = time.time()
         result = snap(rtsp_address)
         time_take = time.time() - time_take
-        ret = result is not None
+        ret = (result is not None)
         msg = {True: "成功", False: "失败"}
         output = json.dumps(
             {
                 'ret': ret,
                 'msg': msg[ret],
-                'result': result,
+                'result': result.decode(),
                 'timeTake': round(time_take, 4)
             },
             ensure_ascii=False
