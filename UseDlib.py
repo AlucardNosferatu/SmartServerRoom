@@ -5,11 +5,7 @@ import dlib
 import numpy
 from dlib import rectangle
 
-predictor_path = 'Models/shape_predictor_68_face_landmarks.dat'
-face_rc_model_path = 'Models/dlib_face_recognition_resnet_model_v1.dat'
-# face_folder_path = 'C:/Users/16413/Documents/GitHub/YOLO/faces/Faces/forDlib'
-face_folder_path = 'Backup/Faces'
-test_img_path = "Samples/test.jpg"
+from utils import predictor_path, face_rc_model_path, face_folder_path, test_img_path
 
 
 def init_detectors():

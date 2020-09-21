@@ -1,15 +1,13 @@
-import base64
 import json
 import logging
 import os
 import time
 
-import cv2
-import numpy as np
 from flask import Flask, request
 
 from UseDlib import test_detector, test_landmarks, test_recognizer, reload_records
 from VideoTest import snap
+from utils import b64string2array
 
 app = Flask(__name__)
 
@@ -166,20 +164,6 @@ def snapshot():
             ensure_ascii=False
         )
         return output
-
-
-def b64string2array(img_string):
-    img = np.array([])
-    if "base64," in str(img_string):
-        img_string = img_string.encode().split(b';base64,')[-1]
-    if ".jpg" in str(img_string) or ".png" in str(img_string):
-        img_string = img_string.replace("\n", "")
-        img = cv2.imread(img_string)
-    if len(img_string) > 200:
-        img_string = base64.b64decode(img_string)
-        np_array = np.frombuffer(img_string, np.uint8)
-        img = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
-    return img
 
 
 if __name__ == '__main__':

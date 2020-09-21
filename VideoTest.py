@@ -3,10 +3,10 @@ import os
 
 import cv2
 
-
 # rtsp = 'rtsp://admin:zww123456.@192.168.56.111:5541'
-from App_Faces import process_request, file_request
-from Atomic_Faces import b64string2array
+import requests
+
+from utils import b64string2array, process_request, file_request
 
 
 def snap(rtsp_address):
@@ -25,11 +25,35 @@ def response_async(result):
     pass
 
 
-def camera_async(rtsp,post_result):
+def call_recognize(ceph_id):
+    server = "http://127.0.0.1:7120"
+    url = server + '/imr-ai-service/face_features/recognize/<file_id>'
+    url = url.replace('<file_id>', ceph_id)
+    headers = {
+        "Content-Type": "application/json; charset=UTF-8"
+    }
+    response = requests.post(url, headers=headers)
+    response.raise_for_status()
+    result = eval(
+        response.content.decode('utf-8').replace(
+            'true',
+            'True'
+        ).replace(
+            'false',
+            'False'
+        ).replace(
+            'null',
+            'None'
+        )
+    )
+    return result
+
+
+def camera_async(rtsp, post_result):
     result = {'res': []}
     count = 0
     img_string = ''
-    while len(result['res']) == 0:
+    while len(result['res']) == 0 and count < 60:
         img_string = process_request('ss', {'RTSP_ADDR': rtsp})
         result = process_request('fd', req_dict={'imgString': img_string})
         count += 1
@@ -50,10 +74,9 @@ def camera_async(rtsp,post_result):
             )
             ret = file_request('save', uploaded_id)
             if ret == uploaded_id:
-                new_result.append(uploaded_id)
+                result_temp = call_recognize(uploaded_id)
+                new_result.append(result_temp)
             os.remove('Faces_Temp/temp.jpg')
-
-        new_result = ','.join(new_result)
         result = new_result
     else:
         result = -1
