@@ -1,4 +1,6 @@
 import base64
+import datetime
+import json
 import os
 
 import cv2
@@ -10,7 +12,8 @@ from utils import b64string2array, process_request, file_request
 
 
 def snap(rtsp_address):
-    cap = cv2.VideoCapture(rtsp_address)
+    # cap = cv2.VideoCapture(rtsp_address)
+    cap = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
     ret, frame = cap.read()
     if frame is not None:
         frame = cv2.resize(frame, (1024, 768))
@@ -22,7 +25,17 @@ def snap(rtsp_address):
 
 
 def response_async(result):
-    pass
+    print("Start to post")
+    server_url = 'http://134.134.13.82:8744/imr-face-server/monitor/regmonitor'
+    dic = {"data": result}
+    dic_json = json.dumps(dic)
+    headers = {
+        "Content-Type": "application/json; charset=UTF-8"
+    }
+    response = requests.post(server_url, data=dic_json, headers=headers)
+    print("Complete post")
+    response.raise_for_status()
+    print(response.content.decode('utf-8'))
 
 
 def call_recognize(ceph_id):
@@ -54,9 +67,13 @@ def camera_async(rtsp, post_result):
     count = 0
     img_string = ''
     while len(result['res']) == 0 and count < 60:
-        img_string = process_request('ss', {'RTSP_ADDR': rtsp})
-        result = process_request('fd', req_dict={'imgString': img_string})
         count += 1
+        ss_result = process_request('ss', {'RTSP_ADDR': rtsp})
+        if type(ss_result) is dict and 'result' in ss_result and ss_result['result'] is not None:
+            img_string = ss_result['result']
+            result = process_request('fd', req_dict={'imgString': img_string})
+        else:
+            continue
     if len(result['res']) > 0:
         img = b64string2array(img_string)
         new_result = []
@@ -83,3 +100,7 @@ def camera_async(rtsp, post_result):
     if post_result:
         response_async(result)
     return result
+
+
+if __name__ == '__main__':
+    pass

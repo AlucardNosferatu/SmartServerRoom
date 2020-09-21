@@ -154,11 +154,13 @@ def snapshot():
         time_take = time.time() - time_take
         ret = (result is not None)
         msg = {True: "成功", False: "失败"}
+        if ret:
+            result = result.decode()
         output = json.dumps(
             {
                 'ret': ret,
                 'msg': msg[ret],
-                'result': result.decode(),
+                'result': result,
                 'timeTake': round(time_take, 4)
             },
             ensure_ascii=False
