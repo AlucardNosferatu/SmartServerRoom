@@ -55,17 +55,7 @@ def faces_detect():
         data = eval(c_da.decode())
         img_string = data['imgString'].encode()
         img_string = img_string.decode()
-        img = np.array([])
-        if "base64," in str(img_string):
-            img_string = img_string.encode().split(b';base64,')[-1]
-        if ".jpg" in str(img_string) or ".png" in str(img_string):
-            app.logger.info(data)
-            img_string = img_string.replace("\n", "")
-            img = cv2.imread(img_string)
-        if len(img_string) > 200:
-            img_string = base64.b64decode(img_string)
-            np_array = np.frombuffer(img_string, np.uint8)
-            img = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
+        img = b64string2array(img_string)
         time_take = time.time()
         result = test_detector(img)
         time_take = time.time() - time_take
@@ -90,17 +80,7 @@ def landmarks_detect():
         data = eval(c_da.decode())
         img_string = data['imgString'].encode()
         img_string = img_string.decode()
-        img = np.array([])
-        if "base64," in str(img_string):
-            img_string = data['imgString'].encode().split(b';base64,')[-1]
-        if ".jpg" in str(img_string) or ".png" in str(img_string):
-            app.logger.info(data)
-            img_string = img_string.replace("\n", "")
-            img = cv2.imread(img_string)
-        if len(img_string) > 200:
-            img_string = base64.b64decode(img_string)
-            np_array = np.frombuffer(img_string, np.uint8)
-            img = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
+        img = b64string2array(img_string)
         time_take = time.time()
         result = test_landmarks(img)
         time_take = time.time() - time_take
@@ -119,38 +99,18 @@ def recognize():
         handler = logging.FileHandler(log_file_str, encoding='UTF-8')
         handler.setFormatter(logging_format)
         app.logger.addHandler(handler)
-
     if request.method == "POST":
         c_da = request.data
-
         data = eval(c_da.decode())
         img_string = data['imgString'].encode()
         img_string = img_string.decode()
-        # print(imgString)
-        img = np.array([])
-        if "base64," in str(img_string):
-            img_string = data['imgString'].encode().split(b';base64,')[-1]
-
-        if ".jpg" in str(img_string) or ".png" in str(img_string):
-            app.logger.info(data)
-            img_string = img_string.replace("\n", "")
-            img = cv2.imread(img_string)
-
-        if len(img_string) > 200:
-            img_string = base64.b64decode(img_string)
-            np_array = np.frombuffer(img_string, np.uint8)
-            img = cv2.imdecode(np_array, cv2.IMREAD_COLOR)
-
+        img = b64string2array(img_string)
         time_take = time.time()
-
         result = test_recognizer(img)
-
         time_take = time.time() - time_take
-
         if "fileName" in data.keys():
             app.logger.info("recognition  return:{d},use time:{t}".format(d=result, t=time_take))
             return json.dumps({data['fileName']: [{'value': result}]}, ensure_ascii=False)
-
         return json.dumps({'res': result, 'timeTake': round(time_take, 4)},
                           ensure_ascii=False)
 
@@ -163,14 +123,10 @@ def reload():
         handler = logging.FileHandler(log_file_str, encoding='UTF-8')
         handler.setFormatter(logging_format)
         app.logger.addHandler(handler)
-
     if request.method == "POST":
         time_take = time.time()
-
         result = reload_records()
-
         time_take = time.time() - time_take
-
         return json.dumps(
             {
                 'total': result[0],

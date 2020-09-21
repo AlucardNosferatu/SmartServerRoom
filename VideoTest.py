@@ -52,6 +52,7 @@ def camera_async(rtsp,post_result):
             if ret == uploaded_id:
                 new_result.append(uploaded_id)
             os.remove('Faces_Temp/temp.jpg')
+
         new_result = ','.join(new_result)
         result = new_result
     else:
