@@ -395,15 +395,15 @@ def camera():
         sync = eval(sync)
         time_take = time.time()
         if sync:
-            result = camera_async(rtsp, False)
+            result = camera_async(rtsp, False, req_id)
         else:
-            t_snap = threading.Thread(target=camera_async, args=(rtsp, True))
+            t_snap = threading.Thread(target=camera_async, args=(rtsp, True, req_id))
             t_snap.start()
             result = None
         time_take = time.time() - time_take
         return json.dumps(
             {
-                'Code': req_id,
+                'code': 1,
                 'msg': "请求成功",
                 'data': result,
                 'timeTake': round(time_take, 4)

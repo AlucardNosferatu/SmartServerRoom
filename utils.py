@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 import requests
 
-from cfg import no_found, ATOM_code, CEPH_code, server_ip
+from cfg import no_found, ATOM_code, CEPH_code, server_ip, callback_interface
 
 
 def b64string2array(img_string):
@@ -84,3 +84,15 @@ def file_request(function_string, req_id, save_path='Faces_Temp'):
         return result['data']['cephId']
     else:
         return None
+
+
+def response_async(result, function):
+    print("Start to post")
+    dic_json = json.dumps(result)
+    headers = {
+        "Content-Type": "application/json; charset=UTF-8"
+    }
+    response = requests.post(callback_interface[function], data=dic_json, headers=headers)
+    print("Complete post")
+    response.raise_for_status()
+    print(response.content.decode('utf-8'))

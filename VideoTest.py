@@ -1,6 +1,5 @@
 import base64
 import datetime
-import json
 import os
 
 import cv2
@@ -8,7 +7,7 @@ import cv2
 # rtsp = 'rtsp://admin:zww123456.@192.168.56.111:5541'
 import requests
 
-from utils import b64string2array, process_request, file_request
+from utils import b64string2array, process_request, file_request, response_async
 
 
 def snap(rtsp_address):
@@ -22,20 +21,6 @@ def snap(rtsp_address):
         return b64_code
     else:
         return None
-
-
-def response_async(result):
-    print("Start to post")
-    server_url = 'http://192.168.14.212:8744/imr-face-server/faceapply_collection/faceCameraRecognResp'
-    dic = {"data": result}
-    dic_json = json.dumps(dic)
-    headers = {
-        "Content-Type": "application/json; charset=UTF-8"
-    }
-    response = requests.post(server_url, data=dic_json, headers=headers)
-    print("Complete post")
-    response.raise_for_status()
-    print(response.content.decode('utf-8'))
 
 
 def call_recognize(ceph_id):
@@ -62,10 +47,11 @@ def call_recognize(ceph_id):
     return result
 
 
-def camera_async(rtsp, post_result):
+def camera_async(rtsp, post_result, cr_id):
     result = {'res': []}
     count = 0
     img_string = ''
+    bt = str(datetime.datetime.now())
     while len(result['res']) == 0 and count < 60:
         count += 1
         ss_result = process_request('ss', {'RTSP_ADDR': rtsp})
@@ -74,9 +60,11 @@ def camera_async(rtsp, post_result):
             result = process_request('fd', req_dict={'imgString': img_string})
         else:
             continue
+    et = str(datetime.datetime.now())
     if len(result['res']) > 0:
         img = b64string2array(img_string)
         new_result = []
+        snap_ids = []
         for rect in result['res']:
             img = img[rect[1]:rect[3], rect[0]:rect[2]]
             cv2.imwrite('Faces_Temp/temp.jpg', img)
@@ -91,14 +79,27 @@ def camera_async(rtsp, post_result):
             )
             ret = file_request('save', uploaded_id)
             if ret == uploaded_id:
+                snap_ids.append(uploaded_id)
                 result_temp = call_recognize(uploaded_id)
                 new_result.append(result_temp)
             os.remove('Faces_Temp/temp.jpg')
-        result = new_result
+        result = {
+            'CameraRecognId': cr_id,
+            'camera': snap_ids,
+            'beginTime': bt,
+            'endTime': et,
+            'faces': new_result
+        }
     else:
-        result = -1
+        result = {
+            'CameraRecognId': cr_id,
+            'camera': None,
+            'beginTime': bt,
+            'endTime': et,
+            'faces': None
+        }
     if post_result:
-        response_async(result)
+        response_async(result, 'camera')
     return result
 
 
