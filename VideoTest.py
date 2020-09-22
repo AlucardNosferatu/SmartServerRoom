@@ -91,10 +91,11 @@ def camera_async(rtsp, post_result, cr_id):
                     uploaded_id = file_request('upload', {'file': open('Faces_Temp/temp.jpg', 'rb')})
                     ret = file_request('save', uploaded_id)
                     if ret == uploaded_id:
-                        result_temp = call_recognize(uploaded_id)
-                        result_temp['head_id'] = uploaded_id
+                        result_temp = call_recognize(uploaded_id)['data']['res']
+                        result_temp.append(uploaded_id)
                         new_result.append(result_temp)
                     os.remove('Faces_Temp/temp.jpg')
+                new_result_list.append(new_result)
     result = {
         'CameraRecognId': cr_id,
         'camera': scene_id_list,
