@@ -5,34 +5,8 @@ import cv2
 import numpy as np
 import requests
 
-# no_found = 'no such id'
-no_found = -1
+from cfg import no_found, ATOM_code, CEPH_code, server_ip
 
-predictor_path = 'Models/shape_predictor_68_face_landmarks.dat'
-face_rc_model_path = 'Models/dlib_face_recognition_resnet_model_v1.dat'
-face_folder_path = 'Backup/Faces'
-# face_folder_path = 'C:/Users/16413/Documents/GitHub/YOLO/faces/Faces/forDlib'
-test_img_path = "Samples/test.jpg"
-
-ATOM_code = {
-    'fd': '/imr-ai-service/atomic_functions/faces_detect',
-    'ld': '/imr-ai-service/atomic_functions/landmarks_detect',
-    'fr': '/imr-ai-service/atomic_functions/recognize',
-    'rr': '/imr-ai-service/atomic_functions/reload',
-    'ss': '/imr-ai-service/atomic_functions/snapshot'
-}
-CEPH_code = {
-    'query': '/ceph-server/ceph/query/',
-    'upload': '/ceph-server/ceph/upload/',
-    'save': '/ceph-server/ceph/save/'
-}
-
-
-# CEPH_code = {
-#     'query': '/imr-ceph-server/ceph/query/',
-#     'upload': '/imr-ceph-server/ceph/upload/',
-#     'save': '/imr-ceph-server/ceph/save/'
-# }
 
 def b64string2array(img_string):
     img = np.array([])
@@ -77,9 +51,7 @@ def process_request(function_string, req_dict):
 
 
 def file_request(function_string, req_id, save_path='Faces_Temp'):
-    # server_url = 'http://134.134.13.81:8788'
-    server_url = 'http://192.168.14.212:29999'
-    server_url += CEPH_code[function_string]
+    server_url = server_ip + CEPH_code[function_string]
     if function_string in ['query', 'save']:
         server_url += req_id
         response = requests.post(server_url)

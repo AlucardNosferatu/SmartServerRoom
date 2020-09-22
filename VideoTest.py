@@ -26,7 +26,7 @@ def snap(rtsp_address):
 
 def response_async(result):
     print("Start to post")
-    server_url = 'http://134.134.13.82:8744/imr-face-server/monitor/regmonitor'
+    server_url = 'http://192.168.14.212:8744/imr-face-server/faceapply_collection/faceCameraRecognResp'
     dic = {"data": result}
     dic_json = json.dumps(dic)
     headers = {

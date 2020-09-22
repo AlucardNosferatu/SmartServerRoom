@@ -8,7 +8,8 @@ import cv2
 from flask import Flask, request
 
 from VideoTest import camera_async
-from utils import process_request, file_request, face_folder_path, no_found
+from utils import process_request, file_request
+from cfg import no_found, face_folder_path
 
 app = Flask(__name__)
 
