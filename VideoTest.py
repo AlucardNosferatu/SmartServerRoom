@@ -52,52 +52,56 @@ def camera_async(rtsp, post_result, cr_id):
     count = 0
     img_string = ''
     bt = str(datetime.datetime.now())
-    while len(result['res']) == 0 and count < 60:
-        count += 1
-        ss_result = process_request('ss', {'RTSP_ADDR': rtsp})
-        if type(ss_result) is dict and 'result' in ss_result and ss_result['result'] is not None:
-            img_string = ss_result['result']
-            result = process_request('fd', req_dict={'imgString': img_string})
+
+    img_string_list = []
+    times = 3
+    while times > 0:
+        while len(result['res']) == 0 and count < 60:
+            count += 1
+            ss_result = process_request('ss', {'RTSP_ADDR': rtsp})
+            if type(ss_result) is dict and 'result' in ss_result and ss_result['result'] is not None:
+                img_string = ss_result['result']
+                result = process_request('fd', req_dict={'imgString': img_string})
+            else:
+                continue
+        if post_result:
+            img_string_list.append(img_string)
+            times -= 1
         else:
-            continue
+            img_string_list = [img_string]
+
     et = str(datetime.datetime.now())
-    if len(result['res']) > 0:
+
+    scene_id_list = []
+    new_result_list = []
+
+    for img_string in img_string_list:
         img = b64string2array(img_string)
-        new_result = []
-        snap_ids = []
-        for rect in result['res']:
-            new_img = img[rect[1]:rect[3], rect[0]:rect[2]]
-            cv2.imwrite('Faces_Temp/temp.jpg', new_img)
-            uploaded_id = file_request(
-                'upload',
-                {
-                    'file': open(
-                        'Faces_Temp/temp.jpg',
-                        'rb'
-                    )
-                }
-            )
-            ret = file_request('save', uploaded_id)
-            if ret == uploaded_id:
-                snap_ids.append(uploaded_id)
-                result_temp = call_recognize(uploaded_id)
-                new_result.append(result_temp)
-            os.remove('Faces_Temp/temp.jpg')
-        result = {
-            'CameraRecognId': cr_id,
-            'camera': snap_ids,
-            'beginTime': bt,
-            'endTime': et,
-            'faces': new_result
-        }
-    else:
-        result = {
-            'CameraRecognId': cr_id,
-            'camera': None,
-            'beginTime': bt,
-            'endTime': et,
-            'faces': None
-        }
+        cv2.imwrite('Faces_Temp/scene.jpg', img)
+        scene_id = file_request('upload', {'file': open('Faces_Temp/scene.jpg', 'rb')})
+        ret = file_request('save', scene_id)
+        if ret == scene_id:
+            scene_id_list.append(scene_id)
+            os.remove('Faces_Temp/scene.jpg')
+            if len(result['res']) > 0:
+                new_result = []
+                for rect in result['res']:
+                    new_img = img[rect[1]:rect[3], rect[0]:rect[2]]
+                    cv2.imwrite('Faces_Temp/temp.jpg', new_img)
+                    uploaded_id = file_request('upload', {'file': open('Faces_Temp/temp.jpg', 'rb')})
+                    ret = file_request('save', uploaded_id)
+                    if ret == uploaded_id:
+                        result_temp = call_recognize(uploaded_id)
+                        result_temp['head_id'] = uploaded_id
+                        new_result.append(result_temp)
+                    os.remove('Faces_Temp/temp.jpg')
+    result = {
+        'CameraRecognId': cr_id,
+        'camera': scene_id_list,
+        'beginTime': bt,
+        'endTime': et,
+        'faces': new_result_list
+    }
     if post_result:
         response_async(result, 'camera')
     return result

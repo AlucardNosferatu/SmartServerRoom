@@ -58,7 +58,7 @@ def file_request(function_string, req_id, save_path='Faces_Temp'):
     elif function_string == 'upload':
         assert type(req_id) is dict
         assert 'file' in req_id
-        bucket_dict = {'bucketName': 'face'}
+        bucket_dict = {'bucketName': 'fries'}
         response = requests.post(server_url, data=bucket_dict, files=req_id)
     else:
         response = {}
