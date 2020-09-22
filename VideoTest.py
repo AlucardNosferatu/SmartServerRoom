@@ -66,8 +66,8 @@ def camera_async(rtsp, post_result, cr_id):
         new_result = []
         snap_ids = []
         for rect in result['res']:
-            img = img[rect[1]:rect[3], rect[0]:rect[2]]
-            cv2.imwrite('Faces_Temp/temp.jpg', img)
+            new_img = img[rect[1]:rect[3], rect[0]:rect[2]]
+            cv2.imwrite('Faces_Temp/temp.jpg', new_img)
             uploaded_id = file_request(
                 'upload',
                 {
