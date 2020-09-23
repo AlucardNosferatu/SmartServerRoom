@@ -20,8 +20,8 @@ CEPH_code = {
     'save': '/imr-ceph-server/ceph/save/'
 }
 
-# server_ip = 'http://192.168.14.212:15656'
-server_ip = 'http://134.134.13.83:15656'
+server_ip = 'http://192.168.14.212:15656'
+# server_ip = 'http://134.134.13.83:15656'
 
 callback_interface = {
     'camera': 'http://192.168.14.212:8744/imr-face-server/faceapply_collection/faceCameraRecognResp'
