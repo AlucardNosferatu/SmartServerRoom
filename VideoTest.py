@@ -1,7 +1,7 @@
 import base64
 import datetime
 import os
-
+import time
 import cv2
 
 # rtsp = 'rtsp://admin:zww123456.@192.168.56.111:5541'
@@ -11,8 +11,10 @@ from utils import b64string2array, process_request, file_request, response_async
 
 
 def snap(rtsp_address):
-    # cap = cv2.VideoCapture(rtsp_address)
-    cap = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
+    if rtsp_address == "LAPTOP_CAMERA":
+        cap = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
+    else:
+        cap = cv2.VideoCapture(rtsp_address)
     ret, frame = cap.read()
     if frame is not None:
         frame = cv2.resize(frame, (1024, 768))
@@ -48,44 +50,53 @@ def call_recognize(ceph_id):
 
 
 def camera_async(rtsp, post_result, cr_id):
-    result = {'res': []}
-    count = 0
-    img_string = ''
     bt = str(datetime.datetime.now())
-
     img_string_list = []
+    box_coordinates = []
     times = 3
     while times > 0:
-        while len(result['res']) == 0 and count < 60:
+        count = 0
+        result = {'res': []}
+        img_string = ''
+        while len(result['res']) == 0 and count < 30:
+            print(count)
             count += 1
             ss_result = process_request('ss', {'RTSP_ADDR': rtsp})
             if type(ss_result) is dict and 'result' in ss_result and ss_result['result'] is not None:
                 img_string = ss_result['result']
                 result = process_request('fd', req_dict={'imgString': img_string})
+                box_coordinates.append(result)
             else:
                 continue
         if post_result:
-            img_string_list.append(img_string)
-            times -= 1
+            if len(result['res']) == 0:
+                times = 0
+            else:
+                img_string_list.append(img_string)
+                print('sleep now')
+                times -= 1
+                time.sleep(1)
+                print('awake now')
         else:
             img_string_list = [img_string]
-
+            times = 0
     et = str(datetime.datetime.now())
 
     scene_id_list = []
     new_result_list = []
 
-    for img_string in img_string_list:
+    for index, img_string in enumerate(img_string_list):
         img = b64string2array(img_string)
         cv2.imwrite('Faces_Temp/scene.jpg', img)
         scene_id = file_request('upload', {'file': open('Faces_Temp/scene.jpg', 'rb')})
+        if scene_id is None:
+            continue
         ret = file_request('save', scene_id)
         if ret == scene_id:
             scene_id_list.append(scene_id)
             os.remove('Faces_Temp/scene.jpg')
-            if len(result['res']) > 0:
-                new_result = []
-                for rect in result['res']:
+            if len(box_coordinates[index]['res']) > 0:
+                for rect in box_coordinates[index]['res']:
                     new_img = img[rect[1]:rect[3], rect[0]:rect[2]]
                     cv2.imwrite('Faces_Temp/temp.jpg', new_img)
                     uploaded_id = file_request('upload', {'file': open('Faces_Temp/temp.jpg', 'rb')})
@@ -93,9 +104,14 @@ def camera_async(rtsp, post_result, cr_id):
                     if ret == uploaded_id:
                         result_temp = call_recognize(uploaded_id)['data']['res']
                         result_temp.append(uploaded_id)
-                        new_result.append(result_temp)
+                        result_temp = {
+                            'fileName': result_temp[0],
+                            'distance': result_temp[1],
+                            'head_id': result_temp[2],
+                            'camera': scene_id
+                        }
+                        new_result_list.append(result_temp)
                     os.remove('Faces_Temp/temp.jpg')
-                new_result_list.append(new_result)
     result = {
         'CameraRecognId': cr_id,
         'camera': scene_id_list,

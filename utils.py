@@ -34,19 +34,22 @@ def process_request(function_string, req_dict):
     else:
         response = requests.post(server_url, headers=headers)
     print("Complete post")
-    response.raise_for_status()
-    result = eval(
-        response.content.decode('utf-8').replace(
-            'true',
-            'True'
-        ).replace(
-            'false',
-            'False'
-        ).replace(
-            'null',
-            'None'
+    if response is not None:
+        response.raise_for_status()
+        result = eval(
+            response.content.decode('utf-8').replace(
+                'true',
+                'True'
+            ).replace(
+                'false',
+                'False'
+            ).replace(
+                'null',
+                'None'
+            )
         )
-    )
+    else:
+        result = {'res': response, 'status': 'execution of post failed.'}
     return result
 
 
@@ -64,9 +67,13 @@ def file_request(function_string, req_id, save_path='Faces_Temp'):
         response = {}
     print("Complete post")
     response.raise_for_status()
-    result = eval(
-        response.content.decode('utf-8').replace('true', 'True').replace('false', 'False').replace('null', 'None')
-    )
+    try:
+        result = eval(
+            response.content.decode('utf-8').replace('true', 'True').replace('false', 'False').replace('null', 'None')
+        )
+    except Exception as e:
+        print(repr(e))
+        result = {'data': None}
     if function_string == 'query':
         if result['data'] is None:
             return no_found
@@ -81,7 +88,10 @@ def file_request(function_string, req_id, save_path='Faces_Temp'):
         else:
             return -1
     elif function_string == 'upload':
-        return result['data']['cephId']
+        if result['data'] is not None:
+            return result['data']['cephId']
+        else:
+            return None
     else:
         return None
 
