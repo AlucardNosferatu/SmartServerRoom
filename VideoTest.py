@@ -80,8 +80,9 @@ def camera_async(rtsp, post_result, cr_id):
         if post_result:
             if len(result['res']) == 0:
                 times = 0
-                if len(img_string_list) < 1:
+                if len(img_string_list) < 1 and len(box_coordinates) < 1:
                     img_string_list.append(img_string)
+                    box_coordinates.append(result)
             else:
                 img_string_list.append(img_string)
                 print('sleep now')
