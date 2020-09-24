@@ -115,7 +115,11 @@ def camera_async(rtsp, post_result, cr_id):
                     uploaded_id = file_request('upload', {'file': open('Faces_Temp/temp.jpg', 'rb')})
                     ret = file_request('save', uploaded_id)
                     if ret == uploaded_id:
-                        result_temp = call_recognize(uploaded_id)['data']['res']
+                        result_temp = call_recognize(uploaded_id)
+                        print('rt',result_temp)
+                        result_temp = result_temp['data']
+                        print('rt', result_temp)
+                        result_temp = result_temp['res']
                         result_temp.append(uploaded_id)
                         result_temp = {
                             'fileName': str(result_temp[0]),
