@@ -128,8 +128,7 @@ def camera_async(rtsp, post_result, cr_id):
     print(result)
     print('')
     print('')
-    if post_result:
-        response_async(result, 'camera')
+    response_async(result, 'camera')
     return result
 
 
