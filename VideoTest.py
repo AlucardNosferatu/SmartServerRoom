@@ -71,6 +71,8 @@ def camera_async(rtsp, post_result, cr_id):
         if post_result:
             if len(result['res']) == 0:
                 times = 0
+                if len(img_string_list) < 1:
+                    img_string_list.append(img_string)
             else:
                 img_string_list.append(img_string)
                 print('sleep now')
@@ -119,6 +121,13 @@ def camera_async(rtsp, post_result, cr_id):
         'endTime': et,
         'faces': new_result_list
     }
+    if len(result['faces']) == 0:
+        result['faces'].append({'camera': result['camera'][0]})
+    print('')
+    print('')
+    print(result)
+    print('')
+    print('')
     if post_result:
         response_async(result, 'camera')
     return result
