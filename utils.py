@@ -83,7 +83,7 @@ def file_request(function_string, req_id, save_path='Faces_Temp'):
             f.write(r.content)
         return result['data']['fileName']
     elif function_string == 'save':
-        if result['msg'] == '成功':
+        if 'msg' in result and result['msg'] == '成功':
             return req_id
         else:
             return -1
