@@ -69,7 +69,12 @@ def camera_async(rtsp, post_result, cr_id):
             if type(ss_result) is dict and 'result' in ss_result and ss_result['result'] is not None:
                 img_string = ss_result['result']
                 result = process_request('fd', req_dict={'imgString': img_string})
-                box_coordinates.append(result)
+                print('face_detec_result', result)
+                if len(result['res']) > 0:
+                    box_coordinates.append(result)
+                    break
+                else:
+                    continue
             else:
                 continue
         if post_result:
@@ -138,4 +143,12 @@ def camera_async(rtsp, post_result, cr_id):
 
 
 if __name__ == '__main__':
-    pass
+    cap = cv2.VideoCapture('rtsp://admin:zww123456.@192.168.56.111:5542')
+    while True:
+        ret, frame = cap.read()
+        if frame is not None:
+            frame = cv2.resize(frame, (1024, 768))
+            cv2.imshow('fuck', frame)
+            cv2.waitKey(1)
+        else:
+            break
