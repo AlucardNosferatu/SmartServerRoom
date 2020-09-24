@@ -95,6 +95,7 @@ def camera_async(rtsp, post_result, cr_id):
         img = b64string2array(img_string)
         cv2.imwrite('Faces_Temp/scene.jpg', img)
         scene_id = file_request('upload', {'file': open('Faces_Temp/scene.jpg', 'rb')})
+        print('scene_id', scene_id)
         if scene_id is None:
             continue
         ret = file_request('save', scene_id)
