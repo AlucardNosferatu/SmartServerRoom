@@ -11,6 +11,8 @@ from utils import b64string2array, process_request, file_request, response_async
 
 
 def snap(rtsp_address):
+    if '\\' in rtsp_address:
+        rtsp_address = rtsp_address.replace('\\', '//')
     if rtsp_address == "LAPTOP_CAMERA":
         cap = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
     else:
@@ -22,6 +24,8 @@ def snap(rtsp_address):
         b64_code = base64.b64encode(img_str)
         return b64_code
     else:
+        print('这流读出来的都是空的啊，是不是RTSP路径有问题？')
+        print(rtsp_address)
         return None
 
 

@@ -383,6 +383,7 @@ def camera():
 
     if request.method == "POST":
         c_da = request.data
+        print(str(c_da))
         data = eval(c_da.decode())
         req_id = data['CameraRecognId'].encode()
         req_id = req_id.decode()
