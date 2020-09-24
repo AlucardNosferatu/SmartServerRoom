@@ -62,7 +62,7 @@ def camera_async(rtsp, post_result, cr_id):
         count = 0
         result = {'res': []}
         img_string = ''
-        while len(result['res']) == 0 and count < 30:
+        while len(result['res']) == 0 and count < 25:
             print(count)
             count += 1
             ss_result = process_request('ss', {'RTSP_ADDR': rtsp})
@@ -70,27 +70,21 @@ def camera_async(rtsp, post_result, cr_id):
                 img_string = ss_result['result']
                 result = process_request('fd', req_dict={'imgString': img_string})
                 print('face_detec_result', result)
-                if len(result['res']) > 0:
-                    box_coordinates.append(result)
-                    break
-                else:
-                    continue
             else:
                 continue
         if post_result:
+            img_string_list.append(img_string)
+            box_coordinates.append(result)
             if len(result['res']) == 0:
                 times = 0
-                if len(img_string_list) < 1 and len(box_coordinates) < 1:
-                    img_string_list.append(img_string)
-                    box_coordinates.append(result)
             else:
-                img_string_list.append(img_string)
                 print('sleep now')
                 times -= 1
                 time.sleep(1)
                 print('awake now')
         else:
             img_string_list = [img_string]
+            box_coordinates = [result]
             times = 0
     et = str(datetime.datetime.now())
 
@@ -116,7 +110,7 @@ def camera_async(rtsp, post_result, cr_id):
                     ret = file_request('save', uploaded_id)
                     if ret == uploaded_id:
                         result_temp = call_recognize(uploaded_id)
-                        print('rt',result_temp)
+                        print('rt', result_temp)
                         result_temp = result_temp['data']
                         print('rt', result_temp)
                         result_temp = result_temp['res']
