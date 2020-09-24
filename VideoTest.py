@@ -105,10 +105,10 @@ def camera_async(rtsp, post_result, cr_id):
                         result_temp = call_recognize(uploaded_id)['data']['res']
                         result_temp.append(uploaded_id)
                         result_temp = {
-                            'fileName': result_temp[0],
-                            'distance': result_temp[1],
-                            'head_id': result_temp[2],
-                            'camera': scene_id
+                            'fileName': str(result_temp[0]),
+                            'distance': str(result_temp[1]),
+                            'head_id': str(result_temp[2]),
+                            'camera': str(scene_id)
                         }
                         new_result_list.append(result_temp)
                     os.remove('Faces_Temp/temp.jpg')
