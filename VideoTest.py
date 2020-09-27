@@ -66,7 +66,8 @@ def loop_until_detected(rtsp):
             result = process_request('fd', req_dict={'imgString': img_string})
             print('face_detec_result', result)
         else:
-            continue
+            print('snapshot error! skip now.')
+            return img_string, result
     return img_string, result
 
 
@@ -120,6 +121,8 @@ def camera_async(rtsp, post_result, cr_id):
     new_result_list = []
 
     for index, img_string in enumerate(img_string_list):
+        if len(img_string) <= 0:
+            continue
         img = b64string2array(img_string)
         cv2.imwrite('Faces_Temp/scene.jpg', img)
         scene_id = file_request('upload', {'file': open('Faces_Temp/scene.jpg', 'rb')})
@@ -140,7 +143,7 @@ def camera_async(rtsp, post_result, cr_id):
         'endTime': et,
         'faces': new_result_list
     }
-    if len(result['faces']) == 0:
+    if len(result['faces']) == 0 and len(result['camera']) > 0:
         result['faces'].append({'camera': result['camera'][0]})
     print('')
     print('')

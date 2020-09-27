@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 import requests
 
-from cfg import no_found, ATOM_code, CEPH_code, server_ip, callback_interface
+from cfg import no_found, ATOM_code, CEPH_code, server_ip, server_ip_2, server_ip_3, callback_interface
 
 
 def b64string2array(img_string):
@@ -53,47 +53,76 @@ def process_request(function_string, req_dict):
     return result
 
 
+def retry_post(server_url, data=None, files=None):
+    try:
+        if data is None or files is None:
+            response = requests.post(server_ip + server_url)
+        else:
+            response = requests.post(server_ip + server_url, data=data, files=files)
+    except Exception as e:
+        print(repr(e))
+        try:
+            if data is None or files is None:
+                response = requests.post(server_ip_2 + server_url)
+            else:
+                response = requests.post(server_ip_2 + server_url, data=data, files=files)
+        except Exception as e:
+            print(repr(e))
+            try:
+                if data is None or files is None:
+                    response = requests.post(server_ip_3 + server_url)
+                else:
+                    response = requests.post(server_ip_3 + server_url, data=data, files=files)
+            except Exception as e:
+                print(repr(e))
+                response = None
+    return response
+
+
 def file_request(function_string, req_id, save_path='Faces_Temp'):
-    server_url = server_ip + CEPH_code[function_string]
+    server_url = CEPH_code[function_string]
     if function_string in ['query', 'save']:
         server_url += req_id
-        response = requests.post(server_url)
+        response = retry_post(server_url)
     elif function_string == 'upload':
         assert type(req_id) is dict
         assert 'file' in req_id
         bucket_dict = {'bucketName': 'fries'}
-        response = requests.post(server_url, data=bucket_dict, files=req_id)
+        response = retry_post(server_url, data=bucket_dict, files=req_id)
     else:
-        response = {}
+        response = None
     print("Complete post")
-    response.raise_for_status()
-    try:
-        res_str = response.content.decode('utf-8')
-        res_str = res_str.replace('true', 'True').replace('false', 'False').replace('null', 'None')
-        result = eval(res_str)
-    except Exception as e:
-        print(repr(e))
-        result = {'data': None}
-    if function_string == 'query':
-        if result['data'] is None:
-            return no_found
-        file_url = result['data']['server'] + '/' + result['data']['url']
-        r = requests.get(file_url)
-        with open(save_path + '/' + result['data']['fileName'], 'wb') as f:
-            f.write(r.content)
-        return result['data']['fileName']
-    elif function_string == 'save':
-        if 'msg' in result and result['msg'] == '成功':
-            return req_id
-        else:
-            return None
-    elif function_string == 'upload':
-        if result['data'] is not None:
-            return result['data']['cephId']
-        else:
-            return None
-    else:
+    if response is None:
         return None
+    else:
+        response.raise_for_status()
+        try:
+            res_str = response.content.decode('utf-8')
+            res_str = res_str.replace('true', 'True').replace('false', 'False').replace('null', 'None')
+            result = eval(res_str)
+        except Exception as e:
+            print(repr(e))
+            result = {'data': None}
+        if function_string == 'query':
+            if result['data'] is None:
+                return no_found
+            file_url = result['data']['server'] + '/' + result['data']['url']
+            r = requests.get(file_url)
+            with open(save_path + '/' + result['data']['fileName'], 'wb') as f:
+                f.write(r.content)
+            return result['data']['fileName']
+        elif function_string == 'save':
+            if 'msg' in result and result['msg'] == '成功':
+                return req_id
+            else:
+                return None
+        elif function_string == 'upload':
+            if result['data'] is not None:
+                return result['data']['cephId']
+            else:
+                return None
+        else:
+            return None
 
 
 def response_async(result, function):
