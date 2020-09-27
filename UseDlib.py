@@ -236,7 +236,7 @@ def test_recognizer(img_array):
     min_dist = numpy.argmin(dist)
 
     # 截取姓名字符串，去掉末尾的.jpg
-    result = name_list[int(min_dist)][:-4]
+    result = name_list[int(min_dist)]
     dist_min = float(dist[int(min_dist)])
     return result, dist_min
 

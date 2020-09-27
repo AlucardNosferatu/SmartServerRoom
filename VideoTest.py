@@ -53,25 +53,53 @@ def call_recognize(ceph_id):
     return result
 
 
+def loop_until_detected(rtsp):
+    count = 0
+    result = {'res': []}
+    img_string = ''
+    while len(result['res']) == 0 and count < 25:
+        print(count)
+        count += 1
+        ss_result = process_request('ss', {'RTSP_ADDR': rtsp})
+        if type(ss_result) is dict and 'result' in ss_result and ss_result['result'] is not None:
+            img_string = ss_result['result']
+            result = process_request('fd', req_dict={'imgString': img_string})
+            print('face_detec_result', result)
+        else:
+            continue
+    return img_string, result
+
+
+def crop_and_recognize(img, rect, scene_id, new_result_list):
+    new_img = img[rect[1]:rect[3], rect[0]:rect[2]]
+    cv2.imwrite('Faces_Temp/temp.jpg', new_img)
+    uploaded_id = file_request('upload', {'file': open('Faces_Temp/temp.jpg', 'rb')})
+    if uploaded_id is None:
+        return new_result_list
+    ret = file_request('save', uploaded_id)
+    if ret == uploaded_id:
+        result_temp = call_recognize(uploaded_id)['data']
+        if 'res' in result_temp:
+            result_temp = result_temp['res']
+            result_temp.append(uploaded_id)
+            result_temp = {
+                'fileName': str(result_temp[0]),
+                'distance': str(result_temp[1]),
+                'head_id': str(result_temp[2]),
+                'camera': str(scene_id)
+            }
+            new_result_list.append(result_temp)
+    os.remove('Faces_Temp/temp.jpg')
+    return new_result_list
+
+
 def camera_async(rtsp, post_result, cr_id):
     bt = str(datetime.datetime.now())
     img_string_list = []
     box_coordinates = []
     times = 3
     while times > 0:
-        count = 0
-        result = {'res': []}
-        img_string = ''
-        while len(result['res']) == 0 and count < 25:
-            print(count)
-            count += 1
-            ss_result = process_request('ss', {'RTSP_ADDR': rtsp})
-            if type(ss_result) is dict and 'result' in ss_result and ss_result['result'] is not None:
-                img_string = ss_result['result']
-                result = process_request('fd', req_dict={'imgString': img_string})
-                print('face_detec_result', result)
-            else:
-                continue
+        img_string, result = loop_until_detected(rtsp)
         if post_result:
             img_string_list.append(img_string)
             box_coordinates.append(result)
@@ -104,26 +132,7 @@ def camera_async(rtsp, post_result, cr_id):
             os.remove('Faces_Temp/scene.jpg')
             if len(box_coordinates[index]['res']) > 0:
                 for rect in box_coordinates[index]['res']:
-                    new_img = img[rect[1]:rect[3], rect[0]:rect[2]]
-                    cv2.imwrite('Faces_Temp/temp.jpg', new_img)
-                    uploaded_id = file_request('upload', {'file': open('Faces_Temp/temp.jpg', 'rb')})
-                    ret = file_request('save', uploaded_id)
-                    if ret == uploaded_id:
-                        result_temp = call_recognize(uploaded_id)
-                        print('rt', result_temp)
-                        result_temp = result_temp['data']
-                        print('rt', result_temp)
-                        if 'res' in result_temp:
-                            result_temp = result_temp['res']
-                            result_temp.append(uploaded_id)
-                            result_temp = {
-                                'fileName': str(result_temp[0]),
-                                'distance': str(result_temp[1]),
-                                'head_id': str(result_temp[2]),
-                                'camera': str(scene_id)
-                            }
-                            new_result_list.append(result_temp)
-                    os.remove('Faces_Temp/temp.jpg')
+                    new_result_list = crop_and_recognize(img, rect, scene_id, new_result_list)
     result = {
         'CameraRecognId': cr_id,
         'camera': scene_id_list,

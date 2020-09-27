@@ -68,9 +68,9 @@ def file_request(function_string, req_id, save_path='Faces_Temp'):
     print("Complete post")
     response.raise_for_status()
     try:
-        result = eval(
-            response.content.decode('utf-8').replace('true', 'True').replace('false', 'False').replace('null', 'None')
-        )
+        res_str = response.content.decode('utf-8')
+        res_str = res_str.replace('true', 'True').replace('false', 'False').replace('null', 'None')
+        result = eval(res_str)
     except Exception as e:
         print(repr(e))
         result = {'data': None}
@@ -86,7 +86,7 @@ def file_request(function_string, req_id, save_path='Faces_Temp'):
         if 'msg' in result and result['msg'] == '成功':
             return req_id
         else:
-            return -1
+            return None
     elif function_string == 'upload':
         if result['data'] is not None:
             return result['data']['cephId']
