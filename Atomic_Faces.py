@@ -55,7 +55,10 @@ def faces_detect():
         img_string = img_string.decode()
         img = b64string2array(img_string)
         time_take = time.time()
-        result = test_detector(img)
+        if img is None:
+            result = []
+        else:
+            result = test_detector(img)
         time_take = time.time() - time_take
         if "fileName" in data.keys():
             app.logger.info("recognition  return:{d},use time:{t}".format(d=result, t=time_take))
@@ -80,7 +83,10 @@ def landmarks_detect():
         img_string = img_string.decode()
         img = b64string2array(img_string)
         time_take = time.time()
-        result = test_landmarks(img)
+        if img is None:
+            result = []
+        else:
+            result = test_landmarks(img)
         time_take = time.time() - time_take
         if "fileName" in data.keys():
             app.logger.info("recognition  return:{d},use time:{t}".format(d=result, t=time_take))
@@ -104,7 +110,10 @@ def recognize():
         img_string = img_string.decode()
         img = b64string2array(img_string)
         time_take = time.time()
-        result = test_recognizer(img)
+        if img is None:
+            result = []
+        else:
+            result = test_recognizer(img)
         time_take = time.time() - time_take
         if "fileName" in data.keys():
             app.logger.info("recognition  return:{d},use time:{t}".format(d=result, t=time_take))
