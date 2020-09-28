@@ -384,16 +384,10 @@ def camera():
     if request.method == "POST":
         c_da = request.data
         print(str(c_da))
-        data = eval(c_da.decode())
-        req_id = data['CameraRecognId'].encode()
-        req_id = req_id.decode()
-        rtsp = data['Rtsp_url'].encode()
-        rtsp = rtsp.decode()
-        sync = data['Asyn'].encode()
-        sync = sync.decode()
-        sync = sync.replace('true', 'True')
-        sync = sync.replace('false', 'False')
-        sync = eval(sync)
+        data = json.loads(c_da.decode())
+        req_id = data['CameraRecognId']
+        rtsp = data['Rtsp_url']
+        sync = data['Asyn']
         time_take = time.time()
         if sync:
             result = camera_async(rtsp, False, req_id)

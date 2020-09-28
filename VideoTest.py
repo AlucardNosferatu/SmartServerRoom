@@ -1,5 +1,6 @@
 import base64
 import datetime
+import json
 import os
 import time
 import cv2
@@ -38,18 +39,7 @@ def call_recognize(ceph_id):
     }
     response = requests.post(url, headers=headers)
     response.raise_for_status()
-    result = eval(
-        response.content.decode('utf-8').replace(
-            'true',
-            'True'
-        ).replace(
-            'false',
-            'False'
-        ).replace(
-            'null',
-            'None'
-        )
-    )
+    result = json.loads(response.content.decode('utf-8'))
     return result
 
 

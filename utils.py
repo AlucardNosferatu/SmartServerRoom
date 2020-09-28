@@ -36,18 +36,7 @@ def process_request(function_string, req_dict):
     print("Complete post")
     if response is not None:
         response.raise_for_status()
-        result = eval(
-            response.content.decode('utf-8').replace(
-                'true',
-                'True'
-            ).replace(
-                'false',
-                'False'
-            ).replace(
-                'null',
-                'None'
-            )
-        )
+        result = json.loads(response.content.decode('utf-8'))
     else:
         result = {'res': response, 'status': 'execution of post failed.'}
     return result
@@ -97,9 +86,7 @@ def file_request(function_string, req_id, save_path='Faces_Temp'):
     else:
         response.raise_for_status()
         try:
-            res_str = response.content.decode('utf-8')
-            res_str = res_str.replace('true', 'True').replace('false', 'False').replace('null', 'None')
-            result = eval(res_str)
+            result = json.loads(response.content.decode('utf-8'))
         except Exception as e:
             print(repr(e))
             result = {'data': None}
