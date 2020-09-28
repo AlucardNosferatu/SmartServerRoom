@@ -11,3 +11,4 @@ Backup/
 *.pyc
 logs/
 Models/
+Samples/
