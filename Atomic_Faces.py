@@ -50,9 +50,8 @@ def faces_detect():
         app.logger.addHandler(handler)
     if request.method == "POST":
         c_da = request.data
-        data = eval(c_da.decode().replace('true', 'True').replace('false', 'False').replace('null', 'None'))
-        img_string = data['imgString'].encode()
-        img_string = img_string.decode()
+        data = json.loads(c_da.decode())
+        img_string = data['imgString']
         img = b64string2array(img_string)
         time_take = time.time()
         if img is None:
@@ -78,9 +77,8 @@ def landmarks_detect():
         app.logger.addHandler(handler)
     if request.method == "POST":
         c_da = request.data
-        data = eval(c_da.decode().replace('true', 'True').replace('false', 'False').replace('null', 'None'))
-        img_string = data['imgString'].encode()
-        img_string = img_string.decode()
+        data = json.loads(c_da.decode())
+        img_string = data['imgString']
         img = b64string2array(img_string)
         time_take = time.time()
         if img is None:
@@ -105,9 +103,8 @@ def recognize():
         app.logger.addHandler(handler)
     if request.method == "POST":
         c_da = request.data
-        data = eval(c_da.decode().replace('true', 'True').replace('false', 'False').replace('null', 'None'))
-        img_string = data['imgString'].encode()
-        img_string = img_string.decode()
+        data = json.loads(c_da.decode())
+        img_string = data['imgString']
         img = b64string2array(img_string)
         time_take = time.time()
         if img is None:
@@ -155,7 +152,7 @@ def snapshot():
 
     if request.method == "POST":
         c_da = request.data
-        data = eval(c_da.decode().replace('true', 'True').replace('false', 'False').replace('null', 'None'))
+        data = json.loads(c_da.decode())
         rtsp_address = data['RTSP_ADDR'].encode()
         rtsp_address = rtsp_address.decode()
         time_take = time.time()
