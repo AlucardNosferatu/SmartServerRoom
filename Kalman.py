@@ -88,6 +88,7 @@ def main():
         # ret, frame = camera.read()
 
         fgmask = bs.apply(frame)
+        cv2.imshow('fgmask', fgmask)
         if frames < history:
             frames += 1
             continue
@@ -99,9 +100,9 @@ def main():
 
         counter = 0
         for c in contours:
-            if cv2.contourArea(c) > 7000:
+            if cv2.contourArea(c) > 1000:
                 (x, y, w, h) = cv2.boundingRect(c)
-                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 1)
+                # cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 1)
                 if first_frame is True:
                     pedestrians[counter] = Pedestrian(counter, frame, (x, y, w, h))  # 这里调用了Pedestrian类，其中counter就是id
                 counter += 1
