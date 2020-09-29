@@ -1,7 +1,7 @@
 no_found = -1
 # no_found = 'no such id'
 
-test_img_path = "Samples/test.jpg"
+test_img_path = "Samples/selfie.jpg"
 predictor_path = 'Models/shape_predictor_68_face_landmarks.dat'
 face_rc_model_path = 'Models/dlib_face_recognition_resnet_model_v1.dat'
 face_folder_path = 'Backup/Faces'

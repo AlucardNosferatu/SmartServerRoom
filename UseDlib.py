@@ -91,7 +91,6 @@ def test_single_image():
     '''
     test_img = cv2.imread(test_img_path)
     dets = detector(test_img, 1)
-    test_feature = None
     for k, d in enumerate(dets):
         shape = feature_point(test_img, d)
         test_feature = feature_model.compute_face_descriptor(test_img, shape)
@@ -118,12 +117,18 @@ def test_cam(file_path="Samples/00010001689000000.mp4", file_name='0001000168900
     sample = cv2.VideoCapture(file_path)
     # sample.set(cv2.CAP_PROP_POS_FRAMES, 7000)
     f_count = -1
+    last_frame = -1
     while sample.isOpened():
         # k = cv2.waitKey(50)
-        print(sample.get(cv2.CAP_PROP_POS_FRAMES))
+        current_frame = sample.get(cv2.CAP_PROP_POS_FRAMES)
+        print(current_frame)
+        if current_frame == last_frame:
+            break
+        else:
+            last_frame = current_frame
         ret, test_img = sample.read()
         if test_img is not None:
-            # cv2.imshow('cam:', test_img)
+            cv2.imshow('cam:', test_img)
             # if k & 0xff == ord('q'):
             #     break
             # elif k & 0xff == ord('e'):
@@ -152,7 +157,7 @@ def test_cam(file_path="Samples/00010001689000000.mp4", file_name='0001000168900
                 if y2 > test_img.shape[0] - 1:
                     y2 = test_img.shape[0] - 1
 
-                # cv2.imshow('detected face:', test_img[y1:y2, x1:x2, :])
+                cv2.imshow('detected face:', test_img[y1:y2, x1:x2, :])
                 f_count += 1
                 cv2.imwrite('Outputs/' + file_name.split('.')[0] + '_' + str(f_count) + '.jpg',
                             test_img[y1:y2, x1:x2, :])
@@ -161,7 +166,7 @@ def test_cam(file_path="Samples/00010001689000000.mp4", file_name='0001000168900
                 test_img_copy = test_img.copy()
                 for point in key_points:
                     test_img_copy = cv2.circle(test_img_copy, (point.x, point.y), 1, (255, 0, 0), 4)
-                # cv2.imshow('cam:', test_img_copy)
+                cv2.imshow('cam:', test_img_copy)
                 cv2.imwrite('Outputs/' + file_name.split('.')[0] + '_' + str(f_count) + '_p.jpg',
                             test_img_copy[y1:y2, x1:x2, :])
                 # test_feature = feature_model.compute_face_descriptor(test_img, shape)
@@ -178,6 +183,7 @@ def test_cam(file_path="Samples/00010001689000000.mp4", file_name='0001000168900
                 # # 截取姓名字符串，去掉末尾的.jpg
                 # result = name_list[min_dist][:-4]
                 # print(result)
+            cv2.waitKey(1)
     sample.release()
     cv2.destroyAllWindows()
 
@@ -241,10 +247,21 @@ def test_recognizer(img_array):
     return result, dist_min
 
 
-if __name__ == '__main__':
-    dir_path = '../Faces'
+def test_on_videos():
+    dir_path = 'Samples'
     file_list = os.listdir(dir_path)
     for i in file_list:
         if i.endswith('.mp4'):
             fp = os.path.join(dir_path, i)
             test_cam(file_path=fp, file_name=i)
+
+
+if __name__ == '__main__':
+    path = 'Samples/selfie.jpg'
+    img = cv2.imread(path)
+    d_list = test_detector(img)
+    for c in d_list:
+        x1, y1, x2, y2 = c
+        img = cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+    cv2.imshow('res', img)
+    cv2.waitKey()
