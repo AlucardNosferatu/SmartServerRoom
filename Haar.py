@@ -3,9 +3,9 @@ import cv2
 
 def detect_3_parts(classifier_full, classifier_lower, classifier_upper, image2):
     gray = cv2.cvtColor(image2, cv2.COLOR_BGR2GRAY)
-    full_body = classifier_full.detectMultiScale(gray, scaleFactor=1.005, minNeighbors=5, minSize=(3, 3))
-    lower_body = classifier_lower.detectMultiScale(gray, scaleFactor=1.005, minNeighbors=5, minSize=(3, 3))
-    upper_body = classifier_upper.detectMultiScale(gray, scaleFactor=1.005, minNeighbors=5, minSize=(3, 3))
+    full_body = classifier_full.detectMultiScale(gray, scaleFactor=1.001, minNeighbors=3, minSize=(3, 3))
+    lower_body = classifier_lower.detectMultiScale(gray, scaleFactor=1.001, minNeighbors=3, minSize=(3, 3))
+    upper_body = classifier_upper.detectMultiScale(gray, scaleFactor=1.001, minNeighbors=3, minSize=(3, 3))
 
     print("发现{0}个全身!".format(len(full_body)))
     print("发现{0}个下身!".format(len(lower_body)))
@@ -35,9 +35,13 @@ def calculate_white_list(xc_fb, xc_lb, xc_ub, full_body, lower_body, upper_body,
     white_list = []
     for i, xc in enumerate(xc_fb):
         distance_lb = [abs(xc_l - xc) for xc_l in xc_lb]
+        if len(distance_lb) == 0:
+            continue
         mdl = min(distance_lb)
         if mdl < 30:
             distance_ub = [abs(xc_u - xc) for xc_u in xc_ub]
+            if len(distance_ub) == 0:
+                continue
             mdu = min(distance_ub)
             if mdu < 30:
                 white_list.append([i, distance_lb.index(mdl), distance_ub.index(mdu)])
@@ -91,12 +95,20 @@ if __name__ == "__main__":
     classifier_lower = cv2.CascadeClassifier("Models/haarcascade_lowerbody.xml")
     classifier_upper = cv2.CascadeClassifier("Models/haarcascade_upperbody.xml")
     # 读取图片
-    image = cv2.imread("Samples/P (2).jpg")
-    image2 = image.copy()
-    # 转为灰度图
-    detected = detect_3_parts(classifier_full, classifier_lower, classifier_upper, image2)
-    image2, full_body, lower_body, upper_body, xc_fb, xc_lb, xc_ub = detected
-    cv2.imshow('fuck2', image2)
-    white_list, image = calculate_white_list(xc_fb, xc_lb, xc_ub, full_body, lower_body, upper_body, image)
-    cv2.imshow('fuck', image)
-    cv2.waitKey()
+    camera = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
+    # camera = cv2.VideoCapture('http://admin:admin@192.168.137.140:8081')
+    while True:
+        grabbed, image = camera.read()
+        if grabbed is True:
+            image = cv2.imread('Samples/P (10).jpg')
+            image = cv2.resize(image, (512, 384))
+            image2 = image.copy()
+            # 转为灰度图
+            detected = detect_3_parts(classifier_full, classifier_lower, classifier_upper, image2)
+            image2, full_body, lower_body, upper_body, xc_fb, xc_lb, xc_ub = detected
+            cv2.imshow('fuck2', image2)
+            white_list, image = calculate_white_list(xc_fb, xc_lb, xc_ub, full_body, lower_body, upper_body, image)
+            cv2.imshow('fuck', image)
+            cv2.waitKey(1)
+        else:
+            break
