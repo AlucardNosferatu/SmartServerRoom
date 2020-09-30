@@ -60,7 +60,16 @@ def calculate_white_list(xc_fb, xc_lb, xc_ub, full_body, lower_body, upper_body,
         c3 = transform_coordinates(upper_body[indices[2]])
         c4 = merge_coordinates(c1, c2, c3)
         # x, y, w, h = transform_coordinates(c4, inv=True)
-        output_coordinates.append({'part': [c1, c2, c3], 'full': c4})
+        output_coordinates.append(
+            {
+                'part': {
+                    'center': c1,
+                    'lower': c2,
+                    'upper': c3
+                },
+                'full': c4
+            }
+        )
         # image = cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 255), 2)
     return white_list, image, output_coordinates
 
@@ -68,17 +77,17 @@ def calculate_white_list(xc_fb, xc_lb, xc_ub, full_body, lower_body, upper_body,
 def transform_coordinates(c, inv=False):
     if inv:
         x1, y1, x2, y2 = c
-        x = x1
-        y = y1
-        w = x2 - x1
-        h = y2 - y1
+        x = int(x1)
+        y = int(y1)
+        w = int(x2 - x1)
+        h = int(y2 - y1)
         return [x, y, w, h]
     else:
         x, y, w, h = c
-        x1 = x
-        x2 = x + w
-        y1 = y
-        y2 = y + h
+        x1 = int(x)
+        x2 = int(x + w)
+        y1 = int(y)
+        y2 = int(y + h)
         return [x1, y1, x2, y2]
 
 
