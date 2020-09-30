@@ -1,5 +1,9 @@
 import cv2
 
+classifier_full = cv2.CascadeClassifier("Models/haarcascade_fullbody.xml")
+classifier_lower = cv2.CascadeClassifier("Models/haarcascade_lowerbody.xml")
+classifier_upper = cv2.CascadeClassifier("Models/haarcascade_upperbody.xml")
+
 
 def detect_3_parts(classifier_full, classifier_lower, classifier_upper, image2):
     gray = cv2.cvtColor(image2, cv2.COLOR_BGR2GRAY)
@@ -17,22 +21,23 @@ def detect_3_parts(classifier_full, classifier_lower, classifier_upper, image2):
     for rect in full_body:
         x, y, w, h = rect
         xc_fb.append(x + int(w / 2))
-        image2 = cv2.rectangle(image2, (x, y), (x + w, y + h), (255, 0, 0), 2)
+        # image2 = cv2.rectangle(image2, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
     for rect in lower_body:
         x, y, w, h = rect
         xc_lb.append(x + int(w / 2))
-        image2 = cv2.rectangle(image2, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        # image2 = cv2.rectangle(image2, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
     for rect in upper_body:
         x, y, w, h = rect
         xc_ub.append(x + (w / 2))
-        image2 = cv2.rectangle(image2, (x, y), (x + w, y + h), (0, 0, 255), 2)
+        # image2 = cv2.rectangle(image2, (x, y), (x + w, y + h), (0, 0, 255), 2)
     return image2, full_body, lower_body, upper_body, xc_fb, xc_lb, xc_ub
 
 
 def calculate_white_list(xc_fb, xc_lb, xc_ub, full_body, lower_body, upper_body, image):
     white_list = []
+    output_coordinates = []
     for i, xc in enumerate(xc_fb):
         distance_lb = [abs(xc_l - xc) for xc_l in xc_lb]
         if len(distance_lb) == 0:
@@ -54,9 +59,10 @@ def calculate_white_list(xc_fb, xc_lb, xc_ub, full_body, lower_body, upper_body,
         c2 = transform_coordinates(lower_body[indices[1]])
         c3 = transform_coordinates(upper_body[indices[2]])
         c4 = merge_coordinates(c1, c2, c3)
-        x, y, w, h = transform_coordinates(c4, inv=True)
-        image = cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 255), 2)
-    return white_list, image
+        # x, y, w, h = transform_coordinates(c4, inv=True)
+        output_coordinates.append({'part': [c1, c2, c3], 'full': c4})
+        # image = cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 255), 2)
+    return white_list, image, output_coordinates
 
 
 def transform_coordinates(c, inv=False):
@@ -89,11 +95,24 @@ def merge_coordinates(c1, c2, c3):
     return c4
 
 
+def test_on_array(img):
+    detected = detect_3_parts(classifier_full, classifier_lower, classifier_upper, img)
+    image2, full_body, lower_body, upper_body, xc_fb, xc_lb, xc_ub = detected
+    white_list, image, output_coordinates = calculate_white_list(
+        xc_fb,
+        xc_lb,
+        xc_ub,
+        full_body,
+        lower_body,
+        upper_body,
+        img
+    )
+    return output_coordinates
+
+
 if __name__ == "__main__":
     # 使用人脸识别分类器
-    classifier_full = cv2.CascadeClassifier("Models/haarcascade_fullbody.xml")
-    classifier_lower = cv2.CascadeClassifier("Models/haarcascade_lowerbody.xml")
-    classifier_upper = cv2.CascadeClassifier("Models/haarcascade_upperbody.xml")
+
     # 读取图片
     camera = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
     # camera = cv2.VideoCapture('http://admin:admin@192.168.137.140:8081')
@@ -107,7 +126,7 @@ if __name__ == "__main__":
             detected = detect_3_parts(classifier_full, classifier_lower, classifier_upper, image2)
             image2, full_body, lower_body, upper_body, xc_fb, xc_lb, xc_ub = detected
             cv2.imshow('fuck2', image2)
-            white_list, image = calculate_white_list(xc_fb, xc_lb, xc_ub, full_body, lower_body, upper_body, image)
+            white_list, image, _ = calculate_white_list(xc_fb, xc_lb, xc_ub, full_body, lower_body, upper_body, image)
             cv2.imshow('fuck', image)
             cv2.waitKey(1)
         else:
