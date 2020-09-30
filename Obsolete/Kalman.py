@@ -71,14 +71,14 @@ def center(points):
 
 def main():
     camera = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
-    history = 20
+    history = 10
     bs = cv2.createBackgroundSubtractorKNN(detectShadows=True)
     bs.setHistory(history)
     cv2.namedWindow("surveillance")
     pedestrians = {}
     first_frame = True
     frames = 0
-
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2, 2))
     while True:
         print("-------------------- FRAME %d ----------------------" % frames)
         grabbed, frame = camera.read()
@@ -88,27 +88,29 @@ def main():
         # ret, frame = camera.read()
 
         fgmask = bs.apply(frame)
-        cv2.imshow('fgmask', fgmask)
         if frames < history:
             frames += 1
             continue
 
         th = cv2.threshold(fgmask.copy(), 127, 255, cv2.THRESH_BINARY)[1]
-        th = cv2.erode(th, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3)), iterations=2)
-        dilated = cv2.dilate(th, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (8, 3)), iterations=2)
+        dilated = cv2.morphologyEx(th, cv2.MORPH_OPEN, kernel, iterations=2)
+        cv2.imshow('bin', dilated)
+        cv2.waitKey(1)
         contours, hier = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-        counter = 0
-        for c in contours:
-            if cv2.contourArea(c) > 1000:
-                (x, y, w, h) = cv2.boundingRect(c)
-                # cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 1)
-                if first_frame is True:
-                    pedestrians[counter] = Pedestrian(counter, frame, (x, y, w, h))  # 这里调用了Pedestrian类，其中counter就是id
-                counter += 1
-
-        for i, p in pedestrians.items():
-            p.update(frame)
+        for cnt in contours:
+            x, y, w, h = cv2.boundingRect(cnt)
+            frame = cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        # counter = 0
+        # for c in contours:
+        #     if cv2.contourArea(c) > 1000:
+        #         (x, y, w, h) = cv2.boundingRect(c)
+        #         # cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 1)
+        #         if first_frame is True:
+        #             pedestrians[counter] = Pedestrian(counter, frame, (x, y, w, h))  # 这里调用了Pedestrian类，其中counter就是id
+        #         counter += 1
+        #
+        # for i, p in pedestrians.items():
+        #     p.update(frame)
 
         first_frame = False
         frames += 1

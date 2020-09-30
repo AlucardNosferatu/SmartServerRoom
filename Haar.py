@@ -70,6 +70,7 @@ def calculate_white_list(xc_fb, xc_lb, xc_ub, full_body, lower_body, upper_body,
                 'full': c4
             }
         )
+    output_coordinates = {'boxes': output_coordinates, 'count': len(output_coordinates)}
         # image = cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 255), 2)
     return white_list, image, output_coordinates
 
