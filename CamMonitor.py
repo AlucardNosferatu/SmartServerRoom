@@ -138,15 +138,22 @@ def specify_index(indices, i):
     return False
 
 
-def convert(file_path='Samples/010tMonitorCollect2020081904122222936335c5b4_10.mp4'):
-    output_path = file_path.replace('.mp4', '.MP4').replace('.MP4', '.flv')
+def convert(file_path='Samples/江头 (1).mp4', codec=None, postfix=None, br=None, new_scale=None):
+    if codec is None or postfix is None:
+        codec = 'flv'
+        postfix = '.flv'
+    if br is None:
+        br = '1500k'
+    if new_scale is None:
+        new_scale = (-1, 768)
+    output_path = file_path.replace('.mp4', '.MP4').replace('.MP4', postfix)
     start = datetime.datetime.now()
     FFmpeg(
         file_path,
         Output(
             output_path,
             streams=[
-                Video('flv', scale=(-1, 768), bit_rate='1500k'),
+                Video(codec, scale=new_scale, bit_rate=br),
                 NoAudio
             ],
 
@@ -155,6 +162,7 @@ def convert(file_path='Samples/010tMonitorCollect2020081904122222936335c5b4_10.m
     # convert_to_h264(file_path, 'Outputs/test.mp4', preset='fast')
     end = datetime.datetime.now()
     print(str(end - start))
+    return output_path
 
 
 if __name__ == '__main__':

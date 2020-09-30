@@ -9,16 +9,12 @@ distance_th = 30
 w_th = 30
 h_th = 30
 edge_fraction = 6
+mser = cv2.MSER_create(_delta=delta, _min_area=ma, _max_variation=max_var)
 
 
 def get_boxes(vis):
-    # Create MSER object
-
-    mser = cv2.MSER_create(_delta=delta, _min_area=ma, _max_variation=max_var)
-
     # Convert to gray scale
     gray = cv2.cvtColor(vis, cv2.COLOR_BGR2GRAY)
-
     # detect regions in gray scale image
     regions, boxes = mser.detectRegions(gray)
     y_list = []
@@ -135,22 +131,25 @@ def get_boxes(vis):
 
 
 def cut_timestamp(cut_box, vis):
-    for coordinates in cut_box:
-        y_mean, x1, x2 = coordinates
-        if y_mean - 10 < 0:
-            y_mean = 0
-        else:
-            y_mean -= 10
-        if x1 - 10 < 0:
-            x1 = 0
-        else:
-            x1 -= 10
-        if x2 + 40 > vis.shape[1] - 1:
-            x2 = vis.shape[1] - 1
-        else:
-            x2 += 40
-        vis = cv2.rectangle(vis, (x1, int(y_mean)), (x2, int(y_mean) + 40), (255, 255, 255), -1)
-    return vis
+    if vis is None:
+        return vis
+    else:
+        for coordinates in cut_box:
+            y_mean, x1, x2 = coordinates
+            if y_mean - 10 < 0:
+                y_mean = 0
+            else:
+                y_mean -= 10
+            if x1 - 10 < 0:
+                x1 = 0
+            else:
+                x1 -= 10
+            if x2 + 40 > vis.shape[1] - 1:
+                x2 = vis.shape[1] - 1
+            else:
+                x2 += 40
+            vis = cv2.rectangle(vis, (x1, int(y_mean)), (x2, int(y_mean) + 40), (255, 255, 255), -1)
+        return vis
 
 
 def fractional_mode(y):

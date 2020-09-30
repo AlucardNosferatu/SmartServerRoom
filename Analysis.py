@@ -40,9 +40,8 @@ def get_diff(frame, old_frame):
     return old_frame, frame
 
 
-def get_position(frame, sizes):
+def six_histograms(frame, sizes):
     # region get Sizes
-    th = 25000
     w, h = sizes
     x1 = int(0.3 * w)
     x2 = int(0.7 * w)
@@ -82,6 +81,13 @@ def get_position(frame, sizes):
     # endregion
 
     hist_list = [hist1, hist2, hist3, hist4, hist5, hist6]
+    return hist_list
+
+
+def get_position(frame, sizes, th=None):
+    if th is None:
+        th = 25000
+    hist_list = six_histograms(frame, sizes)
     p, sig = trigger(hist_list, th)
     return p
 

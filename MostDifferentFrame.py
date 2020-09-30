@@ -6,7 +6,7 @@ import numpy as np
 from avtk.backends.ffmpeg.shortcuts import convert_to_h264
 
 
-def snap_shot(calc_and_draw_hist, file_path="Outputs/010tMonitorCollect202007190100000150002fc14e_100_0.mp4"):
+def snap_atom(calc_and_draw_hist, file_path="Outputs/010tMonitorCollect202007190100000150002fc14e_100_0.mp4"):
     sample = cv2.VideoCapture(file_path)
     hist_list = []
     while sample.isOpened():
@@ -25,6 +25,7 @@ def snap_shot(calc_and_draw_hist, file_path="Outputs/010tMonitorCollect202007190
     max_j = 0
     if len(hists.shape) < 2:
         os.remove(file_path)
+        return None, None
     else:
         base_time = datetime.datetime.now()
         total_time = base_time
@@ -60,13 +61,20 @@ def snap_shot(calc_and_draw_hist, file_path="Outputs/010tMonitorCollect202007190
         ret, frame_a = sample.read()
         sample.set(1, max_j)
         ret, frame_b = sample.read()
+        sample.release()
+        cv2.destroyAllWindows()
+        return frame_a, frame_b
+
+
+def snap_shot(calc_and_draw_hist, file_path="Outputs/010tMonitorCollect202007190100000150002fc14e_100_0.mp4"):
+    frame_a, frame_b = snap_atom(calc_and_draw_hist, file_path)
+    if frame_a is not None and frame_b is not None:
         # cv2.imshow("A", cv2.resize(frame_A, (int(frame_A.shape[1] / 4), int(frame_A.shape[0] / 4))))
         cv2.imwrite(file_path.replace('.mp4', '_A.jpg'), frame_a)
         # cv2.imshow("B", cv2.resize(frame_B, (int(frame_B.shape[1] / 4), int(frame_B.shape[0] / 4))))
         cv2.imwrite(file_path.replace('.mp4', '_B.jpg'), frame_b)
         # cv2.waitKey()
-        sample.release()
-        cv2.destroyAllWindows()
+
         # print("Start conversion.")
         convert_to_h264(file_path, file_path + ".new")
         # print("Conversion has been completed.")
