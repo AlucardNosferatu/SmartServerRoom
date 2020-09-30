@@ -78,7 +78,7 @@ def main():
     pedestrians = {}
     first_frame = True
     frames = 0
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2, 2))
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (10, 10))
     while True:
         print("-------------------- FRAME %d ----------------------" % frames)
         grabbed, frame = camera.read()
@@ -92,14 +92,15 @@ def main():
             frames += 1
             continue
 
-        th = cv2.threshold(fgmask.copy(), 127, 255, cv2.THRESH_BINARY)[1]
-        dilated = cv2.morphologyEx(th, cv2.MORPH_OPEN, kernel, iterations=2)
+        dilated = cv2.threshold(fgmask.copy(), 127, 255, cv2.THRESH_BINARY)[1]
+        # dilated = cv2.morphologyEx(th, cv2.MORPH_OPEN, kernel, iterations=2)
         cv2.imshow('bin', dilated)
         cv2.waitKey(1)
-        contours, hier = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, hier = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         for cnt in contours:
             x, y, w, h = cv2.boundingRect(cnt)
-            frame = cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            if w > frame.shape[1] * 0.1 and h > frame.shape[0] * 0.1:
+                frame = cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
         # counter = 0
         # for c in contours:
         #     if cv2.contourArea(c) > 1000:
