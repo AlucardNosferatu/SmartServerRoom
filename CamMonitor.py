@@ -9,6 +9,7 @@ from avtk.backends.ffmpeg.convert import FFmpeg, Output, Video, NoAudio
 from Analysis import start_test_lite, start_test_time, start_test_new
 from HTTPInterface import post_result, MyRequestHandler, HTTPServer
 from MostDifferentFrame import snap_shot
+from utils import response_async
 
 
 def enhance(f):
@@ -100,13 +101,15 @@ def process_dir(
         except OSError:
             continue
         busy = False
+    id_list = []
     for e, i in enumerate(out_files):
         if i.endswith('mp4') and True:
             file_path = os.path.join(output_path, i)
             retry = 5
             while retry > 0:
                 try:
-                    snap_shot(calc_and_draw_hist, file_path=file_path)
+                    res_dict = snap_shot(calc_and_draw_hist, file_path=file_path)
+                    id_list.append(res_dict)
                     retry = 0
                 except Exception as e:
                     print(repr(e))
@@ -115,7 +118,9 @@ def process_dir(
                     continue
             dst_num += 1
     assert src_id == request_id
-    post_result(request_id, src_num, dst_num)
+    post_dict = {"ID": request_id, "Src_num": src_num, "Dest_num": dst_num, "cephFiles": id_list}
+    response_async(result=post_dict, function='motion')
+    # post_result(request_id, src_num, dst_num)
 
 
 def delete_file(dir_path, i):
@@ -167,5 +172,5 @@ def convert(file_path='Samples/江头 (1).mp4', codec=None, postfix=None, br=Non
 
 if __name__ == '__main__':
     # start_server()
-    convert()
-    # process_dir(_=None, request_id='1')
+    # convert()
+    process_dir(_=None, request_id='1')

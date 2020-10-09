@@ -5,6 +5,8 @@ import cv2
 import numpy as np
 from avtk.backends.ffmpeg.shortcuts import convert_to_h264
 
+from utils import upload
+
 
 def snap_atom(calc_and_draw_hist, file_path="Outputs/010tMonitorCollect202007190100000150002fc14e_100_0.mp4"):
     sample = cv2.VideoCapture(file_path)
@@ -68,11 +70,18 @@ def snap_atom(calc_and_draw_hist, file_path="Outputs/010tMonitorCollect202007190
 
 def snap_shot(calc_and_draw_hist, file_path="Outputs/010tMonitorCollect202007190100000150002fc14e_100_0.mp4"):
     frame_a, frame_b = snap_atom(calc_and_draw_hist, file_path)
+    result_dict = {}
     if frame_a is not None and frame_b is not None:
         # cv2.imshow("A", cv2.resize(frame_A, (int(frame_A.shape[1] / 4), int(frame_A.shape[0] / 4))))
-        cv2.imwrite(file_path.replace('.mp4', '_A.jpg'), frame_a)
+        # cv2.imwrite(file_path.replace('.mp4', '_A.jpg'), frame_a)
+        cv2.imencode('.jpg', frame_a)[1].tofile(file_path.replace('.mp4', '_A.jpg'))
+        result_dict['a'] = upload(file_name=file_path.replace('.mp4', '_A.jpg'), to_temp=False, deletion=False,
+                                  file_dir='')
         # cv2.imshow("B", cv2.resize(frame_B, (int(frame_B.shape[1] / 4), int(frame_B.shape[0] / 4))))
-        cv2.imwrite(file_path.replace('.mp4', '_B.jpg'), frame_b)
+        # cv2.imwrite(file_path.replace('.mp4', '_B.jpg'), frame_b)
+        cv2.imencode('.jpg', frame_b)[1].tofile(file_path.replace('.mp4', '_B.jpg'))
+        result_dict['b'] = upload(file_name=file_path.replace('.mp4', '_B.jpg'), to_temp=False, deletion=False,
+                                  file_dir='')
         # cv2.waitKey()
 
         # print("Start conversion.")
@@ -81,7 +90,9 @@ def snap_shot(calc_and_draw_hist, file_path="Outputs/010tMonitorCollect202007190
         os.remove(file_path)
         # print("Src video removed.")
         os.rename(file_path + '.new', file_path)
-        # print("New Video renamed.")
+        result_dict['mp4'] = upload(file_name=file_path, to_temp=False, deletion=False, file_dir='')
+    return result_dict
+    # print("New Video renamed.")
 
 
 def calc_and_draw_hist(image, color, mask=None):

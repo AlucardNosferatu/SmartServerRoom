@@ -195,8 +195,8 @@ def difference_between_frames():
                           ensure_ascii=False)
 
 
-@app.route('/imr-ai-service/atomic_functions/histograms_3m2', methods=['POST'])
-def histograms_3m2():
+@app.route('/imr-ai-service/atomic_functions/histograms_3x2', methods=['POST'])
+def histograms_3x2():
     log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
     log_file_str = log_file_folder + os.sep + log_file_name
     if not os.path.exists(log_file_str):
@@ -262,3 +262,8 @@ def hot_zone():
                           ensure_ascii=False)
 
 
+if __name__ == '__main__':
+    app.run(
+        host="0.0.0.0",
+        port=int("2016"),
+        debug=False, threaded=True)
