@@ -7,7 +7,8 @@ import numpy as np
 from avtk.backends.ffmpeg.convert import FFmpeg, Output, Video, NoAudio
 
 from Analysis import start_test_lite, start_test_time, start_test_new
-from HTTPInterface import post_result, MyRequestHandler, HTTPServer
+from HTTPInterface import post_result, MyRequestHandler
+from http.server import HTTPServer
 from MostDifferentFrame import snap_shot
 from utils import response_async
 
@@ -153,17 +154,21 @@ def convert(file_path='Samples/江头 (1).mp4', codec=None, postfix=None, br=Non
         new_scale = (-1, 768)
     output_path = file_path.replace('.mp4', '.MP4').replace('.MP4', postfix)
     start = datetime.datetime.now()
-    FFmpeg(
-        file_path,
-        Output(
-            output_path,
-            streams=[
-                Video(codec, scale=new_scale, bit_rate=br),
-                NoAudio
-            ],
+    print(codec, postfix, br, new_scale, output_path)
+    try:
+        FFmpeg(
+            file_path,
+            Output(
+                output_path,
+                streams=[
+                    Video(codec, scale=new_scale, bit_rate=br),
+                    NoAudio
+                ],
 
-        )
-    ).run()
+            )
+        ).run()
+    except Exception as e:
+        print(repr(e))
     # convert_to_h264(file_path, 'Outputs/test.mp4', preset='fast')
     end = datetime.datetime.now()
     print(str(end - start))
@@ -171,6 +176,6 @@ def convert(file_path='Samples/江头 (1).mp4', codec=None, postfix=None, br=Non
 
 
 if __name__ == '__main__':
-    # start_server()
+    start_server()
     # convert()
-    process_dir(_=None, request_id='1')
+    # process_dir(_=None, request_id='1')

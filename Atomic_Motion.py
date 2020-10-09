@@ -63,6 +63,7 @@ def video_convert():
         if video_path is None:
             result = []
         else:
+            print('start to convert')
             result = convert(
                 file_path=video_path,
                 codec=video_codec,
@@ -70,6 +71,7 @@ def video_convert():
                 br=video_br,
                 new_scale=video_scale
             )
+            print('complete convert')
         time_take = time.time() - time_take
         if "fileName" in data.keys():
             app.logger.info("recognition  return:{d},use time:{t}".format(d=result, t=time_take))

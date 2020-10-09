@@ -1,11 +1,9 @@
-import datetime
 import os
-
 import cv2
+import datetime
 import numpy as np
-from avtk.backends.ffmpeg.shortcuts import convert_to_h264
-
 from utils import upload
+from avtk.backends.ffmpeg.shortcuts import convert_to_h264
 
 
 def snap_atom(calc_and_draw_hist, file_path="Outputs/010tMonitorCollect202007190100000150002fc14e_100_0.mp4"):

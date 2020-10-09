@@ -1,9 +1,10 @@
-import json
-import requests
-import threading
-from http.server import HTTPServer, SimpleHTTPRequestHandler
-from urllib import parse
 import datetime
+import json
+import threading
+from http.server import SimpleHTTPRequestHandler
+from urllib import parse
+
+import requests
 
 
 def post_result(request_id, src_num, dst_num):
