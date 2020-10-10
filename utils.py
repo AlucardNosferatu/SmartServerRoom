@@ -38,13 +38,16 @@ def array2b64string(img_array):
     return b64_code
 
 
-def response_async(result, function):
+def response_async(result, function, url_param=None):
     print("Start to post")
     dic_json = json.dumps(result)
     headers = {
         "Content-Type": "application/json; charset=UTF-8"
     }
-    response = requests.post(callback_interface[function], data=dic_json, headers=headers)
+    post_url = callback_interface[function]
+    if url_param is not None:
+        post_url+=url_param
+    response = requests.post(post_url, data=dic_json, headers=headers)
     print("Complete post")
     response.raise_for_status()
     print(response.content.decode('utf-8'))
@@ -76,7 +79,7 @@ def download(req_id, from_temp=False):
         b_key = 'bucketTemp'
     else:
         server_url = CEPH_code['query']
-        b_key = 'bucketName'
+        b_key = 'bucket'
     server_url = server_ip + server_url + req_id
     response = requests.post(server_url)
     response.raise_for_status()
@@ -92,28 +95,30 @@ def upload(file_name, to_temp=False, deletion=True, file_dir=save_path):
     server_url = CEPH_code['upload']
     server_url = server_ip + server_url
     bucket_dict = {'bucketName': 'face'}
+    file_handle = open(
+        os.path.join(file_dir, file_name),
+        'rb'
+    )
     file_dict = {
-        'file': open(
-            os.path.join(file_dir, file_name),
-            'rb'
-        )
+        'file': file_handle
     }
     response = requests.post(server_url, data=bucket_dict, files=file_dict)
     response.raise_for_status()
     result = json.loads(response.content.decode('utf-8'))
-    result = {'cephId': result['data']['cephId']}
+    result = {'ceph_id': result['data']['cephId']}
+    file_handle.close()
     if to_temp:
         result['save_result'] = '上传至bucketTemp'
     else:
         server_url = CEPH_code['save']
-        server_url = server_ip + server_url + result['cephId']
+        server_url = server_ip + server_url + result['ceph_id']
         response = requests.post(server_url)
         response.raise_for_status()
         save_result = json.loads(response.content.decode('utf-8'))
         result['save_result'] = save_result['msg']
     if deletion and os.path.exists(os.path.join(file_dir, file_name)):
         os.remove(os.path.join(file_dir, file_name))
-        result['deletion'] = str(os.path.exists(os.path.join(file_dir, file_name)))
+        result['deletion'] = str(not os.path.exists(os.path.join(file_dir, file_name)))
     else:
         result['deletion'] = '未要求进行删除操作'
     return result

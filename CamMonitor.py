@@ -169,6 +169,7 @@ def convert(file_path='Samples/江头 (1).mp4', codec=None, postfix=None, br=Non
         ).run()
     except Exception as e:
         print(repr(e))
+        output_path = -1
     # convert_to_h264(file_path, 'Outputs/test.mp4', preset='fast')
     end = datetime.datetime.now()
     print(str(end - start))

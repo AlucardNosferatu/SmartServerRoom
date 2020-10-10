@@ -59,9 +59,10 @@ def video_convert():
         video_postfix = data['postfix']
         video_br = data['bitRate']
         video_scale = data['scale']
+        video_deletion = data['deletion']
         time_take = time.time()
         if video_path is None:
-            result = []
+            result = -1
         else:
             print('start to convert')
             result = convert(
@@ -72,6 +73,8 @@ def video_convert():
                 new_scale=video_scale
             )
             print('complete convert')
+        if video_deletion and os.path.exists(video_path):
+            os.remove(video_path)
         time_take = time.time() - time_take
         if "fileName" in data.keys():
             app.logger.info("recognition  return:{d},use time:{t}".format(d=result, t=time_take))
