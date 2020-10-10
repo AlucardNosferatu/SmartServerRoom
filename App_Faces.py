@@ -407,6 +407,41 @@ def camera():
         )
 
 
+@app.route('/imr-ai-service/face_features/door_open', methods=['POST'])
+def camera2():
+    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
+    log_file_str = log_file_folder + os.sep + log_file_name
+    if not os.path.exists(log_file_str):
+        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
+        handler.setFormatter(logging_format)
+        app.logger.addHandler(handler)
+
+    if request.method == "POST":
+        c_da = request.data
+        print(str(c_da))
+        data = json.loads(c_da.decode())
+        req_id = data['CameraRecognId']
+        rtsp = data['Rtsp_url']
+        sync = data['Asyn']
+        time_take = time.time()
+        if sync:
+            result = camera_async(rtsp, False, req_id, times=5, wait=10)
+        else:
+            t_snap = threading.Thread(target=camera_async, args=(rtsp, True, req_id))
+            t_snap.start()
+            result = None
+        time_take = time.time() - time_take
+        return json.dumps(
+            {
+                'code': 1,
+                'msg': "请求成功",
+                'data': result,
+                'timeTake': round(time_take, 4)
+            },
+            ensure_ascii=False
+        )
+
+
 if __name__ == '__main__':
     app.run(
         host="0.0.0.0",

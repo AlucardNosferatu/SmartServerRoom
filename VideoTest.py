@@ -43,17 +43,17 @@ def call_recognize(ceph_id):
     return result
 
 
-def loop_until_detected(rtsp):
+def loop_until_detected(rtsp, wait, fd_version='fd'):
     count = 0
     result = {'res': []}
     img_string = ''
-    while len(result['res']) == 0 and count < 25:
+    while len(result['res']) == 0 and count < wait:
         print(count)
         count += 1
         ss_result = process_request('ss', {'RTSP_ADDR': rtsp})
         if type(ss_result) is dict and 'result' in ss_result and ss_result['result'] is not None:
             img_string = ss_result['result']
-            result = process_request('fd', req_dict={'imgString': img_string})
+            result = process_request(fd_version, req_dict={'imgString': img_string})
             print('face_detec_result', result)
         else:
             print('snapshot error! skip now.')
@@ -84,13 +84,14 @@ def crop_and_recognize(img, rect, scene_id, new_result_list):
     return new_result_list
 
 
-def camera_async(rtsp, post_result, cr_id):
+def camera_async(rtsp, post_result, cr_id, times=3, wait=25):
     bt = str(datetime.datetime.now())
     img_string_list = []
     box_coordinates = []
-    times = 3
     while times > 0:
-        img_string, result = loop_until_detected(rtsp)
+
+        img_string, result = loop_until_detected(rtsp, wait, fd_version='fd_dbf')
+
         if post_result:
             img_string_list.append(img_string)
             box_coordinates.append(result)
