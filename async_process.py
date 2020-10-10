@@ -19,4 +19,5 @@ def convert_async(file_id, trance_log_id):
         result = process_request('vc', params)
     if result['res'] != -1:
         result = upload(file_name=result['res'], to_temp=False, deletion=True, file_dir='')
+    print(result)
     response_async(result, 'convert', url_param=trance_log_id)
