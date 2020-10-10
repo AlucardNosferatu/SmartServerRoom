@@ -7,7 +7,6 @@ from utils import download, process_request, upload, response_async
 def convert_async(file_id, trance_log_id):
     file_name = download(req_id=file_id, from_temp=False)
     result = file_name
-
     if result != -1:
         params = {
             'file_path': os.path.join(save_path, file_name),
