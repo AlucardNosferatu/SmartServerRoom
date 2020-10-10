@@ -12,7 +12,7 @@ ATOM_code = {
     'ld': '/imr-ai-service/atomic_functions/landmarks_detect',
     'fr': '/imr-ai-service/atomic_functions/recognize',
     'rr': '/imr-ai-service/atomic_functions/reload',
-    'ss': '/imr-ai-service/atomic_functions/snapshot'
+    'ss': '/imr-ai-service/atomic_functions/snapshot',
 }
 # CEPH_code = {
 #     'query': '/imr-ceph-server/ceph/query/',
@@ -32,10 +32,11 @@ server_ip = 'http://192.168.14.212:29999'
 server_ip_2 = 'http://192.168.14.212:15656'
 server_ip_3 = 'http://192.168.14.212:15656'
 
-
 # callback_interface = {
 #     'camera': 'http://134.134.13.82:8744/imr-face-server/faceapply_collection/faceCameraRecognResp'
 # }
 callback_interface = {
     'camera': 'http://192.168.14.212:8744/imr-face-server/faceapply_collection/faceCameraRecognResp'
 }
+
+save_path = 'Faces_Temp'

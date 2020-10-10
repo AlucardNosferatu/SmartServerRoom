@@ -22,6 +22,12 @@ def b64string2array(img_str):
     return img
 
 
+def array2b64string(img_array):
+    img_str = cv2.imencode('.jpg', img_array)[1].tostring()  # 将图片编码成流数据，放到内存缓存中，然后转化成string格式
+    b64_code = base64.b64encode(img_str)
+    return b64_code
+
+
 def process_request(function_string, req_dict):
     server_url = 'http://127.0.0.1:2029'
     if function_string.endswith('_dbf'):

@@ -425,9 +425,9 @@ def camera2():
         sync = data['Asyn']
         time_take = time.time()
         if sync:
-            result = camera_async(rtsp, False, req_id, times=5, wait=10)
+            result = camera_async(rtsp, False, req_id, count=5, wait=900, capture=True)
         else:
-            t_snap = threading.Thread(target=camera_async, args=(rtsp, True, req_id))
+            t_snap = threading.Thread(target=camera_async, args=(rtsp, True, req_id, 5, 10, True))
             t_snap.start()
             result = None
         time_take = time.time() - time_take
