@@ -94,7 +94,7 @@ def download(req_id, from_temp=False):
 def upload(file_name, to_temp=False, deletion=True, file_dir=save_path):
     server_url = CEPH_code['upload']
     server_url = server_ip + server_url
-    bucket_dict = {'bucketName': 'face'}
+    bucket_dict = {'bucketName': 'inoutmedia'}
     file_handle = open(
         os.path.join(file_dir, file_name),
         'rb'
