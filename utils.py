@@ -39,7 +39,7 @@ def process_request(function_string, req_dict):
     server_url = 'http://127.0.0.1:2029'
     if function_string.endswith('_dbf'):
         server_url = 'http://127.0.0.1:2016'
-        function_string = function_string.strip('_dbf')
+        function_string = function_string.replace('_dbf', '')
     server_url += ATOM_code[function_string]
     headers = {
         "Content-Type": "application/json; charset=UTF-8"

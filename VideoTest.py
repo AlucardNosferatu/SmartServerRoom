@@ -161,7 +161,7 @@ def camera_async(rtsp, post_result, cr_id, count=3, wait=25, capture=False):
                     cr_id,
                     rtsp,
                     wait,
-                    fd_version='fd',
+                    fd_version='fd_dbf',
                     prev_video_w=video_w
                 )
                 times -= 1
@@ -190,7 +190,7 @@ def camera_async(rtsp, post_result, cr_id, count=3, wait=25, capture=False):
         if video_w.isOpened():
             video_w.release()
         # 这里做视频上传和保存操作
-        f_handle=open(output_name, 'rb')
+        f_handle = open(output_name, 'rb')
         video_id = file_request('upload', {'file': f_handle})
         f_handle.close()
         print('video_id', video_id)
