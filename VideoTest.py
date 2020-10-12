@@ -11,7 +11,7 @@ import cv2
 import requests
 
 from cfg import save_path
-from utils import b64string2array, process_request, file_request, response_async, array2b64string
+from utils import b64string2array, process_request, file_request, response_async, array2b64string, validate_title
 
 
 def snap(rtsp_address):
@@ -64,7 +64,7 @@ def loop_until_detected(rtsp, wait, fd_version='fd'):
     return img_string, result
 
 
-def capture_during_detected(rtsp, wait, fd_version='fd', prev_video_w=None):
+def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=None):
     count = 0
     record_flag = False
     result = {'res': []}
@@ -82,7 +82,8 @@ def capture_during_detected(rtsp, wait, fd_version='fd', prev_video_w=None):
         int(sample.get(cv2.CAP_PROP_FRAME_WIDTH)),
         int(sample.get(cv2.CAP_PROP_FRAME_HEIGHT))
     )
-    output_name = save_path + '/temp.mp4'
+    fn = validate_title(cr_id)
+    output_name = save_path + '/' + fn + '.mp4'
     if prev_video_w is not None and prev_video_w.isOpened():
         video_w = prev_video_w
     else:
@@ -143,6 +144,7 @@ def camera_async(rtsp, post_result, cr_id, count=3, wait=25, capture=False):
         if capture:
             if record_flag:
                 video_w, record_flag, output_name = capture_during_detected(
+                    cr_id,
                     rtsp,
                     wait,
                     fd_version='fd',
