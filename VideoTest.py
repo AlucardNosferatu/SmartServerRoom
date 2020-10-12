@@ -67,7 +67,6 @@ def loop_until_detected(rtsp, wait, fd_version='fd'):
 def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=None):
     count = 0
     record_flag = False
-    result = {'res': []}
 
     if '\\' in rtsp:
         rtsp = rtsp.replace('\\', '//')
@@ -93,18 +92,33 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
             fps,
             size
         )
+    no_face = 0
     while count < wait:
         print(count)
         count += 1
         ret, frame = sample.read()
-        if frame is not None and not record_flag:
+        if frame is not None:
             img_string = array2b64string(frame)
             result = process_request(fd_version, req_dict={'imgString': img_string.decode()})
             if len(result['res']) != 0:
-                record_flag = True
-                count = 0
+                no_face = 0
+                frame = cv2.rectangle(
+                    frame,
+                    (result['res'][0][0], result['res'][0][1]),
+                    (result['res'][0][2], result['res'][0][3]),
+                    (0, 255, 0),
+                    2
+                )
+                if not record_flag:
+                    record_flag = True
+                    count = 0
+            elif record_flag:
+                no_face += 1
+
         if record_flag:
             video_w.write(frame)
+    if no_face >= 10:
+        record_flag = False
     sample.release()
     return video_w, record_flag, output_name
 
@@ -154,7 +168,7 @@ def camera_async(rtsp, post_result, cr_id, count=3, wait=25, capture=False):
             else:
                 times = 0
         else:
-            img_string, result = loop_until_detected(rtsp, wait, fd_version='fd_dbf')
+            img_string, result = loop_until_detected(rtsp, wait, fd_version='fd')
             if post_result:
                 img_string_list.append(img_string)
                 box_coordinates.append(result)
@@ -176,7 +190,9 @@ def camera_async(rtsp, post_result, cr_id, count=3, wait=25, capture=False):
         if video_w.isOpened():
             video_w.release()
         # 这里做视频上传和保存操作
-        video_id = file_request('upload', {'file': open(output_name, 'rb')})
+        f_handle=open(output_name, 'rb')
+        video_id = file_request('upload', {'file': f_handle})
+        f_handle.close()
         print('video_id', video_id)
         if video_id is None:
             result = {'ceph_id': None, 'msg': '失败', 'status': '上传失败'}
@@ -186,6 +202,8 @@ def camera_async(rtsp, post_result, cr_id, count=3, wait=25, capture=False):
                 result = {'ceph_id': video_id, 'msg': '成功', 'status': None}
             else:
                 result = {'ceph_id': None, 'msg': '失败', 'status': '保存失败'}
+        if os.path.exists(output_name):
+            os.remove(output_name)
     else:
         scene_id_list = []
         new_result_list = []
