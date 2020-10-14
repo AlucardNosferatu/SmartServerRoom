@@ -390,9 +390,9 @@ def camera():
         sync = data['Asyn']
         time_take = time.time()
         if sync:
-            result = camera_async(rtsp, False, req_id)
+            result = camera_async('camera', rtsp, False, req_id)
         else:
-            t_snap = threading.Thread(target=camera_async, args=(rtsp, True, req_id))
+            t_snap = threading.Thread(target=camera_async, args=('camera', rtsp, True, req_id))
             t_snap.start()
             result = None
         time_take = time.time() - time_take
@@ -420,14 +420,15 @@ def camera2():
         c_da = request.data
         print(str(c_da))
         data = json.loads(c_da.decode())
-        req_id = data['CameraRecognId']
+        req_id = data['MediaFileId']
         rtsp = data['Rtsp_url']
         sync = data['Asyn']
+        file_id = data['FileId']
         time_take = time.time()
         if sync:
-            result = camera_async(rtsp, False, req_id, count=5, wait=900, capture=True)
+            result = camera_async('camera2', rtsp, False, req_id, count=5, wait=900, capture=True, file_id=file_id)
         else:
-            t_snap = threading.Thread(target=camera_async, args=(rtsp, True, req_id, 5, 10, True))
+            t_snap = threading.Thread(target=camera_async, args=('camera2', rtsp, True, req_id, 5, 10, True, file_id))
             t_snap.start()
             result = None
         time_take = time.time() - time_take
@@ -445,6 +446,6 @@ def camera2():
 if __name__ == '__main__':
     app.run(
         host="0.0.0.0",
-        port=int("7120"),
+        port=int("17120"),
         debug=False, threaded=True)
     # file_request('query', '2020082710274358500036c4d1')

@@ -25,18 +25,20 @@ CEPH_code = {
     'save': '/ceph-server/ceph/save/'
 }
 
-# server_ip = 'http://134.134.13.81:29999'
-# server_ip_2 = 'http://134.134.13.83:15656'
-# server_ip_3 = 'http://134.134.13.84:15656'
-server_ip = 'http://192.168.14.212:29999'
-server_ip_2 = 'http://192.168.14.212:15656'
-server_ip_3 = 'http://192.168.14.212:15656'
+server_ip = 'http://134.134.13.81:29999'
+server_ip_2 = 'http://134.134.13.83:15656'
+server_ip_3 = 'http://134.134.13.84:15656'
+# server_ip = 'http://192.168.14.212:29999'
+# server_ip_2 = 'http://192.168.14.212:15656'
+# server_ip_3 = 'http://192.168.14.212:15656'
 
-# callback_interface = {
-#     'camera': 'http://134.134.13.82:8744/imr-face-server/faceapply_collection/faceCameraRecognResp'
-# }
 callback_interface = {
-    'camera': 'http://192.168.14.212:8744/imr-face-server/faceapply_collection/faceCameraRecognResp'
+    'camera': 'http://134.134.13.82:8744/imr-face-server/faceapply_collection/faceCameraRecognResp/',
+    'camera2': 'http://134.134.13.82:8744/prepareimage/savevideofile/'
 }
+# callback_interface = {
+#     'camera': 'http://192.168.14.212:8744/imr-face-server/faceapply_collection/faceCameraRecognResp/',
+#     'camera2': 'http://192.168.14.212:8744/prepareimage/savevideofile/'
+# }
 
 save_path = 'Faces_Temp'

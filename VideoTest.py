@@ -64,16 +64,21 @@ def loop_until_detected(rtsp, wait, fd_version='fd'):
     return img_string, result
 
 
-def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=None):
+def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=None, for_file=False, prev_sample=None):
     count = 0
     record_flag = False
 
     if '\\' in rtsp:
         rtsp = rtsp.replace('\\', '//')
+
     if rtsp == "LAPTOP_CAMERA":
         sample = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
     else:
-        sample = cv2.VideoCapture(rtsp)
+        if for_file and prev_sample is not None:
+            sample = prev_sample
+        else:
+            sample = cv2.VideoCapture(rtsp)
+
     fps = sample.get(cv2.CAP_PROP_FPS)
     if fps == 0 or fps == inf:
         fps = 15
@@ -119,8 +124,11 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
             video_w.write(frame)
     if no_face >= 10:
         record_flag = False
-    sample.release()
-    return video_w, record_flag, output_name
+    if for_file:
+        pass
+    else:
+        sample.release()
+    return video_w, record_flag, output_name, sample
 
 
 def crop_and_recognize(img, rect, scene_id, new_result_list):
@@ -146,7 +154,7 @@ def crop_and_recognize(img, rect, scene_id, new_result_list):
     return new_result_list
 
 
-def camera_async(rtsp, post_result, cr_id, count=3, wait=25, capture=False):
+def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, capture=False, file_id=None):
     bt = str(datetime.datetime.now())
     img_string_list = []
     box_coordinates = []
@@ -154,15 +162,24 @@ def camera_async(rtsp, post_result, cr_id, count=3, wait=25, capture=False):
     times = count
     video_w = None
     record_flag = True
+    sample = None
+    if file_id is not None:
+        for_file = True
+        file_name = file_request('query', file_id)
+        rtsp = os.path.join(save_path, file_name)
+    else:
+        for_file = False
     while times > 0:
         if capture:
             if record_flag:
-                video_w, record_flag, output_name = capture_during_detected(
+                video_w, record_flag, output_name, sample = capture_during_detected(
                     cr_id,
                     rtsp,
                     wait,
                     fd_version='fd_dbf',
-                    prev_video_w=video_w
+                    prev_video_w=video_w,
+                    for_file=for_file,
+                    prev_sample=sample
                 )
                 times -= 1
             else:
@@ -183,7 +200,8 @@ def camera_async(rtsp, post_result, cr_id, count=3, wait=25, capture=False):
                 img_string_list = [img_string]
                 box_coordinates = [result]
                 times = 0
-
+    if for_file:
+        sample.release()
     et = str(datetime.datetime.now())
 
     if capture and video_w is not None:
@@ -195,15 +213,17 @@ def camera_async(rtsp, post_result, cr_id, count=3, wait=25, capture=False):
         f_handle.close()
         print('video_id', video_id)
         if video_id is None:
-            result = {'ceph_id': None, 'msg': '失败', 'status': '上传失败'}
+            result = {'recodeId': cr_id, 'ceph_id': None, 'msg': '失败', 'status': '上传失败'}
         else:
             ret = file_request('save', video_id)
             if ret == video_id:
-                result = {'ceph_id': video_id, 'msg': '成功', 'status': None}
+                result = {'recodeId': cr_id, 'ceph_id': video_id, 'msg': '成功', 'status': None}
             else:
-                result = {'ceph_id': None, 'msg': '失败', 'status': '保存失败'}
+                result = {'recodeId': cr_id, 'ceph_id': None, 'msg': '失败', 'status': '保存失败'}
         if os.path.exists(output_name):
             os.remove(output_name)
+        if for_file and os.path.exists(rtsp):
+            os.remove(rtsp)
     else:
         scene_id_list = []
         new_result_list = []
@@ -237,7 +257,8 @@ def camera_async(rtsp, post_result, cr_id, count=3, wait=25, capture=False):
     print(result)
     print('')
     print('')
-    response_async(result, 'camera')
+    if post_result:
+        response_async(result, callbacl_str)
     return result
 
 
