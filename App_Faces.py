@@ -421,10 +421,13 @@ def camera2():
         print(str(c_da))
         data = json.loads(c_da.decode())
         req_id = data['MediaFileId']
+        port = data['RtspPort']
         rtsp = data['Rtsp_url']
         sync = data['Asyn']
         file_id = data['FileId']
         time_take = time.time()
+        if file_id is None and port is not None:
+            rtsp += port
         if sync:
             result = camera_async('camera2', rtsp, False, req_id, count=5, wait=900, capture=True, file_id=file_id)
         else:

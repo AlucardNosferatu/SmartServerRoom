@@ -99,10 +99,10 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
         )
     no_face = 0
     while count < wait:
-        print(count)
         count += 1
         ret, frame = sample.read()
-        if frame is not None:
+        print(count, ret)
+        if ret:
             img_string = array2b64string(frame)
             result = process_request(fd_version, req_dict={'imgString': img_string.decode()})
             if len(result['res']) != 0:
@@ -119,7 +119,6 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
                     count = 0
             elif record_flag:
                 no_face += 1
-
         if record_flag:
             video_w.write(frame)
     if no_face >= 10:
