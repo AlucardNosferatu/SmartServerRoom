@@ -67,7 +67,7 @@ def loop_until_detected(rtsp, wait, fd_version='fd'):
 def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=None, for_file=False, prev_sample=None):
     count = 0
     record_flag = False
-
+    first_time = False
     if '\\' in rtsp:
         rtsp = rtsp.replace('\\', '//')
 
@@ -77,6 +77,7 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
         if for_file and prev_sample is not None:
             sample = prev_sample
         else:
+            first_time = True
             sample = cv2.VideoCapture(rtsp)
 
     fps = sample.get(cv2.CAP_PROP_FPS)
@@ -103,6 +104,7 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
         ret, frame = sample.read()
         print(count, ret)
         if ret:
+            frame = cv2.resize(frame, (1024, 768))
             img_string = array2b64string(frame)
             result = process_request(fd_version, req_dict={'imgString': img_string.decode()})
             if len(result['res']) != 0:
@@ -119,7 +121,7 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
                     count = 0
             elif record_flag:
                 no_face += 1
-        if record_flag:
+        if record_flag or first_time:
             video_w.write(frame)
     if no_face >= 10:
         record_flag = False
