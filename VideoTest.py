@@ -96,13 +96,12 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
             output_name,
             cv2.VideoWriter_fourcc(*'mp4v'),
             fps,
-            size
+            (1024, 768)
         )
     no_face = 0
     while count < wait:
         count += 1
         ret, frame = sample.read()
-        print(count, ret)
         if ret:
             frame = cv2.resize(frame, (1024, 768))
             img_string = array2b64string(frame)
@@ -121,8 +120,9 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
                     count = 0
             elif record_flag:
                 no_face += 1
-        if record_flag or first_time:
-            video_w.write(frame)
+            if record_flag or first_time:
+                print('write now', 'count', count, 'ret', ret, 'ft', first_time, 'rf', record_flag)
+                video_w.write(frame)
     if no_face >= 10:
         record_flag = False
     if for_file:
@@ -207,6 +207,7 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
 
     if capture and video_w is not None:
         if video_w.isOpened():
+            print('release now')
             video_w.release()
         # 这里做视频上传和保存操作
         f_handle = open(output_name, 'rb')
