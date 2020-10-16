@@ -46,7 +46,7 @@ def response_async(result, function, url_param=None):
     }
     post_url = callback_interface[function]
     if url_param is not None:
-        post_url+=url_param
+        post_url += url_param
     response = requests.post(post_url, data=dic_json, headers=headers)
     print("Complete post")
     response.raise_for_status()
