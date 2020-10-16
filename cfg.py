@@ -7,7 +7,10 @@ query_api = '/ceph-server/ceph/query/'
 upload_api = '/ceph-server/ceph/upload/'
 save_api = '/ceph-server/ceph/save/'
 
-api_server = 'http://192.168.14.212:29999'
-download_server = 'http://192.168.254.169'
+# api_server = 'http://192.168.14.212:29999'
+api_server = 'http://134.134.13.81:29999'
+
+# download_server = 'http://192.168.254.169'
+download_server = 'http://134.134.13.152:8888'
 
 save_path = 'P_Temp'
