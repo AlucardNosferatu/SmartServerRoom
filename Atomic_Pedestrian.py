@@ -67,5 +67,5 @@ def detect_p():
 if __name__ == '__main__':
     app.run(
         host="0.0.0.0",
-        port=int("2016"),
+        port=int("12245"),
         debug=False, threaded=True)
