@@ -76,7 +76,7 @@ def file_request(function_string, req_id, save_path='QRC_Temp'):
 
 
 def process_request(function_string, req_dict):
-    server_url = 'http://127.0.0.1:1224'
+    server_url = 'http://127.0.0.1:12244'
     server_url += ATOM_code[function_string]
     headers = {
         "Content-Type": "application/json; charset=UTF-8"
