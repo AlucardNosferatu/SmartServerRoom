@@ -30,6 +30,12 @@ ATOM_code = {
 app = Flask(__name__)
 
 
+# api_server = 'http://192.168.14.212:29999'
+api_server = 'http://134.134.13.81:29999'
+
+# download_server = 'http://192.168.254.169'
+download_server = 'http://134.134.13.152:8888'
+
 def make_dir(make_dir_path):
     path = make_dir_path.strip()
     if not os.path.exists(path):
@@ -38,8 +44,7 @@ def make_dir(make_dir_path):
 
 
 def file_request(function_string, req_id, save_path='QRC_Temp'):
-    # server_url = 'http://134.134.13.81:8788'
-    server_url = 'http://192.168.14.212:29999'
+    server_url = api_server
     server_url += CEPH_code[function_string]
     if function_string in ['query', 'save']:
         server_url += req_id
@@ -59,7 +64,7 @@ def file_request(function_string, req_id, save_path='QRC_Temp'):
     if function_string == 'query':
         if result['data'] is None:
             return no_found
-        file_url = result['data']['server'] + '/' + result['data']['url']
+        file_url = download_server + '/' + result['data']['url']
         r = requests.get(file_url)
         with open(save_path + '/' + result['data']['fileName'], 'wb') as f:
             f.write(r.content)
