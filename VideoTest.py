@@ -211,7 +211,7 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
             video_w.release()
         # 这里做视频上传和保存操作
         f_handle = open(output_name, 'rb')
-        video_id = file_request('upload', {'file': f_handle})
+        video_id = file_request('upload', {'file': f_handle}, bName='inoutmedia')
         f_handle.close()
         print('video_id', video_id)
         if video_id is None:

@@ -84,7 +84,7 @@ def retry_post(server_url, data=None, files=None):
     return response
 
 
-def file_request(function_string, req_id, save_path='Faces_Temp'):
+def file_request(function_string, req_id, save_path='Faces_Temp', bName='fries'):
     server_url = CEPH_code[function_string]
     if function_string in ['query', 'save']:
         server_url += req_id
@@ -92,7 +92,7 @@ def file_request(function_string, req_id, save_path='Faces_Temp'):
     elif function_string == 'upload':
         assert type(req_id) is dict
         assert 'file' in req_id
-        bucket_dict = {'bucketName': 'fries'}
+        bucket_dict = {'bucketName': bName}
         response = retry_post(server_url, data=bucket_dict, files=req_id)
     else:
         response = None

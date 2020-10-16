@@ -388,6 +388,8 @@ def camera():
         req_id = data['CameraRecognId']
         rtsp = data['Rtsp_url']
         sync = data['Asyn']
+        if type(sync) is str:
+            sync = (sync == 'true')
         port = data['RtspPort']
         ch = data['Channel']
         if port is not None:
@@ -432,6 +434,8 @@ def camera2():
         req_id = data['MediaFileId']
         rtsp = data['Rtsp_url']
         sync = data['Asyn']
+        if type(sync) is str:
+            sync = (sync == 'true')
         file_id = data['FileId']
         port = data['RtspPort']
         ch = data['Channel']
@@ -446,7 +450,7 @@ def camera2():
         if sync:
             result = camera_async('camera2', rtsp, False, req_id, count=5, wait=900, capture=True, file_id=file_id)
         else:
-            t_snap = threading.Thread(target=camera_async, args=('camera2', rtsp, True, req_id, 5, 10, True, file_id))
+            t_snap = threading.Thread(target=camera_async, args=('camera2', rtsp, True, req_id, 5, 900, True, file_id))
             t_snap.start()
             result = None
         time_take = time.time() - time_take
