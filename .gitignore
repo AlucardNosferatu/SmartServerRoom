@@ -1,4 +1,3 @@
-
 *.mp4
 *.jpg
 *.pkl
@@ -13,3 +12,4 @@ __pycache__/
 logs/
 DataMarker/.vs/
 Samples/
+Models/
