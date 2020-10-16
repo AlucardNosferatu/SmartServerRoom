@@ -149,5 +149,5 @@ def sticker_detect():
 if __name__ == '__main__':
     app.run(
         host="0.0.0.0",
-        port=int("1224"),
+        port=int("12244"),
         debug=False, threaded=True)
