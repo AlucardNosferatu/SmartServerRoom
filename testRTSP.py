@@ -1,6 +1,7 @@
 import cv2
 
-sample = cv2.VideoCapture('rtsp://admin:admin@192.168.137.60:8554/live')
+r = 'rtsp://test:1qaz@134.135.207.73/cam/realmonitor?channel=10&subtype=0'
+sample = cv2.VideoCapture(r)
 while True:
     ret, fr = sample.read()
     if ret:

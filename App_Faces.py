@@ -388,6 +388,15 @@ def camera():
         req_id = data['CameraRecognId']
         rtsp = data['Rtsp_url']
         sync = data['Asyn']
+        port = data['RtspPort']
+        ch = data['Channel']
+        if port is not None:
+            rtsp += ':'
+            rtsp += port
+        if ch is not None:
+            rtsp += '/cam/realmonitor?channel='
+            rtsp += ch
+            rtsp += '&subtype=0'
         time_take = time.time()
         if sync:
             result = camera_async('camera', rtsp, False, req_id)
@@ -421,13 +430,19 @@ def camera2():
         print(str(c_da))
         data = json.loads(c_da.decode())
         req_id = data['MediaFileId']
-        port = data['RtspPort']
         rtsp = data['Rtsp_url']
         sync = data['Asyn']
         file_id = data['FileId']
+        port = data['RtspPort']
+        ch = data['Channel']
         time_take = time.time()
         if file_id is None and port is not None:
+            rtsp += ':'
             rtsp += port
+        if file_id is None and ch is not None:
+            rtsp += '/cam/realmonitor?channel='
+            rtsp += ch
+            rtsp += '&subtype=0'
         if sync:
             result = camera_async('camera2', rtsp, False, req_id, count=5, wait=900, capture=True, file_id=file_id)
         else:
