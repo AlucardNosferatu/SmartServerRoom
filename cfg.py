@@ -32,6 +32,9 @@ server_ip_3 = 'http://134.134.13.84:15656'
 # server_ip_2 = 'http://192.168.14.212:15656'
 # server_ip_3 = 'http://192.168.14.212:15656'
 
+download_server = 'http://134.134.13.152:8888'
+# download_server = 'http://192.168.254.169'
+
 callback_interface = {
     'camera': 'http://134.134.13.82:8744/imr-face-server/faceapply_collection/faceCameraRecognResp/',
     'camera2': 'http://134.134.13.82:8744/prepareimage/savevideofile/'

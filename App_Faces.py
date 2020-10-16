@@ -464,6 +464,6 @@ def camera2():
 if __name__ == '__main__':
     app.run(
         host="0.0.0.0",
-        port=int("17120"),
+        port=int("20291"),
         debug=False, threaded=True)
     # file_request('query', '2020082710274358500036c4d1')

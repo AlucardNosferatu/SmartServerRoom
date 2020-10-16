@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 import requests
 
-from cfg import no_found, ATOM_code, CEPH_code, server_ip, server_ip_2, server_ip_3, callback_interface
+from cfg import no_found, ATOM_code, CEPH_code, server_ip, server_ip_2, server_ip_3, callback_interface, download_server
 
 
 def validate_title(title):
@@ -36,9 +36,9 @@ def array2b64string(img_array):
 
 
 def process_request(function_string, req_dict):
-    server_url = 'http://127.0.0.1:12029'
+    server_url = 'http://127.0.0.1:12241'
     if function_string.endswith('_dbf'):
-        server_url = 'http://127.0.0.1:12016'
+        server_url = 'http://127.0.0.1:12242'
         function_string = function_string.replace('_dbf', '')
     server_url += ATOM_code[function_string]
     headers = {
@@ -109,7 +109,7 @@ def file_request(function_string, req_id, save_path='Faces_Temp'):
         if function_string == 'query':
             if result['data'] is None:
                 return no_found
-            file_url = result['data']['server'] + '/' + result['data']['url']
+            file_url = download_server + '/' + result['data']['url']
             r = requests.get(file_url)
             with open(save_path + '/' + result['data']['fileName'], 'wb') as f:
                 f.write(r.content)
