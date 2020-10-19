@@ -437,7 +437,11 @@ def camera2():
         req_id = data['MediaFileId']
         rtsp = data['Rtsp_url']
         sync = data['Asyn']
-        video_type = data['VideoType']
+        try:
+            video_type = data['VideoType']
+        except Exception as e:
+            print(repr(e))
+            video_type = None
         stream_type = data['StreamType']
         if type(sync) is str:
             sync = (sync == 'true')
