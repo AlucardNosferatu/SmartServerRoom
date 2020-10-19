@@ -5,7 +5,7 @@ import base64
 import numpy as np
 import requests
 
-from cfg import ATOM_code, query_temp_api, query_api, api_server, download_server, save_path
+from cfg_PD import ATOM_code, query_temp_api, query_api, api_server, download_server, save_path
 
 
 def b64string2array(img_str):
