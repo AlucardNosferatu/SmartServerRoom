@@ -83,10 +83,6 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
     fps = sample.get(cv2.CAP_PROP_FPS)
     if fps == 0 or fps == inf:
         fps = 15
-    size = (
-        int(sample.get(cv2.CAP_PROP_FRAME_WIDTH)),
-        int(sample.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    )
     fn = validate_title(cr_id)
     output_name = save_path + '/' + fn + '.mp4'
     if prev_video_w is not None and prev_video_w.isOpened():
