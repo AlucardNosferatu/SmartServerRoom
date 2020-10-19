@@ -448,9 +448,9 @@ def camera2():
             rtsp += ch
             rtsp += '&subtype=0'
         if sync:
-            result = camera_async('camera2', rtsp, False, req_id, count=5, wait=900, capture=True, file_id=file_id)
+            result = camera_async('camera2', rtsp, False, req_id, count=5, wait=450, capture=True, file_id=file_id)
         else:
-            t_snap = threading.Thread(target=camera_async, args=('camera2', rtsp, True, req_id, 5, 900, True, file_id))
+            t_snap = threading.Thread(target=camera_async, args=('camera2', rtsp, True, req_id, 5, 450, True, file_id))
             t_snap.start()
             result = None
         time_take = time.time() - time_take
