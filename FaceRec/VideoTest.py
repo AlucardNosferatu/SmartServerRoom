@@ -92,6 +92,7 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
     if prev_video_w is not None and prev_video_w.isOpened():
         video_w = prev_video_w
     else:
+        print('write stream using:', output_name)
         video_w = cv2.VideoWriter(
             output_name,
             cv2.VideoWriter_fourcc(*'mp4v'),
@@ -259,7 +260,7 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
     print(result)
     print('')
     print('')
-    # response_async(result, callbacl_str)
+    response_async(result, callbacl_str)
     return result
 
 
