@@ -48,11 +48,11 @@ download_server = 'http://134.134.13.152:8888'
 
 callback_interface = {
     'camera': 'http://134.134.13.82:8744/imr-face-server/faceapply_collection/faceCameraRecognResp/',
-    'camera2': 'http://134.134.13.82:8744/prepareimage/savevideofile/'
+    'camera2': 'http://134.134.13.82:8744/imr-face-server/prepareimage/savevideofile/'
 }
 # callback_interface = {
 #     'camera': 'http://192.168.14.212:8744/imr-face-server/faceapply_collection/faceCameraRecognResp/',
-#     'camera2': 'http://192.168.14.212:8744/prepareimage/savevideofile/'
+#     'camera2': 'http://192.168.14.212:8744/imr-face-server/prepareimage/savevideofile/'
 # }
 
 save_path = os.path.join(work_dir, 'Faces_Temp')
