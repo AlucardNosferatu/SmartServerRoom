@@ -437,6 +437,8 @@ def camera2():
         req_id = data['MediaFileId']
         rtsp = data['Rtsp_url']
         sync = data['Asyn']
+        video_type = data['VideoType']
+        stream_type = data['StreamType']
         if type(sync) is str:
             sync = (sync == 'true')
         file_id = data['FileId']
@@ -449,9 +451,16 @@ def camera2():
                 rtsp += ':'
                 rtsp += port
             if ch is not None:
-                rtsp += '/cam/realmonitor?channel='
-                rtsp += ch
-                rtsp += '&subtype=0'
+                if video_type is not None:
+                    rtsp += ('/' + video_type)
+                    rtsp += ('/ch' + ch)
+                    rtsp += ('/' + stream_type)
+                    rtsp += '/av_stream'
+                else:
+                    rtsp += '/cam/realmonitor?channel='
+                    rtsp += ch
+                    rtsp += '&subtype='
+                    rtsp += stream_type
         if sync:
             result = camera_async('camera2', rtsp, False, req_id, count=5, wait=450, capture=True, file_id=file_id)
         else:
