@@ -442,7 +442,11 @@ def camera2():
         except Exception as e:
             print(repr(e))
             video_type = None
-        stream_type = data['StreamType']
+        try:
+            stream_type = data['StreamType']
+        except Exception as e:
+            print(repr(e))
+            stream_type = '0'
         if type(sync) is str:
             sync = (sync == 'true')
         file_id = data['FileId']

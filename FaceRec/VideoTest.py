@@ -212,13 +212,13 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
         f_handle.close()
         print('MediaFileId', video_id)
         if video_id is None:
-            result = {'MediaFileId': cr_id, 'ceph_id': None, 'msg': '失败', 'status': '上传失败'}
+            result = {'mediaFileId': cr_id, 'cephId': None, 'msg': '失败', 'status': '上传失败'}
         else:
             ret = file_request('save', video_id)
             if ret == video_id:
-                result = {'MediaFileId': cr_id, 'ceph_id': video_id, 'msg': '成功', 'status': None}
+                result = {'mediaFileId': cr_id, 'cephId': video_id, 'msg': '成功', 'status': None}
             else:
-                result = {'MediaFileId': cr_id, 'ceph_id': None, 'msg': '失败', 'status': '保存失败'}
+                result = {'mediaFileId': cr_id, 'cephId': None, 'msg': '失败', 'status': '保存失败'}
         if os.path.exists(output_name):
             os.remove(output_name)
         if for_file and os.path.exists(rtsp):
