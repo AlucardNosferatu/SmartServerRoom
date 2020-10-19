@@ -73,8 +73,8 @@ def video_convert():
                 new_scale=video_scale
             )
             print('complete convert')
-        if video_deletion and os.path.exists(video_path):
-            os.remove(video_path)
+        # if video_deletion and os.path.exists(video_path):
+        #     os.remove(video_path)
         time_take = time.time() - time_take
         if "fileName" in data.keys():
             app.logger.info("recognition  return:{d},use time:{t}".format(d=result, t=time_take))
