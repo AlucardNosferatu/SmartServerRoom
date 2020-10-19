@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import time
+from urllib import parse
 
 from flask import Flask, request
 
@@ -155,6 +156,7 @@ def snapshot():
         data = json.loads(c_da.decode())
         rtsp_address = data['RTSP_ADDR'].encode()
         rtsp_address = rtsp_address.decode()
+        rtsp_address = rtsp_address.replace('+', parse.quote('+'))
         time_take = time.time()
         result = snap(rtsp_address)
         time_take = time.time() - time_take

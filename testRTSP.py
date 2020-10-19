@@ -1,6 +1,8 @@
 import cv2
+from urllib import parse
 
-r = 'rtsp://test:1qaz@134.135.207.73'
+r = 'rtsp://admin:admin+@192.168.137.58:8554/live'
+r = r.replace('+', parse.quote('+'))
 output_name = 'Samples/fuck.mp4'
 video_w = cv2.VideoWriter(
     output_name,

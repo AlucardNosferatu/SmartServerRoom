@@ -4,6 +4,8 @@ import logging
 import os
 import threading
 import time
+from urllib import parse
+
 import cv2
 from flask import Flask, request
 
@@ -387,6 +389,7 @@ def camera():
         data = json.loads(c_da.decode())
         req_id = data['CameraRecognId']
         rtsp = data['Rtsp_url']
+        rtsp = rtsp.replace('+', parse.quote('+'))
         sync = data['Asyn']
         if type(sync) is str:
             sync = (sync == 'true')
@@ -440,13 +443,15 @@ def camera2():
         port = data['RtspPort']
         ch = data['Channel']
         time_take = time.time()
-        if file_id is None and port is not None:
-            rtsp += ':'
-            rtsp += port
-        if file_id is None and ch is not None:
-            rtsp += '/cam/realmonitor?channel='
-            rtsp += ch
-            rtsp += '&subtype=0'
+        if file_id is None:
+            rtsp = rtsp.replace('+', parse.quote('+'))
+            if port is not None:
+                rtsp += ':'
+                rtsp += port
+            if ch is not None:
+                rtsp += '/cam/realmonitor?channel='
+                rtsp += ch
+                rtsp += '&subtype=0'
         if sync:
             result = camera_async('camera2', rtsp, False, req_id, count=5, wait=450, capture=True, file_id=file_id)
         else:
