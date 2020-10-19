@@ -1,7 +1,7 @@
 import os
 
-from cfg import save_path
-from utils import download, process_request, upload, response_async
+from cfg_MD import save_path
+from utils_MD import download, process_request, upload, response_async
 
 
 def convert_async(file_id, trance_log_id):

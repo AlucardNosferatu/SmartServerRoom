@@ -6,7 +6,7 @@ import base64
 import numpy as np
 import requests
 
-from cfg import callback_interface, ATOM_code, download_server, save_path, server_ip, CEPH_code
+from cfg_MD import callback_interface, ATOM_code, download_server, save_path, server_ip, CEPH_code
 
 position_map = {
     0: 'left_top',

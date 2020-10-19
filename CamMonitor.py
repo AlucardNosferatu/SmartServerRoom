@@ -10,7 +10,7 @@ from Analysis import start_test_lite, start_test_time, start_test_new
 from HTTPInterface import post_result, MyRequestHandler
 from http.server import HTTPServer
 from MostDifferentFrame import snap_shot
-from utils import response_async
+from utils_MD import response_async
 
 
 def enhance(f):

@@ -10,7 +10,7 @@ from Analysis import get_diff, six_histograms, trigger
 from CamMonitor import convert, calc_and_draw_hist
 from MostDifferentFrame import snap_atom
 from TimeStamp import get_boxes, cut_timestamp
-from utils import b64string2array, array2b64string, position_map
+from utils_MD import b64string2array, array2b64string, position_map
 
 app = Flask(__name__)
 
