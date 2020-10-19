@@ -210,15 +210,15 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
         f_handle = open(output_name, 'rb')
         video_id = file_request('upload', {'file': f_handle}, bName='inoutmedia')
         f_handle.close()
-        print('video_id', video_id)
+        print('MediaFileId', video_id)
         if video_id is None:
-            result = {'recodeId': cr_id, 'ceph_id': None, 'msg': '失败', 'status': '上传失败'}
+            result = {'MediaFileId': cr_id, 'ceph_id': None, 'msg': '失败', 'status': '上传失败'}
         else:
             ret = file_request('save', video_id)
             if ret == video_id:
-                result = {'recodeId': cr_id, 'ceph_id': video_id, 'msg': '成功', 'status': None}
+                result = {'MediaFileId': cr_id, 'ceph_id': video_id, 'msg': '成功', 'status': None}
             else:
-                result = {'recodeId': cr_id, 'ceph_id': None, 'msg': '失败', 'status': '保存失败'}
+                result = {'MediaFileId': cr_id, 'ceph_id': None, 'msg': '失败', 'status': '保存失败'}
         if os.path.exists(output_name):
             os.remove(output_name)
         if for_file and os.path.exists(rtsp):
