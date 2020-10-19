@@ -55,4 +55,4 @@ callback_interface = {
 #     'camera2': 'http://192.168.14.212:8744/prepareimage/savevideofile/'
 # }
 
-save_path = 'Faces_Temp'
+save_path = os.path.join(work_dir, 'Faces_Temp')

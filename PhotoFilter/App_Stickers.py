@@ -1,40 +1,15 @@
 import requests
 from flask import Flask, request
 import os
-import cv2
 import json
 import time
-from QRCode import qr_test
 import base64
-from skimage import io
-import numpy as np
 import logging
 
-# no_found = 'no such id'
-no_found = -1
+from cfg_PF import no_found, CEPH_code, ATOM_code, api_server, download_server, qrc_save_path
 
-CEPH_code = {
-    'query': '/ceph-server/ceph/query/',
-    'upload': '/ceph-server/ceph/upload/',
-    'save': '/ceph-server/ceph/save/'
-}
-# CEPH_code = {
-#     'query': '/imr-ceph-server/ceph/query/',
-#     'upload': '/imr-ceph-server/ceph/upload/',
-#     'save': '/imr-ceph-server/ceph/save/'
-# }
-ATOM_code = {
-    'qr': '/imr-ai-service/atomic_functions/qrcode_decode',
-    'dl': '/imr-ai-service/atomic_functions/sticker_detect',
-}
 app = Flask(__name__)
 
-
-# api_server = 'http://192.168.14.212:29999'
-api_server = 'http://134.134.13.81:29999'
-
-# download_server = 'http://192.168.254.169'
-download_server = 'http://134.134.13.152:8888'
 
 def make_dir(make_dir_path):
     path = make_dir_path.strip()
@@ -43,7 +18,7 @@ def make_dir(make_dir_path):
     return path
 
 
-def file_request(function_string, req_id, save_path='QRC_Temp'):
+def file_request(function_string, req_id, save_path=qrc_save_path):
     server_url = api_server
     server_url += CEPH_code[function_string]
     if function_string in ['query', 'save']:
