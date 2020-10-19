@@ -21,17 +21,17 @@ def detect_3_parts(classifier_full, classifier_lower, classifier_upper, image2):
     for rect in full_body:
         x, y, w, h = rect
         xc_fb.append(x + int(w / 2))
-        # image2 = cv2.rectangle(image2, (x, y), (x + w, y + h), (255, 0, 0), 2)
+        image2 = cv2.rectangle(image2, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
     for rect in lower_body:
         x, y, w, h = rect
         xc_lb.append(x + int(w / 2))
-        # image2 = cv2.rectangle(image2, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        image2 = cv2.rectangle(image2, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
     for rect in upper_body:
         x, y, w, h = rect
         xc_ub.append(x + (w / 2))
-        # image2 = cv2.rectangle(image2, (x, y), (x + w, y + h), (0, 0, 255), 2)
+        image2 = cv2.rectangle(image2, (x, y), (x + w, y + h), (0, 0, 255), 2)
     return image2, full_body, lower_body, upper_body, xc_fb, xc_lb, xc_ub
 
 
@@ -59,7 +59,7 @@ def calculate_white_list(xc_fb, xc_lb, xc_ub, full_body, lower_body, upper_body,
         c2 = transform_coordinates(lower_body[indices[1]])
         c3 = transform_coordinates(upper_body[indices[2]])
         c4 = merge_coordinates(c1, c2, c3)
-        # x, y, w, h = transform_coordinates(c4, inv=True)
+        x, y, w, h = transform_coordinates(c4, inv=True)
         output_coordinates.append(
             {
                 'part': {
@@ -70,8 +70,8 @@ def calculate_white_list(xc_fb, xc_lb, xc_ub, full_body, lower_body, upper_body,
                 'full': c4
             }
         )
+        image = cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 255), 2)
     output_coordinates = {'boxes': output_coordinates, 'count': len(output_coordinates)}
-        # image = cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 255), 2)
     return white_list, image, output_coordinates
 
 
@@ -106,6 +106,7 @@ def merge_coordinates(c1, c2, c3):
 
 
 def test_on_array(img):
+    img = cv2.resize(img, (1024, 768))
     detected = detect_3_parts(classifier_full, classifier_lower, classifier_upper, img)
     image2, full_body, lower_body, upper_body, xc_fb, xc_lb, xc_ub = detected
     white_list, image, output_coordinates = calculate_white_list(
@@ -126,10 +127,11 @@ if __name__ == "__main__":
     # 读取图片
     camera = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
     # camera = cv2.VideoCapture('http://admin:admin@192.168.137.140:8081')
+
     while True:
         grabbed, image = camera.read()
-        if grabbed is True:
-            image = cv2.imread('Samples/P (10).jpg')
+        if grabbed:
+            image = cv2.imread('Samples/20201016085232951_484456e6.png')
             image = cv2.resize(image, (512, 384))
             image2 = image.copy()
             # 转为灰度图
@@ -138,6 +140,6 @@ if __name__ == "__main__":
             cv2.imshow('fuck2', image2)
             white_list, image, _ = calculate_white_list(xc_fb, xc_lb, xc_ub, full_body, lower_body, upper_body, image)
             cv2.imshow('fuck', image)
-            cv2.waitKey(1)
+            cv2.waitKey()
         else:
             break
