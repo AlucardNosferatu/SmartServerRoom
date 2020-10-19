@@ -10,8 +10,8 @@ import cv2
 # rtsp = 'rtsp://admin:zww123456.@192.168.56.111:5541'
 import requests
 
-from cfg import save_path
-from utils import b64string2array, process_request, file_request, response_async, array2b64string, validate_title
+from cfg_FR import save_path
+from utils_FR import b64string2array, process_request, file_request, response_async, array2b64string, validate_title
 
 
 def snap(rtsp_address):

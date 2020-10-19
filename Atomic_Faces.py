@@ -8,7 +8,7 @@ from flask import Flask, request
 
 from UseDlib import test_detector, test_landmarks, test_recognizer, reload_records
 from VideoTest import snap
-from utils import b64string2array
+from utils_FR import b64string2array
 
 app = Flask(__name__)
 

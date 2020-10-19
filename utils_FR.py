@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 import requests
 
-from cfg import no_found, ATOM_code, CEPH_code, server_ip, server_ip_2, server_ip_3, callback_interface, download_server
+from cfg_FR import no_found, ATOM_code, CEPH_code, server_ip, server_ip_2, server_ip_3, callback_interface, download_server
 
 
 def validate_title(title):
