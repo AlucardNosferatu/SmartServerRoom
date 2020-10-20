@@ -391,18 +391,36 @@ def camera():
         rtsp = data['Rtsp_url']
         rtsp = rtsp.replace('+', parse.quote('+'))
         sync = data['Asyn']
+        try:
+            video_type = data['VideoType']
+        except Exception as e:
+            print(repr(e))
+            video_type = None
+        try:
+            stream_type = data['StreamType']
+        except Exception as e:
+            print(repr(e))
+            stream_type = '0'
         if type(sync) is str:
             sync = (sync == 'true')
         port = data['RtspPort']
         ch = data['Channel']
+        time_take = time.time()
         if port is not None:
             rtsp += ':'
             rtsp += port
         if ch is not None:
-            rtsp += '/cam/realmonitor?channel='
-            rtsp += ch
-            rtsp += '&subtype=0'
-        time_take = time.time()
+            if video_type is not None:
+                rtsp += ('/' + video_type)
+                rtsp += ('/ch' + ch)
+                rtsp += ('/' + stream_type)
+                rtsp += '/av_stream'
+            else:
+                rtsp += '/cam/realmonitor?channel='
+                rtsp += ch
+                rtsp += '&subtype='
+                rtsp += stream_type
+
         if sync:
             result = camera_async('camera', rtsp, False, req_id)
         else:
