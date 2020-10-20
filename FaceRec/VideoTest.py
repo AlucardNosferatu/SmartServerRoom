@@ -198,7 +198,7 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
                 img_string_list = [img_string]
                 box_coordinates = [result]
                 times = 0
-    if for_file:
+    if for_file and sample is not None:
         sample.release()
     et = str(datetime.datetime.now())
 
