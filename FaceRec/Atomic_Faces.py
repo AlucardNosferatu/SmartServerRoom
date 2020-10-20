@@ -4,11 +4,13 @@ import os
 import time
 from urllib import parse
 
+import cv2
 from flask import Flask, request
 
 from UseDlib import test_detector, test_landmarks, test_recognizer, reload_records
 from VideoTest import snap
-from utils_FR import b64string2array
+from cfg_FR import save_path
+from utils_FR import b64string2array, file_request
 
 app = Flask(__name__)
 
@@ -154,16 +156,54 @@ def snapshot():
     if request.method == "POST":
         c_da = request.data
         data = json.loads(c_da.decode())
-        rtsp_address = data['RTSP_ADDR'].encode()
-        rtsp_address = rtsp_address.decode()
-        rtsp_address = rtsp_address.replace('+', parse.quote('+'))
+        multiple_mode = 'multiple' in data
+        multiple_mode = multiple_mode and 'cephId' in data
+        multiple_mode = multiple_mode and data['multiple'] is not None
+        multiple_mode = multiple_mode and data['cephId'] is not None
+        if multiple_mode:
+            multiple = data['multiple']
+            assert len(multiple) == 1
+            file_name = file_request('query', data['cephId'])
+            rtsp_address = os.path.join(save_path, file_name)
+        else:
+            multiple = None
+            rtsp_address = data['RTSP_ADDR']
+            assert type(rtsp_address) is str
+            rtsp_address = rtsp_address.replace('+', parse.quote('+'))
+        try:
+            resize = data['resize']
+        except Exception as e:
+            print(repr(e))
+            resize = True
         time_take = time.time()
-        result = snap(rtsp_address)
+        result = snap(rtsp_address=rtsp_address, resize=resize, return_multiple=multiple)
+        if multiple_mode and 'upload' in data and data['upload'] is True:
+            scene_id_list = []
+            file_out = os.path.join(save_path, 'scene.jpg')
+            for index, img_string in enumerate(result):
+                if len(img_string) <= 0:
+                    continue
+                img = b64string2array(img_string)
+                cv2.imwrite(file_out, img)
+                scene_id = file_request(
+                    'upload',
+                    {'file': open(file_out, 'rb')},
+                    bName='inoutmedia'
+                )
+                print('scene_id', scene_id)
+                if scene_id is None:
+                    continue
+                else:
+                    scene_id_list.append(scene_id)
+                if os.path.exists(file_out):
+                    os.remove(file_out)
+            result = scene_id_list
         time_take = time.time() - time_take
         ret = (result is not None)
         msg = {True: "成功", False: "失败"}
         if ret:
-            result = result.decode()
+            if not multiple_mode:
+                result = result.decode()
         output = json.dumps(
             {
                 'ret': ret,

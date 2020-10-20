@@ -144,9 +144,9 @@ def specify_index(indices, i):
     return False
 
 
-def convert(file_path='Samples/江头 (1).mp4', codec=None, postfix=None, br=None, new_scale=None):
+def convert(file_path='M_Temp/20201016080724624_a20a7db5.mp4', codec=None, postfix=None, br=None, new_scale=None):
     if codec is None or postfix is None:
-        codec = 'flv'
+        codec = 'libx264'
         postfix = '.flv'
     if br is None:
         br = '1500k'
@@ -177,6 +177,6 @@ def convert(file_path='Samples/江头 (1).mp4', codec=None, postfix=None, br=Non
 
 
 if __name__ == '__main__':
-    start_server()
-    # convert()
+    # start_server()
+    convert()
     # process_dir(_=None, request_id='1')

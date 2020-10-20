@@ -14,23 +14,49 @@ from cfg_FR import save_path
 from utils_FR import b64string2array, process_request, file_request, response_async, array2b64string, validate_title
 
 
-def snap(rtsp_address):
+def snap(rtsp_address, resize=True, return_multiple=None):
     if '\\' in rtsp_address:
         rtsp_address = rtsp_address.replace('\\', '//')
     if rtsp_address == "LAPTOP_CAMERA":
         cap = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
     else:
         cap = cv2.VideoCapture(rtsp_address)
-    ret, frame = cap.read()
-    if frame is not None:
-        frame = cv2.resize(frame, (1024, 768))
-        img_str = cv2.imencode('.jpg', frame)[1].tostring()  # 将图片编码成流数据，放到内存缓存中，然后转化成string格式
-        b64_code = base64.b64encode(img_str)
-        return b64_code
+    if return_multiple is not None:
+        img_str_list = []
+        wait = return_multiple[0] * 25
+        count = 0
+        ret = True
+        while ret:
+            if count % wait == 0:
+                ret, frame = cap.read()
+                if ret:
+                    if resize:
+                        frame = cv2.resize(frame, (1024, 768))
+                    img_str = cv2.imencode('.jpg', frame)[1].tostring()  # 将图片编码成流数据，放到内存缓存中，然后转化成string格式
+                    b64_code = base64.b64encode(img_str)
+                    img_str_list.append(b64_code)
+                elif count == 0:
+                    print('这流读出来的都是空的啊，是不是RTSP路径有问题？')
+                    print(rtsp_address)
+                    return None
+                else:
+                    return img_str_list
+            else:
+                cap.grab()
+            count += 1
+        return img_str_list
     else:
-        print('这流读出来的都是空的啊，是不是RTSP路径有问题？')
-        print(rtsp_address)
-        return None
+        ret, frame = cap.read()
+        if ret:
+            if resize:
+                frame = cv2.resize(frame, (1024, 768))
+            img_str = cv2.imencode('.jpg', frame)[1].tostring()  # 将图片编码成流数据，放到内存缓存中，然后转化成string格式
+            b64_code = base64.b64encode(img_str)
+            return b64_code
+        else:
+            print('这流读出来的都是空的啊，是不是RTSP路径有问题？')
+            print(rtsp_address)
+            return None
 
 
 def call_recognize(ceph_id):

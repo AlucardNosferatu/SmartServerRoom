@@ -11,7 +11,7 @@ from flask import Flask, request
 
 from VideoTest import camera_async
 from utils_FR import process_request, file_request
-from cfg_FR import no_found, face_folder_path
+from cfg_FR import no_found, face_folder_path, save_path
 
 app = Flask(__name__)
 
