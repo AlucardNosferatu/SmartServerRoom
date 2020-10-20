@@ -382,14 +382,12 @@ def camera():
         handler = logging.FileHandler(log_file_str, encoding='UTF-8')
         handler.setFormatter(logging_format)
         app.logger.addHandler(handler)
-
     if request.method == "POST":
         c_da = request.data
         print(str(c_da))
         data = json.loads(c_da.decode())
         req_id = data['CameraRecognId']
         rtsp = data['Rtsp_url']
-        rtsp = rtsp.replace('+', parse.quote('+'))
         sync = data['Asyn']
         try:
             video_type = data['VideoType']
@@ -398,70 +396,7 @@ def camera():
             video_type = None
         try:
             stream_type = data['StreamType']
-        except Exception as e:
-            print(repr(e))
-            stream_type = '0'
-        if type(sync) is str:
-            sync = (sync == 'true')
-        port = data['RtspPort']
-        ch = data['Channel']
-        time_take = time.time()
-        if port is not None:
-            rtsp += ':'
-            rtsp += port
-        if ch is not None:
-            if video_type is not None:
-                rtsp += ('/' + video_type)
-                rtsp += ('/ch' + ch)
-                rtsp += ('/' + stream_type)
-                rtsp += '/av_stream'
-            else:
-                rtsp += '/cam/realmonitor?channel='
-                rtsp += ch
-                rtsp += '&subtype='
-                rtsp += stream_type
-
-        if sync:
-            result = camera_async('camera', rtsp, False, req_id)
-        else:
-            t_snap = threading.Thread(target=camera_async, args=('camera', rtsp, True, req_id))
-            t_snap.start()
-            result = None
-        time_take = time.time() - time_take
-        return json.dumps(
-            {
-                'code': 1,
-                'msg': "请求成功",
-                'data': result,
-                'timeTake': round(time_take, 4)
-            },
-            ensure_ascii=False
-        )
-
-
-@app.route('/imr-ai-service/face_features/door_open', methods=['POST'])
-def camera2():
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
-
-    if request.method == "POST":
-        c_da = request.data
-        print(str(c_da))
-        data = json.loads(c_da.decode())
-        req_id = data['MediaFileId']
-        rtsp = data['Rtsp_url']
-        sync = data['Asyn']
-        try:
-            video_type = data['VideoType']
-        except Exception as e:
-            print(repr(e))
-            video_type = None
-        try:
-            stream_type = data['StreamType']
+            assert type(stream_type) is str
         except Exception as e:
             print(repr(e))
             stream_type = '0'
@@ -487,10 +422,120 @@ def camera2():
                     rtsp += ch
                     rtsp += '&subtype='
                     rtsp += stream_type
+
         if sync:
-            result = camera_async('camera2', rtsp, False, req_id, count=5, wait=450, capture=True, file_id=file_id)
+            result = camera_async(
+                callbacl_str='camera',
+                rtsp=rtsp,
+                post_result=False,
+                cr_id=req_id,
+                count=3,
+                wait=25,
+                capture=False,
+                file_id=file_id
+            )
         else:
-            t_snap = threading.Thread(target=camera_async, args=('camera2', rtsp, True, req_id, 5, 450, True, file_id))
+            t_snap = threading.Thread(
+                target=camera_async,
+                args=(
+                    'camera',
+                    rtsp,
+                    True,
+                    req_id,
+                    3,
+                    25,
+                    False,
+                    file_id
+                )
+            )
+            t_snap.start()
+            result = None
+        time_take = time.time() - time_take
+        return json.dumps(
+            {
+                'code': 1,
+                'msg': "请求成功",
+                'data': result,
+                'timeTake': round(time_take, 4)
+            },
+            ensure_ascii=False
+        )
+
+
+@app.route('/imr-ai-service/face_features/door_open', methods=['POST'])
+def camera2():
+    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
+    log_file_str = log_file_folder + os.sep + log_file_name
+    if not os.path.exists(log_file_str):
+        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
+        handler.setFormatter(logging_format)
+        app.logger.addHandler(handler)
+    if request.method == "POST":
+        c_da = request.data
+        print(str(c_da))
+        data = json.loads(c_da.decode())
+        req_id = data['MediaFileId']
+        rtsp = data['Rtsp_url']
+        sync = data['Asyn']
+        try:
+            video_type = data['VideoType']
+        except Exception as e:
+            print(repr(e))
+            video_type = None
+        try:
+            stream_type = data['StreamType']
+            assert type(stream_type) is str
+        except Exception as e:
+            print(repr(e))
+            stream_type = '0'
+        if type(sync) is str:
+            sync = (sync == 'true')
+        file_id = data['FileId']
+        port = data['RtspPort']
+        ch = data['Channel']
+        time_take = time.time()
+        if file_id is None:
+            rtsp = rtsp.replace('+', parse.quote('+'))
+            if port is not None:
+                rtsp += ':'
+                rtsp += port
+            if ch is not None:
+                if video_type is not None:
+                    rtsp += ('/' + video_type)
+                    rtsp += ('/ch' + ch)
+                    rtsp += ('/' + stream_type)
+                    rtsp += '/av_stream'
+                else:
+                    rtsp += '/cam/realmonitor?channel='
+                    rtsp += ch
+                    rtsp += '&subtype='
+                    rtsp += stream_type
+
+        if sync:
+            result = camera_async(
+                callbacl_str='camera2',
+                rtsp=rtsp,
+                post_result=False,
+                cr_id=req_id,
+                count=5,
+                wait=450,
+                capture=True,
+                file_id=file_id
+            )
+        else:
+            t_snap = threading.Thread(
+                target=camera_async,
+                args=(
+                    'camera2',
+                    rtsp,
+                    True,
+                    req_id,
+                    5,
+                    450,
+                    True,
+                    file_id
+                )
+            )
             t_snap.start()
             result = None
         time_take = time.time() - time_take

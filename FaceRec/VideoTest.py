@@ -183,7 +183,7 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
             else:
                 times = 0
         else:
-            img_string, result = loop_until_detected(rtsp, wait, fd_version='fd')
+            img_string, result = loop_until_detected(rtsp, wait, fd_version='fd_dbf')
             if post_result:
                 img_string_list.append(img_string)
                 box_coordinates.append(result)
