@@ -1,0 +1,3 @@
+python ./Atomic_Faces.py > ./full_log_atomic.txt 2>&1 &
+python ./App_Faces.py > ./full_log_app.txt 2>&1 &
+
