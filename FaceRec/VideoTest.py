@@ -252,24 +252,25 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
     else:
         scene_id_list = []
         new_result_list = []
+        file_out = os.path.join(save_path, 'scene.jpg')
         for index, img_string in enumerate(img_string_list):
             if len(img_string) <= 0:
                 continue
             img = b64string2array(img_string)
-            cv2.imwrite('Faces_Temp/scene.jpg', img)
-            scene_id = file_request('upload', {'file': open('Faces_Temp/scene.jpg', 'rb')})
+            cv2.imwrite(file_out, img)
+            scene_id = file_request('upload', {'file': open(file_out, 'rb')})
             print('scene_id', scene_id)
             if scene_id is None:
                 continue
             ret = file_request('save', scene_id)
             if ret == scene_id:
                 scene_id_list.append(scene_id)
-                os.remove('Faces_Temp/scene.jpg')
+                os.remove(file_out)
                 if len(box_coordinates[index]['res']) > 0:
                     for rect in box_coordinates[index]['res']:
                         new_result_list = crop_and_recognize(img, rect, scene_id, new_result_list)
         result = {
-            'CameraRecognId': cr_id,
+            'cameraRecognId': cr_id,
             'camera': scene_id_list,
             'beginTime': bt,
             'endTime': et,
