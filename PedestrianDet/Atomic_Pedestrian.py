@@ -69,7 +69,7 @@ def detect_p():
 if __name__ == '__main__':
     pid = os.getpid()
     print('pid is:', pid)
-    with open(save_path + 'atomic_pid.txt', 'w') as f:
+    with open(os.path.join(save_path, 'atomic_pid.txt'), 'w') as f:
         f.writelines([str(pid)])
     app.run(
         host="0.0.0.0",
