@@ -77,6 +77,10 @@ def convert():
 
 
 if __name__ == '__main__':
+    pid = os.getpid()
+    print('pid is:', pid)
+    with open(save_path + 'app_pid.txt', 'w') as f:
+        f.writelines([str(pid)])
     app.run(
         host="0.0.0.0",
         port=int("20292"),

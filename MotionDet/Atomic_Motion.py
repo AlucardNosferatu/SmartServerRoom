@@ -10,6 +10,7 @@ from Analysis import get_diff, six_histograms, trigger
 from CamMonitor import convert, calc_and_draw_hist
 from MostDifferentFrame import snap_atom
 from TimeStamp import get_boxes, cut_timestamp
+from cfg_MD import save_path
 from utils_MD import b64string2array, array2b64string, position_map
 
 app = Flask(__name__)
@@ -268,6 +269,10 @@ def hot_zone():
 
 
 if __name__ == '__main__':
+    pid = os.getpid()
+    print('pid is:', pid)
+    with open(save_path + 'atomic_pid.txt', 'w') as f:
+        f.writelines([str(pid)])
     app.run(
         host="0.0.0.0",
         port=int("12243"),

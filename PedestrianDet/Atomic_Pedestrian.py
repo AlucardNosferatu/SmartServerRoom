@@ -3,6 +3,8 @@ import logging
 import os
 import time
 from flask import Flask, request
+
+from cfg_PD import save_path
 from utils_PD import b64string2array
 from Haar import test_on_array
 
@@ -65,6 +67,10 @@ def detect_p():
 
 
 if __name__ == '__main__':
+    pid = os.getpid()
+    print('pid is:', pid)
+    with open(save_path + 'atomic_pid.txt', 'w') as f:
+        f.writelines([str(pid)])
     app.run(
         host="0.0.0.0",
         port=int("12245"),
