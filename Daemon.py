@@ -45,4 +45,4 @@ if __name__ == '__main__':
         ]
         with open(log_path, 'a') as f:
             f.writelines(info)
-        time.sleep(1)
+        time.sleep(120)
