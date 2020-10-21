@@ -1,5 +1,6 @@
 import os
 import time
+import datetime
 
 AtD = 'FaceRec/DBFace/atomic_pid.txt'
 ApF = 'FaceRec/FaceRec/Faces_Temp/app_pid.txt'
@@ -27,6 +28,6 @@ if __name__ == '__main__':
                 if pid in current_pid:
                     alive[i] = True
                     break
-        print(alive)
-        print(pid_list)
+        print(str(datetime.datetime.now()), str(alive))
+        print(str(datetime.datetime.now()), str(pid_list))
         time.sleep(1)
