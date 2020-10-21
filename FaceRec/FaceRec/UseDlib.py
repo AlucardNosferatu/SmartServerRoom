@@ -5,7 +5,7 @@ import dlib
 import numpy
 from dlib import rectangle
 
-from FaceRec.cfg_FR import test_img_path, predictor_path, face_rc_model_path, face_folder_path
+from cfg_FR import test_img_path, predictor_path, face_rc_model_path, face_folder_path
 
 
 def init_detectors():

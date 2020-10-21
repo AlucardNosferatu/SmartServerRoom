@@ -1,5 +1,4 @@
 import json
-import json
 import logging
 import os
 import threading
@@ -9,7 +8,6 @@ from flask import Flask, request
 
 from AsyncProcess import convert_async
 from cfg_MD import save_path
-from utils_MD import process_request, download, upload
 
 app = Flask(__name__)
 

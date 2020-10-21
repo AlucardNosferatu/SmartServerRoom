@@ -9,9 +9,9 @@ from urllib import parse
 import cv2
 from flask import Flask, request
 
-from FaceRec.VideoTest import camera_async
-from FaceRec.utils_FR import process_request, file_request
-from FaceRec.cfg_FR import no_found, face_folder_path, save_path
+from VideoTest import camera_async
+from utils_FR import process_request, file_request
+from cfg_FR import no_found, face_folder_path, save_path
 
 app = Flask(__name__)
 
