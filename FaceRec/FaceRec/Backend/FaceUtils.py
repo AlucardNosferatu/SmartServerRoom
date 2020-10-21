@@ -8,10 +8,10 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
 
-from Backend.CelebA import get_celeb_a
-from Backend.Configs import batch_size, epochs, new_epochs, number_of_tested_items
-from Backend.Data import get_data, load_4_faces
-from Backend.Networks import get_model, compute_accuracy
+from FaceRec.Backend.CelebA import get_celeb_a
+from FaceRec.Backend.Configs import batch_size, epochs, new_epochs, number_of_tested_items
+from FaceRec.Backend.Data import get_data, load_4_faces
+from FaceRec.Backend.Networks import get_model, compute_accuracy
 
 ep = epochs
 new_ep = new_epochs

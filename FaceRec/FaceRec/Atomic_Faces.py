@@ -7,10 +7,10 @@ from urllib import parse
 import cv2
 from flask import Flask, request
 
-from UseDlib import test_detector, test_landmarks, test_recognizer, reload_records
-from VideoTest import snap
-from cfg_FR import save_path
-from utils_FR import b64string2array, file_request
+from FaceRec.UseDlib import test_detector, test_landmarks, test_recognizer, reload_records
+from FaceRec.VideoTest import snap
+from FaceRec.cfg_FR import save_path
+from FaceRec.utils_FR import b64string2array, file_request
 
 app = Flask(__name__)
 

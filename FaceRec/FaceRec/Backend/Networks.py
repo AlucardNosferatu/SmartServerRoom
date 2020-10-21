@@ -4,7 +4,7 @@ from tensorflow.keras import backend as K
 from tensorflow.keras.layers import Input, Conv2D, AveragePooling2D, Flatten, Dense, Lambda, Dropout, BatchNormalization
 from tensorflow.keras.optimizers import RMSprop
 
-from Backend.Configs import num_classes
+from FaceRec.Backend.Configs import num_classes
 
 
 def euclid_dis(vects):

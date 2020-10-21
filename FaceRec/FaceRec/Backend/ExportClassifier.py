@@ -1,6 +1,6 @@
 import os
 
-from Backend.Networks import get_model
+from FaceRec.Backend.Networks import get_model
 
 
 def export_classifier():

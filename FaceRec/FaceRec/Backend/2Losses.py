@@ -9,9 +9,9 @@ from tensorflow.keras.layers import Lambda
 from tensorflow.keras.optimizers import RMSprop
 from tensorflow.keras.utils import to_categorical
 
-from Backend.Configs import epochs, batch_size
-from Backend.Data import load_4_faces
-from Backend.Networks import create_base_net, euclid_dis, eucl_dist_output_shape, awt
+from FaceRec.Backend.Configs import epochs, batch_size
+from FaceRec.Backend.Data import load_4_faces
+from FaceRec.Backend.Networks import create_base_net, euclid_dis, eucl_dist_output_shape, awt
 
 
 def two_losses(y_true, y_pred):

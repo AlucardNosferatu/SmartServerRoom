@@ -7,7 +7,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import to_categorical
 from tqdm import tqdm
 
-from Backend.Configs import img_size, test_ratio, num_classes, limiter_test
+from FaceRec.Backend.Configs import img_size, test_ratio, num_classes, limiter_test
 
 
 def create_pairs(x, digit_indices, extended_num_classes=None):

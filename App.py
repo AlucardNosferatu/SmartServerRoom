@@ -1,7 +1,5 @@
 from flask import Flask
-from MotionDet.App_Motion import convert
 from FaceRec.App_Faces import check as check_fr
-from PedestrianDet.App_Pedestrian import check as check_pd
 from FaceRec.App_Faces import recognize, locate, add, delete, query, reload, camera, camera2
 
 app = Flask(__name__)
