@@ -5,7 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$/FaceRec" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/MotionDet" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/PedestrianDet" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/PhotoFilter" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/ModermStickers" isTestSource="false" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.7 64bits" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
