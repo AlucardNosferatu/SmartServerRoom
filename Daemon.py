@@ -31,7 +31,7 @@ if __name__ == '__main__':
             ' '.join(
                 [
                     str(datetime.datetime.now()),
-                    str(alive)
+                    str(alive) + '\n'
                 ]
             )
         ]
@@ -39,7 +39,7 @@ if __name__ == '__main__':
             ' '.join(
                 [
                     str(datetime.datetime.now()),
-                    str(pid_list)
+                    str(pid_list) + '\n'
                 ]
             )
         ]
