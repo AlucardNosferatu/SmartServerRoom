@@ -233,6 +233,7 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
             print('release now')
             video_w.release()
         # 这里做视频上传和保存操作
+
         f_handle = open(output_name, 'rb')
         video_id = file_request('upload', {'file': f_handle}, bName='inoutmedia')
         f_handle.close()
@@ -242,7 +243,12 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
         else:
             ret = file_request('save', video_id)
             if ret == video_id:
-                result = {'mediaFileId': cr_id, 'cephId': video_id, 'msg': '成功', 'status': None}
+                data = {'trance_log_id': 'LOCAL_USAGE', 'ceph_id': ret}
+                conv_fn = process_request('fc_mdapp', data)
+                if 'data' in conv_fn and 'ceph_id' in conv_fn['data']:
+                    result = {'mediaFileId': cr_id, 'cephId': conv_fn['data']['ceph_id'], 'msg': '成功', 'status': None}
+                else:
+                    result = {'mediaFileId': cr_id, 'cephId': ret, 'msg': '失败', 'status': '转换失败'}
             else:
                 result = {'mediaFileId': cr_id, 'cephId': None, 'msg': '失败', 'status': '保存失败'}
         if os.path.exists(output_name):

@@ -24,6 +24,7 @@ ATOM_code = {
     'fr': '/imr-ai-service/atomic_functions/recognize',
     'rr': '/imr-ai-service/atomic_functions/reload',
     'ss': '/imr-ai-service/atomic_functions/snapshot',
+    'fc': '/imr-ai-service/motion_detection/convert'
 }
 # CEPH_code = {
 #     'query': '/imr-ceph-server/ceph/query/',

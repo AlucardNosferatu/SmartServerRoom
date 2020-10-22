@@ -41,6 +41,9 @@ def process_request(function_string, req_dict):
     if function_string.endswith('_dbf'):
         server_url = 'http://127.0.0.1:12242'
         function_string = function_string.replace('_dbf', '')
+    elif function_string.endswith('_mdapp'):
+        server_url = 'http://127.0.0.1:20292'
+        function_string = function_string.replace('_mdapp', '')
     server_url += ATOM_code[function_string]
     headers = {
         "Content-Type": "application/json; charset=UTF-8"

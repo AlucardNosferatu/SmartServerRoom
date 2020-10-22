@@ -56,11 +56,14 @@ def convert():
         file_id = data['ceph_id']
         trance_id = data['trance_log_id']
 
-        t_conv = threading.Thread(target=convert_async, args=(file_id, trance_id))
-        t_conv.start()
+        if trance_id != 'LOCAL_USAGE':
+            t_conv = threading.Thread(target=convert_async, args=(file_id, trance_id))
+            t_conv.start()
+            result = None
+        else:
+            result = convert_async(file_id=file_id, trance_log_id=trance_id)
 
         time_take = time.time() - time_take
-        result = None
         ret = not (result == -1)
         msg = {True: '成功', False: '失败'}
         return json.dumps(
