@@ -54,7 +54,7 @@ def check(file_id):
         time_take = time.time()
         file_name = download(req_id=file_id, from_temp=True)
         if not (file_name.endswith('.jpg') or file_name.endswith('.png')):
-            result = -1
+            result = file_name
         else:
             with open(os.path.join(save_path, file_name), 'rb') as f:
                 b64_string = base64.b64encode(f.read())
@@ -63,8 +63,11 @@ def check(file_id):
             result = process_request('pd', req_dict={'imgString': b64_string})
             if os.path.exists(os.path.join(save_path, file_name)):
                 os.remove(os.path.join(save_path, file_name))
+        if 'res' not in result or type(result['res']) is not dict:
+            ret = False
+        else:
+            ret = True
         time_take = time.time() - time_take
-        ret = not (result == -1)
         msg = {True: '成功', False: '失败'}
         return json.dumps(
             {

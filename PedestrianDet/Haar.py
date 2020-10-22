@@ -21,17 +21,17 @@ def detect_3_parts(classifier_full, classifier_lower, classifier_upper, image2):
     for rect in full_body:
         x, y, w, h = rect
         xc_fb.append(x + int(w / 2))
-        image2 = cv2.rectangle(image2, (x, y), (x + w, y + h), (255, 0, 0), 2)
+        # image2 = cv2.rectangle(image2, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
     for rect in lower_body:
         x, y, w, h = rect
         xc_lb.append(x + int(w / 2))
-        image2 = cv2.rectangle(image2, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        # image2 = cv2.rectangle(image2, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
     for rect in upper_body:
         x, y, w, h = rect
         xc_ub.append(x + (w / 2))
-        image2 = cv2.rectangle(image2, (x, y), (x + w, y + h), (0, 0, 255), 2)
+        # image2 = cv2.rectangle(image2, (x, y), (x + w, y + h), (0, 0, 255), 2)
     return image2, full_body, lower_body, upper_body, xc_fb, xc_lb, xc_ub
 
 
@@ -59,7 +59,6 @@ def calculate_white_list(xc_fb, xc_lb, xc_ub, full_body, lower_body, upper_body,
         c2 = transform_coordinates(lower_body[indices[1]])
         c3 = transform_coordinates(upper_body[indices[2]])
         c4 = merge_coordinates(c1, c2, c3)
-        x, y, w, h = transform_coordinates(c4, inv=True)
         output_coordinates.append(
             {
                 'part': {
@@ -70,7 +69,8 @@ def calculate_white_list(xc_fb, xc_lb, xc_ub, full_body, lower_body, upper_body,
                 'full': c4
             }
         )
-        image = cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 255), 2)
+        # x, y, w, h = transform_coordinates(c4, inv=True)
+        # image = cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 255), 2)
     output_coordinates = {'boxes': output_coordinates, 'count': len(output_coordinates)}
     return white_list, image, output_coordinates
 
