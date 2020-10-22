@@ -9,9 +9,9 @@ import cv2
 from flask import Flask, request
 
 from UseDlib import test_detector, test_landmarks, test_recognizer, reload_records
-from VideoTest import snap
+from VideoTest import snap, snap_per_seconds
 from cfg_FR import save_path
-from utils_FR import b64string2array, file_request, response_async, snap_per_seconds
+from utils_FR import b64string2array, file_request, response_async
 
 app = Flask(__name__)
 

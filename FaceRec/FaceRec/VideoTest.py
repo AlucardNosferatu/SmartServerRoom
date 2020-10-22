@@ -287,6 +287,33 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
     return result
 
 
+def snap_per_seconds(rtsp_address, resize, multiple, multiple_mode, data):
+    result = snap(rtsp_address=rtsp_address, resize=resize, return_multiple=multiple)
+    if multiple_mode and 'upload' in data and data['upload'] is True:
+        scene_id_list = []
+        file_out = os.path.join(save_path, 'scene.jpg')
+        for index, img_string in enumerate(result):
+            if len(img_string) <= 0:
+                continue
+            img = b64string2array(img_string)
+            cv2.imwrite(file_out, img)
+            scene_id = file_request(
+                'upload',
+                {'file': open(file_out, 'rb')},
+                bName='inoutmedia'
+            )
+            print('scene_id', scene_id)
+            if scene_id is None:
+                continue
+            else:
+                scene_id_list.append(scene_id)
+            if os.path.exists(file_out):
+                os.remove(file_out)
+        result = scene_id_list
+        response_async(result, 'snap')
+    return result
+
+
 if __name__ == '__main__':
     cap = cv2.VideoCapture('rtsp://admin:zww123456.@192.168.56.111:5542')
     while True:

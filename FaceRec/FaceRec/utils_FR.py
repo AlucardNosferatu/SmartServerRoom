@@ -1,15 +1,13 @@
 import base64
 import json
-import os
 import re
 
 import cv2
 import numpy as np
 import requests
 
-from VideoTest import snap
 from cfg_FR import no_found, ATOM_code, CEPH_code, server_ip, server_ip_2, server_ip_3, callback_interface, \
-    download_server, save_path
+    download_server
 
 
 def validate_title(title):
@@ -129,33 +127,6 @@ def file_request(function_string, req_id, save_path='Faces_Temp', bName='fries')
                 return None
         else:
             return None
-
-
-def snap_per_seconds(rtsp_address, resize, multiple, multiple_mode, data):
-    result = snap(rtsp_address=rtsp_address, resize=resize, return_multiple=multiple)
-    if multiple_mode and 'upload' in data and data['upload'] is True:
-        scene_id_list = []
-        file_out = os.path.join(save_path, 'scene.jpg')
-        for index, img_string in enumerate(result):
-            if len(img_string) <= 0:
-                continue
-            img = b64string2array(img_string)
-            cv2.imwrite(file_out, img)
-            scene_id = file_request(
-                'upload',
-                {'file': open(file_out, 'rb')},
-                bName='inoutmedia'
-            )
-            print('scene_id', scene_id)
-            if scene_id is None:
-                continue
-            else:
-                scene_id_list.append(scene_id)
-            if os.path.exists(file_out):
-                os.remove(file_out)
-        result = scene_id_list
-        response_async(result, 'snap')
-    return result
 
 
 def response_async(result, function):
