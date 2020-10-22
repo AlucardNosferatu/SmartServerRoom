@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import threading
 import time
 from urllib import parse
 
@@ -10,7 +11,7 @@ from flask import Flask, request
 from UseDlib import test_detector, test_landmarks, test_recognizer, reload_records
 from VideoTest import snap
 from cfg_FR import save_path
-from utils_FR import b64string2array, file_request
+from utils_FR import b64string2array, file_request, response_async, snap_per_seconds
 
 app = Flask(__name__)
 
@@ -175,30 +176,32 @@ def snapshot():
         except Exception as e:
             print(repr(e))
             resize = True
+
         time_take = time.time()
-        result = snap(rtsp_address=rtsp_address, resize=resize, return_multiple=multiple)
-        if multiple_mode and 'upload' in data and data['upload'] is True:
-            scene_id_list = []
-            file_out = os.path.join(save_path, 'scene.jpg')
-            for index, img_string in enumerate(result):
-                if len(img_string) <= 0:
-                    continue
-                img = b64string2array(img_string)
-                cv2.imwrite(file_out, img)
-                scene_id = file_request(
-                    'upload',
-                    {'file': open(file_out, 'rb')},
-                    bName='inoutmedia'
+        if multiple_mode:
+            t_snap = threading.Thread(
+                target=snap_per_seconds,
+                args=(
+                    rtsp_address,
+                    resize,
+                    multiple,
+                    multiple_mode,
+                    data
                 )
-                print('scene_id', scene_id)
-                if scene_id is None:
-                    continue
-                else:
-                    scene_id_list.append(scene_id)
-                if os.path.exists(file_out):
-                    os.remove(file_out)
-            result = scene_id_list
+            )
+            t_snap.start()
+            result = '异步处理（回调）模式'
+            result = result.encode()
+        else:
+            result = snap_per_seconds(
+                rtsp_address=rtsp_address,
+                resize=resize,
+                multiple=multiple,
+                multiple_mode=multiple_mode,
+                data=data
+            )
         time_take = time.time() - time_take
+
         ret = (result is not None)
         msg = {True: "成功", False: "失败"}
         if ret:

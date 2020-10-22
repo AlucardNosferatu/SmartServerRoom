@@ -20,7 +20,7 @@ def make_dir(make_dir_path):
 
 
 # log init start
-log_dir_name = "FaceRec/logs"
+log_dir_name = "logs"
 log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
 log_file_folder = os.path.join(os.getcwd(), log_dir_name)
 make_dir(log_file_folder)

@@ -20,7 +20,7 @@ def make_dir(make_dir_path):
 
 
 # log init start
-log_dir_name = "FaceRec/logs"
+log_dir_name = "logs"
 log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
 log_file_folder = os.path.join(os.getcwd(), log_dir_name)
 make_dir(log_file_folder)
@@ -53,13 +53,16 @@ def check(file_id):
         file_id = file_id.replace("\n", "")
         time_take = time.time()
         file_name = download(req_id=file_id, from_temp=True)
-        with open(save_path + '/' + file_name, 'rb') as f:
-            b64_string = base64.b64encode(f.read())
-            b64_string = b64_string.decode()
-            b64_string = 'data:image/jpeg;base64,' + b64_string
-        result = process_request('pd', req_dict={'imgString': b64_string})
-        if os.path.exists('Faces_Temp/' + file_name):
-            os.remove('Faces_Temp/' + file_name)
+        if not (file_name.endswith('.jpg') or file_name.endswith('.png')):
+            result = -1
+        else:
+            with open(os.path.join(save_path, file_name), 'rb') as f:
+                b64_string = base64.b64encode(f.read())
+                b64_string = b64_string.decode()
+                b64_string = 'data:image/jpeg;base64,' + b64_string
+            result = process_request('pd', req_dict={'imgString': b64_string})
+            if os.path.exists(os.path.join(save_path, file_name)):
+                os.remove(os.path.join(save_path, file_name))
         time_take = time.time() - time_take
         ret = not (result == -1)
         msg = {True: '成功', False: '失败'}

@@ -53,6 +53,8 @@ def download(req_id, from_temp=False):
     response = requests.post(server_url)
     response.raise_for_status()
     result = json.loads(response.content.decode('utf-8'))
+    if 'data' not in result or result['data'] is None:
+        return '查无此文件'
     file_url = download_server + '/' + result['data'][b_key] + '/' + result['data']['fileName']
     r = requests.get(file_url)
     with open(save_path + '/' + result['data']['fileName'], 'wb') as f:
