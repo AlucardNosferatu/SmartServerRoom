@@ -76,15 +76,17 @@ def process_request(function_string, req_dict):
 def download(req_id, from_temp=False):
     if from_temp:
         server_url = CEPH_code['qt']
-        b_key = 'bucketTemp'
     else:
         server_url = CEPH_code['query']
-        b_key = 'bucket'
     server_url = server_ip + server_url + req_id
     response = requests.post(server_url)
     response.raise_for_status()
     result = json.loads(response.content.decode('utf-8'))
-    file_url = download_server + '/' + result['data'][b_key] + '/' + result['data']['fileName']
+    if from_temp:
+        file_path = result['data']['bucketTemp'] + '/' + result['data']['fileName']
+    else:
+        file_path = result['data']['url']
+    file_url = download_server + '/' + file_path
     r = requests.get(file_url)
     with open(save_path + '/' + result['data']['fileName'], 'wb') as f:
         f.write(r.content)

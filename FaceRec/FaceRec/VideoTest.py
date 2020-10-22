@@ -127,6 +127,8 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
         ret, frame = sample.read()
         if ret:
             frame = cv2.resize(frame, (1024, 768))
+            cv2.imshow('inspection', frame)
+            cv2.waitKey(1)
             img_string = array2b64string(frame)
             result = process_request(fd_version, req_dict={'imgString': img_string.decode()})
             if len(result['res']) != 0:
@@ -146,6 +148,9 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
             if record_flag or first_time:
                 print('write now', 'count', count, 'ret', ret, 'ft', first_time, 'rf', record_flag)
                 video_w.write(frame)
+        elif not for_file:
+            print('连接被切断！现在立刻重连')
+            sample = cv2.VideoCapture(rtsp)
     if no_face >= 10:
         record_flag = False
     if for_file:
@@ -224,7 +229,7 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
                 img_string_list = [img_string]
                 box_coordinates = [result]
                 times = 0
-    if for_file and sample is not None:
+    if sample is not None:
         sample.release()
     et = str(datetime.datetime.now())
 

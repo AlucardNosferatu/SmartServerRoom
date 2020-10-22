@@ -10,7 +10,7 @@ def convert_async(file_id, trance_log_id):
     if result != -1:
         params = {
             'file_path': os.path.join(save_path, file_name),
-            'codec': 'flv',
+            'codec': 'libx264',
             'postfix': '.flv',
             'bitRate': '1500k',
             'scale': None,
