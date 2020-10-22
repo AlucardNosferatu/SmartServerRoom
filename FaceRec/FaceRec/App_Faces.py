@@ -1,4 +1,5 @@
 import base64
+import datetime
 import json
 import logging
 import os
@@ -386,8 +387,10 @@ def camera():
         c_da = request.data
         print(str(c_da))
         data = json.loads(c_da.decode())
+        print(data)
         req_id = data['CameraRecognId']
         rtsp = data['Rtsp_url']
+        print(rtsp)
         sync = data['Asyn']
         try:
             video_type = data['VideoType']
@@ -422,7 +425,7 @@ def camera():
                     rtsp += ch
                     rtsp += '&subtype='
                     rtsp += stream_type
-
+        print("开始截图")
         if sync:
             result = camera_async(
                 callbacl_str='camera',
@@ -464,6 +467,7 @@ def camera():
 
 @app.route('/imr-ai-service/face_features/door_open', methods=['POST'])
 def camera2():
+    print('请求接收时间', str(datetime.datetime.now()))
     log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
     log_file_str = log_file_folder + os.sep + log_file_name
     if not os.path.exists(log_file_str):
@@ -510,7 +514,7 @@ def camera2():
                     rtsp += ch
                     rtsp += '&subtype='
                     rtsp += stream_type
-
+        print('处理开始时间', str(datetime.datetime.now()))
         if sync:
             result = camera_async(
                 callbacl_str='camera2',

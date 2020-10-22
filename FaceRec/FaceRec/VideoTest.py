@@ -127,8 +127,8 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
         ret, frame = sample.read()
         if ret:
             frame = cv2.resize(frame, (1024, 768))
-            cv2.imshow('inspection', frame)
-            cv2.waitKey(1)
+            # cv2.imshow('inspection', frame)
+            # cv2.waitKey(1)
             img_string = array2b64string(frame)
             result = process_request(fd_version, req_dict={'imgString': img_string.decode()})
             if len(result['res']) != 0:
