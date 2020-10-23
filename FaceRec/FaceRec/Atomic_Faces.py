@@ -163,7 +163,7 @@ def snapshot():
         multiple_mode = multiple_mode and data['cephId'] is not None
         if multiple_mode:
             multiple = data['multiple']
-            assert len(multiple) == 1
+            assert len(multiple) == 2
             file_name = file_request('query', data['cephId'])
             rtsp_address = os.path.join(save_path, file_name)
         else:

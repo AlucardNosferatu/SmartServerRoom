@@ -24,9 +24,12 @@ def snap(rtsp_address, resize=True, return_multiple=None):
     if return_multiple is not None:
         img_str_list = []
         wait = return_multiple[0] * 25
+        max_count = return_multiple[1] * wait
         count = 0
         ret = True
         while ret:
+            if count >= max_count:
+                break
             if count % wait == 0:
                 ret, frame = cap.read()
                 if ret:
