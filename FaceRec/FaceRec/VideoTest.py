@@ -82,16 +82,25 @@ def call_recognize(ceph_id):
     return result
 
 
-def loop_until_detected(rtsp, wait, fd_version='fd'):
+def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None):
     count = 0
     result = {'res': []}
     img_string = ''
+    if prev_cap is None:
+        cap = cv2.VideoCapture(rtsp)
+    else:
+        cap = prev_cap
     while len(result['res']) == 0 and count < wait:
         print('截三帧', count)
         count += 1
         if count % 2 == 0:
             time_1 = datetime.datetime.now()
-            ss_result = process_request('ss', {'RTSP_ADDR': rtsp})
+            # ss_result = process_request('ss', {'RTSP_ADDR': rtsp})
+            ret, frame = cap.read()
+            if ret:
+                ss_result = {'result': array2b64string(frame).decode()}
+            else:
+                ss_result = None
             time_2 = datetime.datetime.now()
             if type(ss_result) is dict and 'result' in ss_result and ss_result['result'] is not None:
                 img_string = ss_result['result']
@@ -106,10 +115,10 @@ def loop_until_detected(rtsp, wait, fd_version='fd'):
                 print("耗时", str(dt_1), str(dt_2))
             else:
                 print('snapshot error! skip now.')
-                return img_string, result
+                return img_string, result, cap
         else:
             print('跳过当前帧', count)
-    return img_string, result
+    return img_string, result, cap
 
 
 def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=None, for_file=False, prev_sample=None):
@@ -249,7 +258,7 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
             else:
                 times = 0
         else:
-            img_string, result = loop_until_detected(rtsp, wait, fd_version='fd_dbf')
+            img_string, result, sample = loop_until_detected(rtsp, wait, fd_version='fd_dbf', prev_cap=sample)
             if post_result:
                 img_string_list.append(img_string)
                 box_coordinates.append(result)
