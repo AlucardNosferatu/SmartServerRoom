@@ -27,6 +27,7 @@ def snap(rtsp_address, resize=True, return_multiple=None):
         wait = return_multiple[0] * 25
         count = 0
         ret = True
+        before = datetime.datetime.now()
         while ret:
             print('当前流帧序号', count)
             if len(return_multiple) == 2 and count >= return_multiple[1] * wait:
@@ -50,6 +51,9 @@ def snap(rtsp_address, resize=True, return_multiple=None):
                     print('读取流失败，结束处理')
                     cap.release()
                     return img_str_list
+                after = datetime.datetime.now()
+                print('耗时', str(after - before))
+                before = after
             else:
                 print('跳过该帧，只抓取不解码')
                 cap.grab()
