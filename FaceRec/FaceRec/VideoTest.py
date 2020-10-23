@@ -349,7 +349,7 @@ def snap_per_seconds(rtsp_address, resize, multiple, multiple_mode, data):
         scene_id_list = []
         file_out = os.path.join(save_path, 'scene.jpg')
         for index, img_string in enumerate(result):
-            print()
+            print('该批次第', index, '张准备上传')
             if len(img_string) <= 0:
                 continue
             img = b64string2array(img_string)

@@ -52,14 +52,17 @@ def check(file_id):
     if request.method == "POST":
         file_id = file_id.replace("\n", "")
         time_take = time.time()
+        print('下载文件', file_id)
         file_name = download(req_id=file_id, from_temp=True)
         if not (file_name.endswith('.jpg') or file_name.endswith('.png')):
             result = file_name
         else:
+            print('写入文件', file_name)
             with open(os.path.join(save_path, file_name), 'rb') as f:
                 b64_string = base64.b64encode(f.read())
                 b64_string = b64_string.decode()
                 b64_string = 'data:image/jpeg;base64,' + b64_string
+            print('开始检测')
             result = process_request('pd', req_dict={'imgString': b64_string})
             if os.path.exists(os.path.join(save_path, file_name)):
                 os.remove(os.path.join(save_path, file_name))
