@@ -53,6 +53,7 @@ def snap(rtsp_address, resize=True, return_multiple=None):
             else:
                 print('跳过该帧，只抓取不解码')
                 cap.grab()
+                print('抓取完毕')
             count += 1
         cap.release()
         return img_str_list
