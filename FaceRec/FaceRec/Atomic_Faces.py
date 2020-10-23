@@ -162,6 +162,7 @@ def snapshot():
         multiple_mode = multiple_mode and data['multiple'] is not None
         multiple_mode = multiple_mode and data['cephId'] is not None
         if multiple_mode:
+            print('连续截图模式启动.')
             multiple = data['multiple']
             assert len(multiple) == 2
             file_name = file_request('query', data['cephId'])

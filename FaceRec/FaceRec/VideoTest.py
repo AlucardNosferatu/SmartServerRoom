@@ -22,15 +22,18 @@ def snap(rtsp_address, resize=True, return_multiple=None):
     else:
         cap = cv2.VideoCapture(rtsp_address)
     if return_multiple is not None:
+        print('连续截图进行中...')
         img_str_list = []
         wait = return_multiple[0] * 25
         max_count = return_multiple[1] * wait
         count = 0
         ret = True
         while ret:
+            print('当前流帧序号', count)
             if count >= max_count:
                 break
             if count % wait == 0:
+                print('尝试读取并写入，当前流帧序号', count)
                 ret, frame = cap.read()
                 if ret:
                     if resize:
@@ -311,11 +314,13 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
 
 
 def snap_per_seconds(rtsp_address, resize, multiple, multiple_mode, data):
+    print('开始进行连续截图')
     result = snap(rtsp_address=rtsp_address, resize=resize, return_multiple=multiple)
     if multiple_mode and 'upload' in data and data['upload'] is True:
         scene_id_list = []
         file_out = os.path.join(save_path, 'scene.jpg')
         for index, img_string in enumerate(result):
+            print()
             if len(img_string) <= 0:
                 continue
             img = b64string2array(img_string)
