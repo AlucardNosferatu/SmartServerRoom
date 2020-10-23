@@ -25,12 +25,11 @@ def snap(rtsp_address, resize=True, return_multiple=None):
         print('连续截图进行中...')
         img_str_list = []
         wait = return_multiple[0] * 25
-        max_count = return_multiple[1] * wait
         count = 0
         ret = True
         while ret:
             print('当前流帧序号', count)
-            if count >= max_count:
+            if len(return_multiple) == 2 and count >= return_multiple[1] * wait:
                 break
             if count % wait == 0:
                 print('尝试读取并写入，当前流帧序号', count)

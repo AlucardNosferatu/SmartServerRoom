@@ -164,7 +164,6 @@ def snapshot():
         if multiple_mode:
             print('连续截图模式启动.')
             multiple = data['multiple']
-            assert len(multiple) == 2
             file_name = file_request('query', data['cephId'])
             rtsp_address = os.path.join(save_path, file_name)
         else:
