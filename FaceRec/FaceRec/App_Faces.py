@@ -522,7 +522,7 @@ def camera2():
                 post_result=False,
                 cr_id=req_id,
                 count=5,
-                wait=450,
+                wait=1500,
                 capture=True,
                 file_id=file_id
             )
@@ -535,7 +535,7 @@ def camera2():
                     True,
                     req_id,
                     5,
-                    450,
+                    1500,
                     True,
                     file_id
                 )
