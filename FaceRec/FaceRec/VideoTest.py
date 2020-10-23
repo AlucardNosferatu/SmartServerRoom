@@ -77,7 +77,7 @@ def loop_until_detected(rtsp, wait, fd_version='fd'):
     result = {'res': []}
     img_string = ''
     while len(result['res']) == 0 and count < wait:
-        print(count)
+        print('截三帧', count)
         count += 1
         ss_result = process_request('ss', {'RTSP_ADDR': rtsp})
         if type(ss_result) is dict and 'result' in ss_result and ss_result['result'] is not None:

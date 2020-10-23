@@ -205,8 +205,7 @@ def snapshot():
         ret = (result is not None)
         msg = {True: "成功", False: "失败"}
         if ret:
-            if not multiple_mode:
-                result = result.decode()
+            result = result.decode()
         output = json.dumps(
             {
                 'ret': ret,
