@@ -30,6 +30,7 @@ def snap(rtsp_address, resize=True, return_multiple=None):
         while ret:
             print('当前流帧序号', count)
             if len(return_multiple) == 2 and count >= return_multiple[1] * wait:
+                print('帧序号超出上限，结束处理')
                 break
             if count % wait == 0:
                 print('尝试读取并写入，当前流帧序号', count)
@@ -37,8 +38,8 @@ def snap(rtsp_address, resize=True, return_multiple=None):
                 if ret:
                     if resize:
                         frame = cv2.resize(frame, (1024, 768))
-                    img_str = cv2.imencode('.jpg', frame)[1].tostring()  # 将图片编码成流数据，放到内存缓存中，然后转化成string格式
-                    b64_code = base64.b64encode(img_str)
+                    print('把矩阵转换为base64')
+                    b64_code = array2b64string(frame)
                     img_str_list.append(b64_code)
                 elif count == 0:
                     print('这流读出来的都是空的啊，是不是RTSP路径有问题？')
@@ -46,9 +47,11 @@ def snap(rtsp_address, resize=True, return_multiple=None):
                     cap.release()
                     return None
                 else:
+                    print('读取流失败，结束处理')
                     cap.release()
                     return img_str_list
             else:
+                print('跳过该帧，只抓取不解码')
                 cap.grab()
             count += 1
         cap.release()
