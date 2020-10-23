@@ -43,12 +43,15 @@ def snap(rtsp_address, resize=True, return_multiple=None):
                 elif count == 0:
                     print('这流读出来的都是空的啊，是不是RTSP路径有问题？')
                     print(rtsp_address)
+                    cap.release()
                     return None
                 else:
+                    cap.release()
                     return img_str_list
             else:
                 cap.grab()
             count += 1
+        cap.release()
         return img_str_list
     else:
         ret, frame = cap.read()
@@ -57,10 +60,12 @@ def snap(rtsp_address, resize=True, return_multiple=None):
                 frame = cv2.resize(frame, (1024, 768))
             img_str = cv2.imencode('.jpg', frame)[1].tostring()  # 将图片编码成流数据，放到内存缓存中，然后转化成string格式
             b64_code = base64.b64encode(img_str)
+            cap.release()
             return b64_code
         else:
             print('这流读出来的都是空的啊，是不是RTSP路径有问题？')
             print(rtsp_address)
+            cap.release()
             return None
 
 
@@ -84,14 +89,26 @@ def loop_until_detected(rtsp, wait, fd_version='fd'):
     while len(result['res']) == 0 and count < wait:
         print('截三帧', count)
         count += 1
-        ss_result = process_request('ss', {'RTSP_ADDR': rtsp})
-        if type(ss_result) is dict and 'result' in ss_result and ss_result['result'] is not None:
-            img_string = ss_result['result']
-            result = process_request(fd_version, req_dict={'imgString': img_string})
-            print('face_detec_result', result)
+        if count % 2 == 0:
+            time_1 = datetime.datetime.now()
+            ss_result = process_request('ss', {'RTSP_ADDR': rtsp})
+            time_2 = datetime.datetime.now()
+            if type(ss_result) is dict and 'result' in ss_result and ss_result['result'] is not None:
+                img_string = ss_result['result']
+                array = b64string2array(img_string)
+                array = cv2.resize(array, (1024, 768))
+                resized_string = array2b64string(array)
+                result = process_request(fd_version, req_dict={'imgString': resized_string.decode()})
+                print('face_detec_result', result)
+                time_3 = datetime.datetime.now()
+                dt_1 = time_2 - time_1
+                dt_2 = time_3 - time_2
+                print("耗时", str(dt_1), str(dt_2))
+            else:
+                print('snapshot error! skip now.')
+                return img_string, result
         else:
-            print('snapshot error! skip now.')
-            return img_string, result
+            print('跳过当前帧', count)
     return img_string, result
 
 
@@ -175,7 +192,11 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
 
 
 def crop_and_recognize(img, rect, scene_id, new_result_list):
-    new_img = img[rect[1]:rect[3], rect[0]:rect[2]]
+    x1 = int(img.shape[1] * rect[0] / 1024)
+    y1 = int(img.shape[0] * rect[1] / 768)
+    x2 = int(img.shape[1] * rect[2] / 1024)
+    y2 = int(img.shape[0] * rect[3] / 768)
+    new_img = img[y1:y2, x1:x2]
     cv2.imwrite('Faces_Temp/temp.jpg', new_img)
     uploaded_id = file_request('upload', {'file': open('Faces_Temp/temp.jpg', 'rb')})
     if uploaded_id is None:
