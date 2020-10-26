@@ -378,7 +378,7 @@ def snap_per_seconds(rtsp_address, resize, multiple, multiple_mode, data):
             if os.path.exists(file_out):
                 os.remove(file_out)
         recode_id = data['recodeId']
-        equipment_id = data['equipment_id']
+        equipment_id = data['equipmentId']
         result = {'cephId': scene_id_list, 'recodeId': recode_id, 'equipmentId': equipment_id}
         response_async(result, 'snap')
     return result
