@@ -1,19 +1,16 @@
-import base64
-import datetime
-import json
 import os
-import time
-from math import inf
-
 import cv2
-
-# rtsp = 'rtsp://admin:zww123456.@192.168.56.111:5541'
+import time
+import json
+import base64
 import requests
-
+import datetime
+from math import inf
 from cfg_FR import save_path
 from utils_FR import b64string2array, process_request, file_request, response_async, array2b64string, validate_title
 
 
+# rtsp = 'rtsp://admin:zww123456.@192.168.56.111:5541'
 def snap(rtsp_address, resize=True, return_multiple=None):
     if '\\' in rtsp_address:
         rtsp_address = rtsp_address.replace('\\', '//')
@@ -23,8 +20,11 @@ def snap(rtsp_address, resize=True, return_multiple=None):
         cap = cv2.VideoCapture(rtsp_address)
     if return_multiple is not None:
         print('连续截图进行中...')
+        fps = int(cap.get(cv2.CAP_PROP_FPS))
+        if fps == 0 or fps == inf:
+            fps = 15
         img_str_list = []
-        wait = return_multiple[0] * 25
+        wait = return_multiple[0] * fps
         count = 0
         ret = True
         before = datetime.datetime.now()
@@ -61,6 +61,7 @@ def snap(rtsp_address, resize=True, return_multiple=None):
                 print('抓取完毕')
             count += 1
             print('当前ret', ret)
+        print('已退出循环')
         cap.release()
         return img_str_list
     else:
