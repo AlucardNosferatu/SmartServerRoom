@@ -7,7 +7,7 @@ from flask import Flask, request
 app = Flask(__name__)
 
 
-@app.route('/imr-ai-service/callback_listener', methods=['POST'])
+@app.route('/imr-face-server/callback_listener', methods=['POST'])
 def convert():
     if request.method == "POST":
         time_take = time.time()
