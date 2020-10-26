@@ -30,7 +30,7 @@ def snap(rtsp_address, resize=True, return_multiple=None):
         before = datetime.datetime.now()
         while ret:
             print('当前流帧序号', count)
-            if len(return_multiple) == 2 and count >= return_multiple[1] * wait:
+            if len(return_multiple) == 2 and count > return_multiple[1] * wait:
                 print('帧序号超出上限，结束处理')
                 break
             if count % wait == 0:
