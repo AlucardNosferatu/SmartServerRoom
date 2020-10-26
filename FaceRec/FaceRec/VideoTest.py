@@ -29,7 +29,7 @@ def snap(rtsp_address, resize=True, return_multiple=None):
         ret = True
         before = datetime.datetime.now()
         while ret:
-            print('当前流帧序号', count)
+            # print('当前流帧序号', count)
             if len(return_multiple) == 2 and count > return_multiple[1] * wait:
                 print('帧序号超出上限，结束处理')
                 break
@@ -55,12 +55,12 @@ def snap(rtsp_address, resize=True, return_multiple=None):
                 print('耗时', str(after - before))
                 before = after
             else:
-                print('跳过该帧，只抓取不解码')
+                # print('跳过该帧，只抓取不解码')
                 time.sleep(0.035)
                 cap.grab()
-                print('抓取完毕')
+                # print('抓取完毕')
             count += 1
-            print('当前ret', ret)
+            # print('当前ret', ret)
         print('已退出循环')
         cap.release()
         return img_str_list
