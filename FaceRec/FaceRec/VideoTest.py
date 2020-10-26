@@ -350,6 +350,7 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
     print('')
     print('')
     response_async(result, callbacl_str)
+    response_async(result, 'listener')
     return result
 
 
@@ -381,6 +382,7 @@ def snap_per_seconds(rtsp_address, resize, multiple, multiple_mode, data):
         equipment_id = data['equipmentId']
         result = {'cephId': scene_id_list, 'recodeId': recode_id, 'equipmentId': equipment_id}
         response_async(result, 'snap')
+        response_async(result, 'listener')
     return result
 
 

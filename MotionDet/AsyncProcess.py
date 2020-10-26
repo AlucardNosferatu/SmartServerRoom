@@ -22,4 +22,7 @@ def convert_async(file_id, trance_log_id):
     print(result)
     if trance_log_id != 'LOCAL_USAGE':
         response_async(result, 'convert', url_param=trance_log_id)
+        result_with_id = result.copy()
+        result_with_id['trance_log_id'] = trance_log_id
+        response_async(result=result_with_id, function='listener')
     return result
