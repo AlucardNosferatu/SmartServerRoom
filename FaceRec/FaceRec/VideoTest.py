@@ -1,4 +1,6 @@
 import os
+import threading
+
 import cv2
 import time
 import json
@@ -9,6 +11,8 @@ import numpy as np
 from math import inf
 from cfg_FR import save_path
 from utils_FR import b64string2array, process_request, file_request, response_async, array2b64string, validate_title
+
+detect_dict = {}
 
 
 # rtsp = 'rtsp://admin:zww123456.@192.168.56.111:5541'
@@ -134,6 +138,8 @@ def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None):
 
 
 def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=None, for_file=False, prev_sample=None):
+    if cr_id not in detect_dict:
+        detect_dict[cr_id] = {'idle': True, 'rect': None, 'frame': None}
     count = 0
     record_flag = False
     first_time = False
@@ -169,6 +175,7 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
     no_face = 0
     before = datetime.datetime.now()
     ret = True
+    frame_queue = []
     while count < wait:
         count += 1
         if ret:
@@ -179,25 +186,32 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
                     # cv2.imshow('inspection', frame)
                     # cv2.waitKey(1)
                     if count % 4 == 0:
-                        img_string = array2b64string(frame)
-                        result = process_request(fd_version, req_dict={'imgString': img_string.decode()})
-                        if len(result['res']) != 0:
-                            no_face = 0
-                            frame = cv2.rectangle(
-                                frame,
-                                (result['res'][0][0], result['res'][0][1]),
-                                (result['res'][0][2], result['res'][0][3]),
-                                (0, 255, 0),
-                                2
-                            )
-                            if not record_flag:
-                                record_flag = True
-                                count = 0
-                        elif record_flag:
-                            no_face += 1
+                        if detect_dict[cr_id]['idle']:
+                            result = {'res': detect_dict[cr_id]['rect']}
+                            if result['res'] is not None and len(frame_queue) > 0:
+                                no_face = 0
+                                if not record_flag:
+                                    record_flag = True
+                                    count = 0
+                                frame_queue[0] = cv2.rectangle(
+                                    frame_queue[0],
+                                    (result['res'][0][0], result['res'][0][1]),
+                                    (result['res'][0][2], result['res'][0][3]),
+                                    (0, 255, 0),
+                                    2
+                                )
+                            elif record_flag:
+                                no_face += 1
+                            while len(frame_queue) > 0:
+                                video_w.write(frame_queue.pop(0))
+                            if record_flag or first_time:
+                                frame_queue.append(frame)
+                            detect_dict[cr_id]['frame'] = frame
+                            # 进行异步检测请求
+                            t_detect = threading.Thread(target=detect_async, args=(fd_version, cr_id))
+                            t_detect.start()
                     if record_flag or first_time:
-                        # print('write now', 'count', count, 'ret', ret, 'ft', first_time, 'rf', record_flag)
-                        video_w.write(frame)
+                        frame_queue.append(frame)
                 else:
                     break
             else:
@@ -291,6 +305,8 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
                 img_string_list = [img_string]
                 box_coordinates = [result]
                 times = 0
+    if cr_id in detect_dict:
+        del detect_dict[cr_id]
     if sample is not None:
         sample.release()
     et = str(datetime.datetime.now())
@@ -420,6 +436,20 @@ def snap_per_seconds(rtsp_address, resize, multiple, multiple_mode, data):
         response_async(result, 'snap')
         response_async(result, 'listener')
     return result
+
+
+def detect_async(fd_version, cr_id):
+    detect_dict[cr_id]['idle'] = False
+
+    frame = detect_dict[cr_id]['frame']
+    img_string = array2b64string(frame)
+    result = process_request(fd_version, req_dict={'imgString': img_string.decode()})
+    if len(result['res']) != 0:
+        detect_dict[cr_id]['rect'] = result['res']
+    else:
+        detect_dict[cr_id]['rect'] = None
+
+    detect_dict[cr_id]['idle'] = True
 
 
 if __name__ == '__main__':
