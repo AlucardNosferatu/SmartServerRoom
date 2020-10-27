@@ -358,29 +358,32 @@ def snap_per_seconds(rtsp_address, resize, multiple, multiple_mode, data):
     print('开始进行连续截图')
     result = snap(rtsp_address=rtsp_address, resize=resize, return_multiple=multiple)
     if multiple_mode and 'upload' in data and data['upload'] is True:
-        scene_id_list = []
-        file_out = os.path.join(save_path, 'scene.jpg')
-        for index, img_string in enumerate(result):
-            print('该批次第', index, '张准备上传')
-            if len(img_string) <= 0:
-                continue
-            img = b64string2array(img_string)
-            cv2.imwrite(file_out, img)
-            scene_id = file_request(
-                'upload',
-                {'file': open(file_out, 'rb')},
-                bName='inoutmedia'
-            )
-            print('scene_id', scene_id)
-            if scene_id is None:
-                continue
-            else:
-                scene_id_list.append(scene_id)
-            if os.path.exists(file_out):
-                os.remove(file_out)
         recode_id = data['recodeId']
         equipment_id = data['equipmentId']
-        result = {'cephId': scene_id_list, 'recodeId': recode_id, 'equipmentId': equipment_id}
+        if result is None:
+            result = {'cephId': None, 'recodeId': recode_id, 'equipmentId': equipment_id}
+        else:
+            scene_id_list = []
+            file_out = os.path.join(save_path, 'scene.jpg')
+            for index, img_string in enumerate(result):
+                print('该批次第', index, '张准备上传')
+                if len(img_string) <= 0:
+                    continue
+                img = b64string2array(img_string)
+                cv2.imwrite(file_out, img)
+                scene_id = file_request(
+                    'upload',
+                    {'file': open(file_out, 'rb')},
+                    bName='inoutmedia'
+                )
+                print('scene_id', scene_id)
+                if scene_id is None:
+                    continue
+                else:
+                    scene_id_list.append(scene_id)
+                if os.path.exists(file_out):
+                    os.remove(file_out)
+            result = {'cephId': scene_id_list, 'recodeId': recode_id, 'equipmentId': equipment_id}
         response_async(result, 'snap')
         response_async(result, 'listener')
     return result

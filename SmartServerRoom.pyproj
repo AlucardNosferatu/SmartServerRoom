@@ -1,0 +1,218 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>b0f84027-0b80-488c-aa27-03a351fd14e8</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>
+    </StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <Name>SmartServerRoom</Name>
+    <RootNamespace>SmartServerRoom</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="App.py" />
+    <Compile Include="CallbackListener.py" />
+    <Compile Include="Daemon.py" />
+    <Compile Include="FaceRec\FaceRec\App_Faces.py" />
+    <Compile Include="FaceRec\FaceRec\Atomic_Faces.py" />
+    <Compile Include="FaceRec\FaceRec\Backend\2Losses.py" />
+    <Compile Include="FaceRec\FaceRec\Backend\CelebA.py" />
+    <Compile Include="FaceRec\FaceRec\Backend\Configs.py" />
+    <Compile Include="FaceRec\FaceRec\Backend\Data.py" />
+    <Compile Include="FaceRec\FaceRec\Backend\ExportClassifier.py" />
+    <Compile Include="FaceRec\FaceRec\Backend\FaceUtils.py" />
+    <Compile Include="FaceRec\FaceRec\Backend\Networks.py" />
+    <Compile Include="FaceRec\FaceRec\cfg_FR.py" />
+    <Compile Include="FaceRec\FaceRec\testRTSP.py" />
+    <Compile Include="FaceRec\FaceRec\UseDlib.py" />
+    <Compile Include="FaceRec\FaceRec\utils_FR.py" />
+    <Compile Include="FaceRec\FaceRec\VideoTest.py" />
+    <Compile Include="ModermStickers\App_Stickers.py" />
+    <Compile Include="ModermStickers\Atomic_Stickers.py" />
+    <Compile Include="ModermStickers\cfg_PF.py" />
+    <Compile Include="ModermStickers\QRCode.py" />
+    <Compile Include="MotionDet\Analysis.py" />
+    <Compile Include="MotionDet\App_Motion.py" />
+    <Compile Include="MotionDet\AsyncProcess.py" />
+    <Compile Include="MotionDet\Atomic_Motion.py" />
+    <Compile Include="MotionDet\CamMonitor.py" />
+    <Compile Include="MotionDet\cfg_MD.py" />
+    <Compile Include="MotionDet\exception\ImrBaseException.py" />
+    <Compile Include="MotionDet\exception\__init__.py" />
+    <Compile Include="MotionDet\HTTPInterface.py" />
+    <Compile Include="MotionDet\MostDifferentFrame.py" />
+    <Compile Include="MotionDet\Obsolete.py" />
+    <Compile Include="MotionDet\ShapeFilter.py" />
+    <Compile Include="MotionDet\TimeStamp.py" />
+    <Compile Include="MotionDet\utils_MD.py" />
+    <Compile Include="PedestrianDet\App_Pedestrian.py" />
+    <Compile Include="PedestrianDet\Atomic_Pedestrian.py" />
+    <Compile Include="PedestrianDet\cfg_PD.py" />
+    <Compile Include="PedestrianDet\Haar.py" />
+    <Compile Include="PedestrianDet\TestCam.py" />
+    <Compile Include="PedestrianDet\utils_PD.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="FaceRec\" />
+    <Folder Include="FaceRec\FaceRec\" />
+    <Folder Include="FaceRec\FaceRec\Backend\" />
+    <Folder Include="FaceRec\FaceRec\Backup\" />
+    <Folder Include="FaceRec\FaceRec\Backup\Faces\" />
+    <Folder Include="FaceRec\FaceRec\Faces_Temp\" />
+    <Folder Include="FaceRec\FaceRec\logs\" />
+    <Folder Include="FaceRec\FaceRec\Models\" />
+    <Folder Include="ModermStickers\" />
+    <Folder Include="ModermStickers\DataMarker\" />
+    <Folder Include="ModermStickers\DataMarker\.vs\" />
+    <Folder Include="ModermStickers\DataMarker\.vs\DataMarker\" />
+    <Folder Include="ModermStickers\DataMarker\.vs\DataMarker\DesignTimeBuild\" />
+    <Folder Include="ModermStickers\DataMarker\.vs\DataMarker\v16\" />
+    <Folder Include="ModermStickers\DataMarker\bin\" />
+    <Folder Include="ModermStickers\DataMarker\bin\Debug\" />
+    <Folder Include="ModermStickers\DataMarker\bin\Release\" />
+    <Folder Include="ModermStickers\DataMarker\obj\" />
+    <Folder Include="ModermStickers\DataMarker\obj\Debug\" />
+    <Folder Include="ModermStickers\DataMarker\obj\Debug\netcoreapp2.0\" />
+    <Folder Include="ModermStickers\DataMarker\obj\Debug\TempPE\" />
+    <Folder Include="ModermStickers\DataMarker\obj\Release\" />
+    <Folder Include="ModermStickers\DataMarker\Properties\" />
+    <Folder Include="ModermStickers\Models\" />
+    <Folder Include="ModermStickers\QRC_Temp\" />
+    <Folder Include="MotionDet\" />
+    <Folder Include="MotionDet\exception\" />
+    <Folder Include="MotionDet\logs\" />
+    <Folder Include="MotionDet\M_Temp\" />
+    <Folder Include="MotionDet\__pycache__\" />
+    <Folder Include="PedestrianDet\" />
+    <Folder Include="PedestrianDet\Models\" />
+    <Folder Include="PedestrianDet\P_Temp\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="FaceRec\FaceRec\Backup\Faces\20201019032258986_70a8108e.png" />
+    <Content Include="FaceRec\FaceRec\Backup\Faces\20201019032347045_39089b7b.png" />
+    <Content Include="FaceRec\FaceRec\Backup\Faces\GJH %281%29.jpg" />
+    <Content Include="FaceRec\FaceRec\Backup\Faces\GJH %282%29.jpg" />
+    <Content Include="FaceRec\FaceRec\Backup\Faces\GJH %283%29.jpg" />
+    <Content Include="FaceRec\FaceRec\Backup\Faces\GJH %284%29.jpg" />
+    <Content Include="FaceRec\FaceRec\Backup\Faces\LBX %281%29.jpg" />
+    <Content Include="FaceRec\FaceRec\Backup\Faces\LBX %282%29.jpg" />
+    <Content Include="FaceRec\FaceRec\Backup\Faces\LBX %283%29.jpg" />
+    <Content Include="FaceRec\FaceRec\Backup\Faces\LXD %281%29.jpg" />
+    <Content Include="FaceRec\FaceRec\Backup\Faces\LXD %282%29.jpg" />
+    <Content Include="FaceRec\FaceRec\Backup\Faces\LXD %283%29.jpg" />
+    <Content Include="FaceRec\FaceRec\Backup\Faces\LYW %281%29.jpg" />
+    <Content Include="FaceRec\FaceRec\Backup\Faces\LYW %282%29.jpg" />
+    <Content Include="FaceRec\FaceRec\Backup\Faces\WCK %281%29.jpg" />
+    <Content Include="FaceRec\FaceRec\Backup\Faces\WCK %282%29.jpg" />
+    <Content Include="FaceRec\FaceRec\Backup\Faces\WCK %283%29.jpg" />
+    <Content Include="FaceRec\FaceRec\Backup\Faces\WCK %284%29.jpg" />
+    <Content Include="FaceRec\FaceRec\Backup\Faces\WCK %285%29.jpg" />
+    <Content Include="FaceRec\FaceRec\Backup\Faces\ZS %281%29.jpg" />
+    <Content Include="FaceRec\FaceRec\Backup\Faces\ZS %282%29.jpg" />
+    <Content Include="FaceRec\FaceRec\Faces_Temp\20201016084743460_23db64a5.flv" />
+    <Content Include="FaceRec\FaceRec\Faces_Temp\app_pid.txt" />
+    <Content Include="FaceRec\FaceRec\Faces_Temp\atomic_pid.txt" />
+    <Content Include="FaceRec\FaceRec\logs\logger-2020-10-20.log" />
+    <Content Include="FaceRec\FaceRec\logs\logger-2020-10-22.log" />
+    <Content Include="FaceRec\FaceRec\logs\logger-2020-10-23.log" />
+    <Content Include="FaceRec\FaceRec\Models\Classifier.h5" />
+    <Content Include="FaceRec\FaceRec\Models\Conv.h5" />
+    <Content Include="FaceRec\FaceRec\Models\dlib_face_recognition_resnet_model_v1.dat" />
+    <Content Include="FaceRec\FaceRec\Models\haarcascade_fullbody.xml" />
+    <Content Include="FaceRec\FaceRec\Models\haarcascade_lowerbody.xml" />
+    <Content Include="FaceRec\FaceRec\Models\haarcascade_upperbody.xml" />
+    <Content Include="FaceRec\FaceRec\Models\QRCode_Detector.h5" />
+    <Content Include="FaceRec\FaceRec\Models\shape_predictor_68_face_landmarks.dat" />
+    <Content Include="FaceRec\FaceRec\Models\Siamese.h5" />
+    <Content Include="FaceRec\FaceRec\Models\Softmax.h5" />
+    <Content Include="FaceRec\FaceRec\run" />
+    <Content Include="ModermStickers\DataMarker\App.config" />
+    <Content Include="ModermStickers\DataMarker\bin\Debug\DataMarker.exe" />
+    <Content Include="ModermStickers\DataMarker\bin\Debug\DataMarker.exe.config" />
+    <Content Include="ModermStickers\DataMarker\bin\Debug\DataMarker.pdb" />
+    <Content Include="ModermStickers\DataMarker\DataMarker.csproj" />
+    <Content Include="ModermStickers\DataMarker\DataMarker.sln" />
+    <Content Include="ModermStickers\DataMarker\Form1.cs" />
+    <Content Include="ModermStickers\DataMarker\Form1.Designer.cs" />
+    <Content Include="ModermStickers\DataMarker\Form1.resx" />
+    <Content Include="ModermStickers\DataMarker\obj\Debug\.NETFramework,Version=v4.0.AssemblyAttributes.cs" />
+    <Content Include="ModermStickers\DataMarker\obj\Debug\.NETFramework,Version=v4.7.1.AssemblyAttributes.cs" />
+    <Content Include="ModermStickers\DataMarker\obj\Debug\.NETFramework,Version=v4.7.2.AssemblyAttributes.cs" />
+    <Content Include="ModermStickers\DataMarker\obj\Debug\DataMarker.csproj.CoreCompileInputs.cache" />
+    <Content Include="ModermStickers\DataMarker\obj\Debug\DataMarker.csproj.FileListAbsolute.txt" />
+    <Content Include="ModermStickers\DataMarker\obj\Debug\DataMarker.csproj.GenerateResource.cache" />
+    <Content Include="ModermStickers\DataMarker\obj\Debug\DataMarker.csprojAssemblyReference.cache" />
+    <Content Include="ModermStickers\DataMarker\obj\Debug\DataMarker.exe" />
+    <Content Include="ModermStickers\DataMarker\obj\Debug\DataMarker.Form1.resources" />
+    <Content Include="ModermStickers\DataMarker\obj\Debug\DataMarker.pdb" />
+    <Content Include="ModermStickers\DataMarker\obj\Debug\DataMarker.Properties.Resources.resources" />
+    <Content Include="ModermStickers\DataMarker\obj\Debug\DesignTimeResolveAssemblyReferences.cache" />
+    <Content Include="ModermStickers\DataMarker\obj\Debug\DesignTimeResolveAssemblyReferencesInput.cache" />
+    <Content Include="ModermStickers\DataMarker\obj\Debug\TempPE\Properties.Resources.Designer.cs.dll" />
+    <Content Include="ModermStickers\DataMarker\obj\Release\.NETFramework,Version=v4.0.AssemblyAttributes.cs" />
+    <Content Include="ModermStickers\DataMarker\Program.cs" />
+    <Content Include="ModermStickers\DataMarker\Properties\AssemblyInfo.cs" />
+    <Content Include="ModermStickers\DataMarker\Properties\Resources.Designer.cs" />
+    <Content Include="ModermStickers\DataMarker\Properties\Resources.resx" />
+    <Content Include="ModermStickers\DataMarker\Properties\Settings.Designer.cs" />
+    <Content Include="ModermStickers\DataMarker\Properties\Settings.settings" />
+    <Content Include="ModermStickers\Models\Classifier.h5" />
+    <Content Include="ModermStickers\Models\Conv.h5" />
+    <Content Include="ModermStickers\Models\dlib_face_recognition_resnet_model_v1.dat" />
+    <Content Include="ModermStickers\Models\haarcascade_fullbody.xml" />
+    <Content Include="ModermStickers\Models\haarcascade_lowerbody.xml" />
+    <Content Include="ModermStickers\Models\haarcascade_upperbody.xml" />
+    <Content Include="ModermStickers\Models\QRCode_Detector.h5" />
+    <Content Include="ModermStickers\Models\shape_predictor_68_face_landmarks.dat" />
+    <Content Include="ModermStickers\Models\Siamese.h5" />
+    <Content Include="ModermStickers\Models\Softmax.h5" />
+    <Content Include="ModermStickers\valid_file.txt" />
+    <Content Include="MotionDet\logs\logger-2020-10-22.log" />
+    <Content Include="MotionDet\logs\logger-2020-10-23.log" />
+    <Content Include="MotionDet\M_Temp\20201022053631844_a4c5ad40.mp4" />
+    <Content Include="MotionDet\M_Temp\20201022055728611_508b1804.mp4" />
+    <Content Include="MotionDet\M_Temp\20201022062716229_29f522b2.mp4" />
+    <Content Include="MotionDet\M_Temp\20201022063942905_d668b4d0.mp4" />
+    <Content Include="MotionDet\M_Temp\20201022064220908_a5000d03.mp4" />
+    <Content Include="MotionDet\M_Temp\20201022064404593_27e434a3.mp4" />
+    <Content Include="MotionDet\M_Temp\20201022065003564_4c49a809.mp4" />
+    <Content Include="MotionDet\M_Temp\20201022093902805_d3a3c6e0.mp4" />
+    <Content Include="MotionDet\M_Temp\20201022094232756_e82727f3.mp4" />
+    <Content Include="MotionDet\M_Temp\20201022102421476_1de402ae.mp4" />
+    <Content Include="MotionDet\M_Temp\app_pid.txt" />
+    <Content Include="MotionDet\M_Temp\atomic_pid.txt" />
+    <Content Include="MotionDet\run" />
+    <Content Include="PedestrianDet\Models\Classifier.h5" />
+    <Content Include="PedestrianDet\Models\Conv.h5" />
+    <Content Include="PedestrianDet\Models\dlib_face_recognition_resnet_model_v1.dat" />
+    <Content Include="PedestrianDet\Models\haarcascade_fullbody.xml" />
+    <Content Include="PedestrianDet\Models\haarcascade_lowerbody.xml" />
+    <Content Include="PedestrianDet\Models\haarcascade_upperbody.xml" />
+    <Content Include="PedestrianDet\Models\QRCode_Detector.h5" />
+    <Content Include="PedestrianDet\Models\shape_predictor_68_face_landmarks.dat" />
+    <Content Include="PedestrianDet\Models\Siamese.h5" />
+    <Content Include="PedestrianDet\Models\Softmax.h5" />
+    <Content Include="PedestrianDet\run" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+  <!-- Uncomment the CoreCompile target to enable the Build command in
+       Visual Studio and specify your pre- and post-build commands in
+       the BeforeBuild and AfterBuild targets below. -->
+  <!--<Target Name="CoreCompile" />-->
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+</Project>
