@@ -167,10 +167,11 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
         )
     no_face = 0
     before = datetime.datetime.now()
+    ret = True
     while count < wait:
         count += 1
-        ret, frame = sample.read()
         if ret:
+            ret, frame = sample.read()
             frame = cv2.resize(frame, (512, 384))
             # cv2.imshow('inspection', frame)
             # cv2.waitKey(1)
@@ -192,15 +193,16 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
                 elif record_flag:
                     no_face += 1
             else:
-                print('skip 1 frame')
+                sample.grab()
+                # print('skip 1 frame')
             if record_flag or first_time:
-                print('write now', 'count', count, 'ret', ret, 'ft', first_time, 'rf', record_flag)
+                # print('write now', 'count', count, 'ret', ret, 'ft', first_time, 'rf', record_flag)
                 video_w.write(frame)
         elif not for_file:
             print('连接被切断！现在立刻重连')
             sample = cv2.VideoCapture(rtsp)
         after = datetime.datetime.now()
-        print('消耗时间', str(after - before))
+        # print('消耗时间', str(after - before))
         before = after
     if no_face >= 10:
         record_flag = False

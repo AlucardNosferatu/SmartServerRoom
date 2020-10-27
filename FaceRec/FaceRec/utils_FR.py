@@ -53,7 +53,7 @@ def process_request(function_string, req_dict):
         response = requests.post(server_url, data=json_dict, headers=headers)
     else:
         response = requests.post(server_url, headers=headers)
-    print("Complete post")
+    # print("Complete post")
     if response is not None:
         response.raise_for_status()
         result = json.loads(response.content.decode('utf-8'))
