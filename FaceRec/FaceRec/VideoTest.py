@@ -5,6 +5,7 @@ import json
 import base64
 import requests
 import datetime
+import numpy as np
 from math import inf
 from cfg_FR import save_path
 from utils_FR import b64string2array, process_request, file_request, response_async, array2b64string, validate_title
@@ -171,33 +172,34 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
     while count < wait:
         count += 1
         if ret:
-            ret, frame = sample.read()
-            frame = cv2.resize(frame, (512, 384))
-            # cv2.imshow('inspection', frame)
-            # cv2.waitKey(1)
             if count % 2 == 0:
-                img_string = array2b64string(frame)
-                result = process_request(fd_version, req_dict={'imgString': img_string.decode()})
-                if len(result['res']) != 0:
-                    no_face = 0
-                    frame = cv2.rectangle(
-                        frame,
-                        (result['res'][0][0], result['res'][0][1]),
-                        (result['res'][0][2], result['res'][0][3]),
-                        (0, 255, 0),
-                        2
-                    )
-                    if not record_flag:
-                        record_flag = True
-                        count = 0
-                elif record_flag:
-                    no_face += 1
+                ret, frame = sample.read()
+                frame = cv2.resize(frame, (512, 384))
+                # cv2.imshow('inspection', frame)
+                # cv2.waitKey(1)
+                if count % 4 == 0:
+                    img_string = array2b64string(frame)
+                    result = process_request(fd_version, req_dict={'imgString': img_string.decode()})
+                    if len(result['res']) != 0:
+                        no_face = 0
+                        frame = cv2.rectangle(
+                            frame,
+                            (result['res'][0][0], result['res'][0][1]),
+                            (result['res'][0][2], result['res'][0][3]),
+                            (0, 255, 0),
+                            2
+                        )
+                        if not record_flag:
+                            record_flag = True
+                            count = 0
+                    elif record_flag:
+                        no_face += 1
+                if record_flag or first_time:
+                    # print('write now', 'count', count, 'ret', ret, 'ft', first_time, 'rf', record_flag)
+                    video_w.write(frame)
             else:
                 sample.grab()
                 # print('skip 1 frame')
-            if record_flag or first_time:
-                # print('write now', 'count', count, 'ret', ret, 'ft', first_time, 'rf', record_flag)
-                video_w.write(frame)
         elif not for_file:
             print('连接被切断！现在立刻重连')
             sample = cv2.VideoCapture(rtsp)
@@ -295,7 +297,6 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
             print('release now')
             video_w.release()
         # 这里做视频上传和保存操作
-
         f_handle = open(output_name, 'rb')
         video_id = file_request('upload', {'file': f_handle}, bName='inoutmedia')
         f_handle.close()
