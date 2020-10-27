@@ -299,16 +299,31 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
         f_handle.close()
         print('MediaFileId', video_id)
         if video_id is None:
-            result = {'mediaFileId': cr_id, 'cephId': None, 'msg': '失败', 'status': '上传失败'}
+            result = {
+                'mediaFileId': cr_id,
+                'cephId': None,
+                'msg': '失败',
+                'status': '上传失败'
+            }
         else:
             ret = file_request('save', video_id)
             if ret == video_id:
                 data = {'trance_log_id': 'LOCAL_USAGE', 'ceph_id': ret}
                 conv_fn = process_request('fc_mdapp', data)
                 if 'data' in conv_fn and 'ceph_id' in conv_fn['data']:
-                    result = {'mediaFileId': cr_id, 'cephId': conv_fn['data']['ceph_id'], 'msg': '成功', 'status': None}
+                    result = {
+                        'mediaFileId': cr_id,
+                        'cephId': conv_fn['data']['ceph_id'],
+                        'msg': '成功',
+                        'status': None
+                    }
                 else:
-                    result = {'mediaFileId': cr_id, 'cephId': ret, 'msg': '失败', 'status': '转换失败'}
+                    result = {
+                        'mediaFileId': cr_id,
+                        'cephId': ret,
+                        'msg': '失败',
+                        'status': '转换失败'
+                    }
             else:
                 result = {'mediaFileId': cr_id, 'cephId': None, 'msg': '失败', 'status': '保存失败'}
         if os.path.exists(output_name):
@@ -361,7 +376,13 @@ def snap_per_seconds(rtsp_address, resize, multiple, multiple_mode, data):
         recode_id = data['recodeId']
         equipment_id = data['equipmentId']
         if result is None:
-            result = {'cephId': None, 'recodeId': recode_id, 'equipmentId': equipment_id}
+            result = {
+                'cephList': None,
+                'recodeId': recode_id,
+                'equipmentId': equipment_id,
+                'issyn': False,
+                'params': None
+            }
         else:
             scene_id_list = []
             file_out = os.path.join(save_path, 'scene.jpg')
@@ -383,7 +404,13 @@ def snap_per_seconds(rtsp_address, resize, multiple, multiple_mode, data):
                     scene_id_list.append(scene_id)
                 if os.path.exists(file_out):
                     os.remove(file_out)
-            result = {'cephId': scene_id_list, 'recodeId': recode_id, 'equipmentId': equipment_id}
+            result = {
+                'cephList': scene_id_list,
+                'recodeId': recode_id,
+                'equipmentId': equipment_id,
+                'issyn': False,
+                'params': None
+            }
         response_async(result, 'snap')
         response_async(result, 'listener')
     return result

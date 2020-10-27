@@ -1,11 +1,12 @@
 import json
+import os
 
 import cv2
 import base64
 import numpy as np
 import requests
 
-from cfg_PD import ATOM_code, query_temp_api, query_api, api_server, download_server, save_path
+from cfg_PD import ATOM_code, query_temp_api, query_api, api_server, download_server, save_path, callback_interface
 
 
 def b64string2array(img_str):
@@ -60,3 +61,36 @@ def download(req_id, from_temp=False):
     with open(save_path + '/' + result['data']['fileName'], 'wb') as f:
         f.write(r.content)
     return result['data']['fileName']
+
+
+def response_async(result, function):
+    print("Start to post")
+    dic_json = json.dumps(result)
+    headers = {
+        "Content-Type": "application/json; charset=UTF-8"
+    }
+    response = requests.post(callback_interface[function], data=dic_json, headers=headers)
+    print("Complete post")
+    response.raise_for_status()
+    print(response.content.decode('utf-8'))
+
+
+def detect_body_parts(file_id, file_name, recodeId, equipmentId):
+    print('写入文件', file_name)
+    with open(os.path.join(save_path, file_name), 'rb') as f:
+        b64_string = base64.b64encode(f.read())
+        b64_string = b64_string.decode()
+        b64_string = 'data:image/jpeg;base64,' + b64_string
+    print('开始检测')
+    result = process_request('pd', req_dict={'imgString': b64_string})
+    if os.path.exists(os.path.join(save_path, file_name)):
+        os.remove(os.path.join(save_path, file_name))
+    if 'res' in result and 'count' in result['res'] and result['res']['count'] > 0:
+        result = {'cephId': file_id}
+    else:
+        result = {'cephId': None}
+    result['recodeId'] = recodeId
+    result['equipmentId'] = equipmentId
+    response_async(result, 'ped')
+    response_async(result, 'listener')
+    return result

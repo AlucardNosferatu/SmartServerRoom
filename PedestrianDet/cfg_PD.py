@@ -18,7 +18,10 @@ query_temp_api = '/ceph-server/ceph/querytemp/'
 query_api = '/ceph-server/ceph/query/'
 upload_api = '/ceph-server/ceph/upload/'
 save_api = '/ceph-server/ceph/save/'
-
+callback_interface = {
+    'ped': 'http://134.134.13.82:8744/imr-face-server/prepareimage/checkperson/',
+    'listener': 'http://127.0.0.1:20295/imr-face-server/callback_listener'
+}
 # api_server = 'http://192.168.14.212:29999'
 api_server = 'http://134.134.13.81:29999'
 

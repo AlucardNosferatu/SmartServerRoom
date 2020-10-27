@@ -1,13 +1,14 @@
-import base64
+import json
 import json
 import logging
 import os
+import threading
 import time
 
 from flask import Flask, request
 
 from cfg_PD import save_path
-from utils_PD import process_request, download
+from utils_PD import download, detect_body_parts
 
 app = Flask(__name__)
 
@@ -51,24 +52,28 @@ def check(file_id):
 
     if request.method == "POST":
         file_id = file_id.replace("\n", "")
+        c_da = request.data
+        data = json.loads(c_da.decode())
+        recode_id = data['recodeId']
+        equipment_id = data['equipmentId']
         time_take = time.time()
         print('下载文件', file_id)
         file_name = download(req_id=file_id, from_temp=True)
         if not (file_name.endswith('.jpg') or file_name.endswith('.png')):
             result = file_name
-        else:
-            print('写入文件', file_name)
-            with open(os.path.join(save_path, file_name), 'rb') as f:
-                b64_string = base64.b64encode(f.read())
-                b64_string = b64_string.decode()
-                b64_string = 'data:image/jpeg;base64,' + b64_string
-            print('开始检测')
-            result = process_request('pd', req_dict={'imgString': b64_string})
-            if os.path.exists(os.path.join(save_path, file_name)):
-                os.remove(os.path.join(save_path, file_name))
-        if 'res' not in result or type(result['res']) is not dict:
             ret = False
         else:
+            t_ped = threading.Thread(
+                target=detect_body_parts,
+                args=(
+                    file_id,
+                    file_name,
+                    recode_id,
+                    equipment_id
+                )
+            )
+            t_ped.start()
+            result = '异步处理（回调）模式'
             ret = True
         time_take = time.time() - time_take
         msg = {True: '成功', False: '失败'}
