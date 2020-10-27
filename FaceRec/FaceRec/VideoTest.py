@@ -150,7 +150,7 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
             print('RTSP流路径:', rtsp)
             sample = cv2.VideoCapture(rtsp)
 
-    fps = sample.get(cv2.CAP_PROP_FPS)
+    fps = sample.get(cv2.CAP_PROP_FPS) / 2
     if fps == 0 or fps == inf:
         fps = 15
     print('保存视频FPS:', fps)
@@ -174,29 +174,32 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
         if ret:
             if count % 2 == 0:
                 ret, frame = sample.read()
-                frame = cv2.resize(frame, (512, 384))
-                # cv2.imshow('inspection', frame)
-                # cv2.waitKey(1)
-                if count % 4 == 0:
-                    img_string = array2b64string(frame)
-                    result = process_request(fd_version, req_dict={'imgString': img_string.decode()})
-                    if len(result['res']) != 0:
-                        no_face = 0
-                        frame = cv2.rectangle(
-                            frame,
-                            (result['res'][0][0], result['res'][0][1]),
-                            (result['res'][0][2], result['res'][0][3]),
-                            (0, 255, 0),
-                            2
-                        )
-                        if not record_flag:
-                            record_flag = True
-                            count = 0
-                    elif record_flag:
-                        no_face += 1
-                if record_flag or first_time:
-                    # print('write now', 'count', count, 'ret', ret, 'ft', first_time, 'rf', record_flag)
-                    video_w.write(frame)
+                if ret:
+                    frame = cv2.resize(frame, (512, 384))
+                    # cv2.imshow('inspection', frame)
+                    # cv2.waitKey(1)
+                    if count % 4 == 0:
+                        img_string = array2b64string(frame)
+                        result = process_request(fd_version, req_dict={'imgString': img_string.decode()})
+                        if len(result['res']) != 0:
+                            no_face = 0
+                            frame = cv2.rectangle(
+                                frame,
+                                (result['res'][0][0], result['res'][0][1]),
+                                (result['res'][0][2], result['res'][0][3]),
+                                (0, 255, 0),
+                                2
+                            )
+                            if not record_flag:
+                                record_flag = True
+                                count = 0
+                        elif record_flag:
+                            no_face += 1
+                    if record_flag or first_time:
+                        # print('write now', 'count', count, 'ret', ret, 'ft', first_time, 'rf', record_flag)
+                        video_w.write(frame)
+                else:
+                    break
             else:
                 sample.grab()
                 # print('skip 1 frame')
