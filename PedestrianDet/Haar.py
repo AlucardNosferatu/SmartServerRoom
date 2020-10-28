@@ -108,8 +108,8 @@ def merge_coordinates(c1, c2, c3):
 def test_on_array(img):
     img = cv2.resize(img, (1024, 768))
     detected = detect_3_parts(classifier_full, classifier_lower, classifier_upper, img)
-    image2, full_body, lower_body, upper_body, xc_fb, xc_lb, xc_ub = detected
-    white_list, image, output_coordinates = calculate_white_list(
+    _, full_body, lower_body, upper_body, xc_fb, xc_lb, xc_ub = detected
+    _, _, output_coordinates = calculate_white_list(
         xc_fb,
         xc_lb,
         xc_ub,

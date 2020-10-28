@@ -143,20 +143,18 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
     first_time = False
     if '\\' in rtsp:
         rtsp = rtsp.replace('\\', '//')
-
-    if rtsp == "LAPTOP_CAMERA":
-        sample = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
+    if for_file and prev_sample is not None:
+        sample = prev_sample
     else:
-        if for_file and prev_sample is not None:
-            sample = prev_sample
+        first_time = True
+        print('RTSP流路径:', rtsp)
+        if rtsp == "LAPTOP_CAMERA":
+            sample = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
         else:
-            first_time = True
-            print('RTSP流路径:', rtsp)
             sample = cv2.VideoCapture(rtsp)
-
     fps = sample.get(cv2.CAP_PROP_FPS) / 2
     if fps == 0 or fps == inf:
-        fps = 15
+        fps = 25
     print('保存视频FPS:', fps)
     fn = validate_title(cr_id)
     output_name = save_path + '/' + fn + '.mp4'
@@ -175,7 +173,7 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
     ret = True
     frame_queue = []
     while count < wait:
-        print('当前帧序号',count)
+        print('当前帧序号', count)
         if ret:
             if count % 2 == 0:
                 ret, frame = sample.read()
@@ -201,6 +199,7 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
                         elif record_flag:
                             no_face += 1
                         while len(frame_queue) > 0:
+                            print('正在写入流，剩余帧数', len(frame_queue))
                             video_w.write(frame_queue.pop(0))
                         detect_dict[cr_id]['frame'] = frame
                         # 进行异步检测请求
