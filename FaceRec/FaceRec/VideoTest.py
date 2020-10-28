@@ -183,31 +183,30 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
                     frame = cv2.resize(frame, (512, 384))
                     # cv2.imshow('inspection', frame)
                     # cv2.waitKey(1)
-                    if count % 4 == 0:
-                        print('队列状态', detect_dict[cr_id]['idle'])
-                        if detect_dict[cr_id]['idle']:
-                            result = {'res': detect_dict[cr_id]['rect']}
-                            if result['res'] is not None and len(frame_queue) > 0:
-                                no_face = 0
-                                if not record_flag:
-                                    record_flag = True
-                                    count = 0
-                                frame_queue[0] = cv2.rectangle(
-                                    frame_queue[0],
-                                    (result['res'][0][0], result['res'][0][1]),
-                                    (result['res'][0][2], result['res'][0][3]),
-                                    (0, 255, 0),
-                                    2
-                                )
-                            elif record_flag:
-                                no_face += 1
-                            while len(frame_queue) > 0:
-                                video_w.write(frame_queue.pop(0))
-                            detect_dict[cr_id]['frame'] = frame
-                            # 进行异步检测请求
-                            print('进行异步检测请求')
-                            t_detect = threading.Thread(target=detect_async, args=(fd_version, cr_id))
-                            t_detect.start()
+                    print('队列状态', detect_dict[cr_id]['idle'])
+                    if detect_dict[cr_id]['idle']:
+                        result = {'res': detect_dict[cr_id]['rect']}
+                        if result['res'] is not None and len(frame_queue) > 0:
+                            no_face = 0
+                            if not record_flag:
+                                record_flag = True
+                                count = 0
+                            frame_queue[0] = cv2.rectangle(
+                                frame_queue[0],
+                                (result['res'][0][0], result['res'][0][1]),
+                                (result['res'][0][2], result['res'][0][3]),
+                                (0, 255, 0),
+                                2
+                            )
+                        elif record_flag:
+                            no_face += 1
+                        while len(frame_queue) > 0:
+                            video_w.write(frame_queue.pop(0))
+                        detect_dict[cr_id]['frame'] = frame
+                        # 进行异步检测请求
+                        print('进行异步检测请求')
+                        t_detect = threading.Thread(target=detect_async, args=(fd_version, cr_id))
+                        t_detect.start()
                     if record_flag or first_time:
                         frame_queue.append(frame)
                 else:
@@ -277,6 +276,7 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
         if capture:
             if record_flag:
                 if cr_id not in detect_dict:
+                    print('新建状态字典')
                     detect_dict[cr_id] = {'idle': True, 'rect': None, 'frame': None}
                 video_w, record_flag, output_name, sample = capture_during_detected(
                     cr_id,
