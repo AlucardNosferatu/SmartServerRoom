@@ -138,8 +138,6 @@ def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None):
 
 
 def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=None, for_file=False, prev_sample=None):
-    if cr_id not in detect_dict:
-        detect_dict[cr_id] = {'idle': True, 'rect': None, 'frame': None}
     count = 0
     record_flag = False
     first_time = False
@@ -177,7 +175,7 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
     ret = True
     frame_queue = []
     while count < wait:
-        count += 1
+        print('当前帧序号',count)
         if ret:
             if count % 2 == 0:
                 ret, frame = sample.read()
@@ -186,6 +184,7 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
                     # cv2.imshow('inspection', frame)
                     # cv2.waitKey(1)
                     if count % 4 == 0:
+                        print('队列状态', detect_dict[cr_id]['idle'])
                         if detect_dict[cr_id]['idle']:
                             result = {'res': detect_dict[cr_id]['rect']}
                             if result['res'] is not None and len(frame_queue) > 0:
@@ -204,10 +203,9 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
                                 no_face += 1
                             while len(frame_queue) > 0:
                                 video_w.write(frame_queue.pop(0))
-                            if record_flag or first_time:
-                                frame_queue.append(frame)
                             detect_dict[cr_id]['frame'] = frame
                             # 进行异步检测请求
+                            print('进行异步检测请求')
                             t_detect = threading.Thread(target=detect_async, args=(fd_version, cr_id))
                             t_detect.start()
                     if record_flag or first_time:
@@ -223,6 +221,7 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
         after = datetime.datetime.now()
         # print('消耗时间', str(after - before))
         before = after
+        count += 1
     if no_face >= 10:
         record_flag = False
     if for_file:
@@ -277,6 +276,8 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
     while times > 0:
         if capture:
             if record_flag:
+                if cr_id not in detect_dict:
+                    detect_dict[cr_id] = {'idle': True, 'rect': None, 'frame': None}
                 video_w, record_flag, output_name, sample = capture_during_detected(
                     cr_id,
                     rtsp,
@@ -440,7 +441,7 @@ def snap_per_seconds(rtsp_address, resize, multiple, multiple_mode, data):
 
 def detect_async(fd_version, cr_id):
     detect_dict[cr_id]['idle'] = False
-
+    print('开始进行检测', detect_dict[cr_id]['idle'])
     frame = detect_dict[cr_id]['frame']
     img_string = array2b64string(frame)
     result = process_request(fd_version, req_dict={'imgString': img_string.decode()})
@@ -448,7 +449,7 @@ def detect_async(fd_version, cr_id):
         detect_dict[cr_id]['rect'] = result['res']
     else:
         detect_dict[cr_id]['rect'] = None
-
+    print('检测结束', detect_dict[cr_id]['idle'])
     detect_dict[cr_id]['idle'] = True
 
 
