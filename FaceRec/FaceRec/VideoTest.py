@@ -86,7 +86,7 @@ def snap(rtsp_address, resize=True, return_multiple=None):
 
 
 def call_recognize(ceph_id):
-    server = "http://127.0.0.1:7120"
+    server = "http://127.0.0.1:20291"
     url = server + '/imr-ai-service/face_features/recognize/<file_id>'
     url = url.replace('<file_id>', ceph_id)
     headers = {
@@ -106,8 +106,12 @@ def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None):
         cap = cv2.VideoCapture(rtsp)
     else:
         cap = prev_cap
-    while len(result['res']) == 0 and count < wait:
-        print('截三帧', count)
+    begin_time = datetime.datetime.now()
+    time_elapsed = 0
+    while len(result['res']) == 0 and time_elapsed < wait:
+        print('截三帧', count, time_elapsed)
+        current_time = datetime.datetime.now()
+        time_elapsed = (current_time - begin_time).seconds
         count += 1
         if count % 2 == 0:
             time_1 = datetime.datetime.now()
@@ -133,6 +137,7 @@ def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None):
                 print('snapshot error! skip now.')
                 return img_string, result, cap
         else:
+            cap.grab()
             print('跳过当前帧', count)
     return img_string, result, cap
 

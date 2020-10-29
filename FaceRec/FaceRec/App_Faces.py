@@ -433,7 +433,7 @@ def camera():
                 post_result=False,
                 cr_id=req_id,
                 count=3,
-                wait=25,
+                wait=60,
                 capture=False,
                 file_id=file_id
             )
@@ -446,7 +446,7 @@ def camera():
                     True,
                     req_id,
                     3,
-                    25,
+                    60,
                     False,
                     file_id
                 )

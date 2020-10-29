@@ -54,6 +54,7 @@ callback_interface = {
     'snap': 'http://134.134.13.82:8744/imr-face-server/prepareimage/checkpic'
 }
 # callback_interface = {
+#     'listener': 'http://127.0.0.1:20295/imr-face-server/callback_listener',
 #     'camera': 'http://192.168.14.212:8744/imr-face-server/faceapply_collection/faceCameraRecognResp/',
 #     'camera2': 'http://192.168.14.212:8744/imr-face-server/prepareimage/savevideofile/',
 #     'snap': 'http://192.168.14.212:8744/imr-face-server/prepareimage/checkpic'
