@@ -133,7 +133,7 @@ def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None, for_file=Fal
                 dt_1 = time_2 - time_1
                 dt_2 = time_3 - time_2
                 print("耗时", str(dt_1), str(dt_2))
-            elif for_file:
+            elif not for_file:
                 print('snapshot error! reconnect now.')
                 cap = cv2.VideoCapture(rtsp)
             else:
@@ -280,6 +280,7 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
     else:
         for_file = False
     while times > 0:
+        print('剩余检测次数',times)
         if capture:
             if record_flag:
                 if cr_id not in detect_dict:
