@@ -98,7 +98,7 @@ def call_recognize(ceph_id):
     return result
 
 
-def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None):
+def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None, for_file=False):
     count = 0
     result = {'res': []}
     img_string = ''
@@ -133,6 +133,9 @@ def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None):
                 dt_1 = time_2 - time_1
                 dt_2 = time_3 - time_2
                 print("耗时", str(dt_1), str(dt_2))
+            elif for_file:
+                print('snapshot error! reconnect now.')
+                cap = cv2.VideoCapture(rtsp)
             else:
                 print('snapshot error! skip now.')
                 return img_string, result, cap
@@ -295,7 +298,13 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
             else:
                 times = 0
         else:
-            img_string, result, sample = loop_until_detected(rtsp, wait, fd_version='fd_dbf', prev_cap=sample)
+            img_string, result, sample = loop_until_detected(
+                rtsp=rtsp,
+                wait=wait,
+                fd_version='fd_dbf',
+                prev_cap=sample,
+                for_file=for_file
+            )
             if post_result:
                 img_string_list.append(img_string)
                 box_coordinates.append(result)
