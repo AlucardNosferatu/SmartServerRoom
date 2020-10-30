@@ -18,6 +18,7 @@ def convert_async(file_id, trance_log_id):
         }
         result = process_request('vc', params)
     if result['res'] != -1:
+        os.remove(os.path.join(save_path, file_name))
         result = upload(file_name=result['res'], to_temp=False, deletion=True, file_dir='')
     print(result)
     if trance_log_id != 'LOCAL_USAGE':
