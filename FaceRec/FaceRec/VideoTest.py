@@ -426,7 +426,7 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
     print('')
     print('')
     response_async(result, callbacl_str)
-    response_async(result, 'listener')
+    # response_async(result, 'listener')
     return result
 
 
