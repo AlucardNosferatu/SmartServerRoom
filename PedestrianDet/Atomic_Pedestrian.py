@@ -56,7 +56,9 @@ def detect_p():
         if img is None:
             result = []
         else:
+            print('开始')
             result = test_on_array(img)
+            print('结束')
         time_take = time.time() - time_take
         if "fileName" in data.keys():
             app.logger.info("recognition  return:{d},use time:{t}".format(d=result, t=time_take))

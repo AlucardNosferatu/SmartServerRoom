@@ -83,8 +83,11 @@ def detect_body_parts(file_id, file_name, recodeId, equipmentId):
         b64_string = 'data:image/jpeg;base64,' + b64_string
     print('开始检测')
     result = process_request('pd', req_dict={'imgString': b64_string})
+    print(os.path.join(save_path, file_name))
+    print(os.path.exists(os.path.join(save_path, file_name)))
     if os.path.exists(os.path.join(save_path, file_name)):
         os.remove(os.path.join(save_path, file_name))
+        print('已删除')
     if 'res' in result and 'count' in result['res'] and result['res']['count'] > 0:
         result = {'cephId': file_id}
     else:
@@ -92,5 +95,5 @@ def detect_body_parts(file_id, file_name, recodeId, equipmentId):
     result['recodeId'] = recodeId
     result['equipmentId'] = equipmentId
     response_async(result, 'ped')
-    response_async(result, 'listener')
+    # response_async(result, 'listener')
     return result
