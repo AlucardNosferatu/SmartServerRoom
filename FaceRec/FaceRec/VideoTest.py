@@ -111,8 +111,8 @@ def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None, for_file=Fal
     else:
         print('RTSP流路径:', rtsp)
         if rtsp == "LAPTOP_CAMERA":
-            # cap = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
-            cap = cv2.VideoCapture('rtsp://admin:admin@192.168.137.199:8554/live')
+            cap = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
+            # cap = cv2.VideoCapture('rtsp://admin:admin@192.168.137.199:8554/live')
         else:
             cap = cv2.VideoCapture(rtsp)
 
