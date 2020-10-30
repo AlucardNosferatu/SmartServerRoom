@@ -98,51 +98,71 @@ def call_recognize(ceph_id):
     return result
 
 
-def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None, for_file=False):
+def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None, for_file=False, prev_time=None):
     count = 0
     result = {'res': []}
     img_string = ''
-    if prev_cap is None:
-        cap = cv2.VideoCapture(rtsp)
-    else:
+    array = None
+    cap_time = datetime.datetime.now()
+    if '\\' in rtsp:
+        rtsp = rtsp.replace('\\', '//')
+    if for_file and prev_cap is not None:
         cap = prev_cap
+    else:
+        print('RTSP流路径:', rtsp)
+        if rtsp == "LAPTOP_CAMERA":
+            # cap = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
+            cap = cv2.VideoCapture('rtsp://admin:admin@192.168.137.199:8554/live')
+        else:
+            cap = cv2.VideoCapture(rtsp)
+
     begin_time = datetime.datetime.now()
     time_elapsed = 0
+
+    span_in_ms = 3000000
+    now_is = datetime.datetime.now()
+    print('之前是', prev_time)
+    print('现在是', now_is)
+    duration = now_is - prev_time
+    rest_time = span_in_ms - duration.microseconds - (1000000 * duration.seconds)
+    print('还剩', rest_time)
+    while rest_time > 0:
+        cap.grab()
+        now_is = datetime.datetime.now()
+        duration = now_is - prev_time
+        rest_time = span_in_ms - duration.microseconds - (1000000 * duration.seconds)
+    print('当前时间', str(datetime.datetime.now()))
     while len(result['res']) == 0 and time_elapsed < wait:
         print('截三帧', count, time_elapsed)
         current_time = datetime.datetime.now()
         time_elapsed = (current_time - begin_time).seconds
         count += 1
         if count % 2 == 0:
-            time_1 = datetime.datetime.now()
             # ss_result = process_request('ss', {'RTSP_ADDR': rtsp})
+            cap_time = datetime.datetime.now()
             ret, frame = cap.read()
+            print('截取帧时间', str(cap_time))
             if ret:
                 ss_result = {'result': array2b64string(frame).decode()}
             else:
                 ss_result = None
-            time_2 = datetime.datetime.now()
             if type(ss_result) is dict and 'result' in ss_result and ss_result['result'] is not None:
                 img_string = ss_result['result']
                 array = b64string2array(img_string)
                 array = cv2.resize(array, (1024, 768))
                 resized_string = array2b64string(array)
                 result = process_request(fd_version, req_dict={'imgString': resized_string.decode()})
-                print('face_detec_result', result)
-                time_3 = datetime.datetime.now()
-                dt_1 = time_2 - time_1
-                dt_2 = time_3 - time_2
-                print("耗时", str(dt_1), str(dt_2))
+                print('face_detec_result', result, str(datetime.datetime.now()))
             elif not for_file:
                 print('snapshot error! reconnect now.')
                 cap = cv2.VideoCapture(rtsp)
             else:
                 print('snapshot error! skip now.')
-                return img_string, result, cap
+                return img_string, result, cap, array, cap_time
         else:
             cap.grab()
             print('跳过当前帧', count)
-    return img_string, result, cap
+    return img_string, result, cap, array, cap_time
 
 
 def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=None, for_file=False, prev_sample=None):
@@ -273,6 +293,8 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
     video_w = None
     record_flag = True
     sample = None
+    array_list = []
+    cap_time = datetime.datetime.now()
     if file_id is not None:
         for_file = True
         file_name = file_request('query', file_id)
@@ -280,7 +302,7 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
     else:
         for_file = False
     while times > 0:
-        print('剩余检测次数',times)
+        print('剩余检测次数', times)
         if capture:
             if record_flag:
                 if cr_id not in detect_dict:
@@ -299,24 +321,24 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
             else:
                 times = 0
         else:
-            img_string, result, sample = loop_until_detected(
+            img_string, result, sample, array, cap_time = loop_until_detected(
                 rtsp=rtsp,
                 wait=wait,
                 fd_version='fd_dbf',
                 prev_cap=sample,
-                for_file=for_file
+                for_file=for_file,
+                prev_time=cap_time
             )
             if post_result:
+                array_list.append(array)
                 img_string_list.append(img_string)
                 box_coordinates.append(result)
                 if len(result['res']) == 0:
                     times = 0
                 else:
-                    print('sleep now')
                     times -= 1
-                    time.sleep(1)
-                    print('awake now')
             else:
+                array_list = [array]
                 img_string_list = [img_string]
                 box_coordinates = [result]
                 times = 0
@@ -368,10 +390,12 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
         if for_file and os.path.exists(rtsp):
             os.remove(rtsp)
     else:
+        print('截取阶段结束')
         scene_id_list = []
         new_result_list = []
         file_out = os.path.join(save_path, 'scene.jpg')
         for index, img_string in enumerate(img_string_list):
+            cv2.imwrite(os.path.join(save_path, 'test_' + str(index) + '.jpg'), array_list[index])
             if len(img_string) <= 0:
                 continue
             img = b64string2array(img_string)
