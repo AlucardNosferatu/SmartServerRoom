@@ -33,7 +33,7 @@ def test_dbf():
             b64string = array2b64string(fr).decode()
             t_post = threading.Thread(
                 target=post_t, args=(
-                    b64string
+                    b64string,
                 )
             )
             t_post.start()
