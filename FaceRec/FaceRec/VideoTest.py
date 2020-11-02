@@ -271,16 +271,17 @@ def crop_and_recognize(img, rect, scene_id, new_result_list):
     ret = file_request('save', uploaded_id)
     if ret == uploaded_id:
         result_temp = call_recognize(uploaded_id)['data']
-        if 'res' in result_temp:
-            result_temp = result_temp['res']
-            result_temp.append(uploaded_id)
-            result_temp = {
-                'fileName': str(result_temp[0]),
-                'distance': str(result_temp[1]),
-                'head_id': str(result_temp[2]),
-                'camera': str(scene_id)
-            }
-            new_result_list.append(result_temp)
+        if len(result_temp) > 0 and 'res' in result_temp[0]:
+            for index in range(len(result_temp)):
+                result_temp[index] = result_temp[index]['res']
+                result_temp[index].append(uploaded_id)
+                result_temp[index] = {
+                    'fileName': str(result_temp[index][0]),
+                    'distance': str(result_temp[index][1]),
+                    'head_id': str(result_temp[index][2]),
+                    'camera': str(scene_id)
+                }
+                new_result_list.append(result_temp[index])
     os.remove('Faces_Temp/temp.jpg')
     return new_result_list
 
