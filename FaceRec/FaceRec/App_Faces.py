@@ -68,18 +68,19 @@ def check(file_id):
                 b64_string = base64.b64encode(f.read())
                 b64_string = b64_string.decode()
                 b64_string = 'data:image/jpeg;base64,' + b64_string
-            result = process_request('fd', req_dict={'imgString': b64_string})
+            result = process_request('fd_dbf', req_dict={'imgString': b64_string})
             if len(result['res']) > 0:
                 new_result = []
                 for rect in result['res']:
                     img = cv2.imread('Faces_Temp/' + file_name)
-                    img = img[rect[1]:rect[3], rect[0]:rect[2]]
+                    # img = img[rect[1]:rect[3], rect[0]:rect[2]]
+                    img = img
                     cv2.imwrite('Faces_Temp/cropped_' + file_name, img)
                     with open('Faces_Temp/cropped_' + file_name, 'rb') as fc:
                         b64_string = base64.b64encode(fc.read())
                         b64_string = b64_string.decode()
                         b64_string = 'data:image/jpeg;base64,' + b64_string
-                    points = process_request('ld', req_dict={'imgString': b64_string})
+                    points = process_request('ld_dbf', req_dict={'imgString': b64_string})
                     for point in points['res']:
                         img = cv2.circle(img, tuple(point), 2, (255, 0, 0), 1)
                     cv2.imwrite('Faces_Temp/cropped_' + file_name, img)
