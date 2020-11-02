@@ -161,7 +161,7 @@ def recognize(file_id):
                     b64_string = base64.b64encode(f.read())
                     b64_string = b64_string.decode()
                     b64_string = 'data:image/jpeg;base64,' + b64_string
-                result = process_request('fd', req_dict={'imgString': b64_string})
+                result = process_request('fd_dbf', req_dict={'imgString': b64_string})
                 if len(result['res']) > 0:
                     area = [(rect[2] - rect[0]) * (rect[3] - rect[1]) for rect in result['res']]
                     index = area.index(max(area))

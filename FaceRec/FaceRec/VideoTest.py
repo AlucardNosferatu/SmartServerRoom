@@ -258,11 +258,12 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
 
 
 def crop_and_recognize(img, rect, scene_id, new_result_list):
-    x1 = int(img.shape[1] * rect[0] / 1024)
-    y1 = int(img.shape[0] * rect[1] / 768)
-    x2 = int(img.shape[1] * rect[2] / 1024)
-    y2 = int(img.shape[0] * rect[3] / 768)
-    new_img = img[y1:y2, x1:x2]
+    # x1 = int(img.shape[1] * rect[0] / 1024)
+    # y1 = int(img.shape[0] * rect[1] / 768)
+    # x2 = int(img.shape[1] * rect[2] / 1024)
+    # y2 = int(img.shape[0] * rect[3] / 768)
+    # new_img = img[y1:y2, x1:x2]
+    new_img = img
     cv2.imwrite('Faces_Temp/temp.jpg', new_img)
     uploaded_id = file_request('upload', {'file': open('Faces_Temp/temp.jpg', 'rb')})
     if uploaded_id is None:
