@@ -11,8 +11,8 @@ import cv2
 from flask import Flask, request
 
 from VideoTest import camera_async
-from utils_FR import process_request, file_request, b64string2array, array2b64string
 from cfg_FR import no_found, face_folder_path, save_path
+from utils_FR import process_request, file_request, array2b64string
 
 app = Flask(__name__)
 
