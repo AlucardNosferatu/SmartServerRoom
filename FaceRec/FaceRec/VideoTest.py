@@ -420,6 +420,7 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
         }
         if len(result['faces']) == 0 and len(result['camera']) > 0:
             result['faces'].append({'camera': result['camera'][0]})
+        result['faces'] = remove_duplicated(result['faces'])
     print('')
     print('')
     print(result)
@@ -489,6 +490,18 @@ def detect_async(fd_version, cr_id):
         detect_dict[cr_id]['rect'] = None
     print('检测结束', detect_dict[cr_id]['idle'])
     detect_dict[cr_id]['idle'] = True
+
+
+def remove_duplicated(faces):
+    name_list = {}
+    for index, face in enumerate(faces):
+        if face['fileName'] not in name_list:
+            name_list[face['fileName']] = face['distance']
+        else:
+            if name_list[face['fileName']] > face['distance']:
+                name_list[face['fileName']] = face['distance']
+    faces = [{'fileName': face, 'distance': name_list[face], 'head_id': None, 'camera': None} for face in name_list]
+    return faces
 
 
 if __name__ == '__main__':
