@@ -475,6 +475,8 @@ def snap_per_seconds(rtsp_address, resize, multiple, multiple_mode, data):
                 'issyn': False,
                 'params': None
             }
+        if os.path.exists(rtsp_address):
+            os.remove(rtsp_address)
         response_async(result, 'snap')
         response_async(result, 'listener')
     return result
