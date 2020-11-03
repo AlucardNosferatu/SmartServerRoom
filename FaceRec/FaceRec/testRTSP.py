@@ -49,4 +49,14 @@ def test_dbf():
 
 
 if __name__ == '__main__':
-    test_dbf()
+    # test_dbf()
+    test_dict = {}
+    faces = [
+        {
+            'fileName': face_name,
+            'distance': test_dict[face_name],
+            'head_id': None,
+            'camera': None
+        } for face_name in test_dict
+    ]
+    print(faces)
