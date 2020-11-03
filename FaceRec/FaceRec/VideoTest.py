@@ -497,12 +497,20 @@ def detect_async(fd_version, cr_id):
 def remove_duplicated(faces):
     name_list = {}
     for index, face in enumerate(faces):
-        if face['fileName'] not in name_list:
-            name_list[face['fileName']] = face['distance']
-        else:
-            if name_list[face['fileName']] > face['distance']:
+        if 'fileName' in face:
+            if face['fileName'] not in name_list:
                 name_list[face['fileName']] = face['distance']
-    faces = [{'fileName': face, 'distance': name_list[face], 'head_id': None, 'camera': None} for face in name_list]
+            else:
+                if name_list[face['fileName']] > face['distance']:
+                    name_list[face['fileName']] = face['distance']
+    faces = [
+        {
+            'fileName': face_name,
+            'distance': name_list[face_name],
+            'head_id': None,
+            'camera': None
+        } for face_name in name_list
+    ]
     return faces
 
 
