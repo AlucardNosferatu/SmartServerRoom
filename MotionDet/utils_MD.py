@@ -118,8 +118,9 @@ def upload(file_name, to_temp=False, deletion=True, file_dir=save_path):
         response.raise_for_status()
         save_result = json.loads(response.content.decode('utf-8'))
         result['save_result'] = save_result['msg']
-    if deletion and os.path.exists(os.path.join(file_dir, file_name)):
-        os.remove(os.path.join(file_dir, file_name))
+    if deletion:
+        if os.path.exists(os.path.join(file_dir, file_name)):
+            os.remove(os.path.join(file_dir, file_name))
         result['deletion'] = str(not os.path.exists(os.path.join(file_dir, file_name)))
     else:
         result['deletion'] = '未要求进行删除操作'
