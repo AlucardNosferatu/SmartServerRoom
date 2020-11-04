@@ -170,7 +170,7 @@ def recognize(file_id):
                 y2 = result['res'][index][3]
                 try:
                     b64str_cropped = array2b64string(img[y1:y2, x1:x2]).decode()
-                    fr_result = process_request('fr', req_dict={'imgString': b64str_cropped})
+                    fr_result = process_request('fr_fn', req_dict={'imgString': b64str_cropped})
                     fr_result_list.append(fr_result)
                 except Exception as e:
                     print(repr(e))
