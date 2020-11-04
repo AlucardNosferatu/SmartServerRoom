@@ -396,24 +396,23 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
         scene_id_list = []
         new_result_list = []
         file_out = os.path.join(save_path, 'scene.jpg')
-        if len(img_string_list) > 1:
-            for index, img_string in enumerate(img_string_list):
-                cv2.imwrite(os.path.join(save_path, 'test_' + str(index) + '.jpg'), array_list[index])
-                if len(img_string) <= 0:
-                    continue
-                img = b64string2array(img_string)
-                cv2.imwrite(file_out, img)
-                scene_id = file_request('upload', {'file': open(file_out, 'rb')})
-                print('scene_id', scene_id)
-                if scene_id is None:
-                    continue
-                ret = file_request('save', scene_id)
-                if ret == scene_id:
-                    scene_id_list.append(scene_id)
-                    os.remove(file_out)
-                    if len(box_coordinates[index]['res']) > 0:
-                        for rect in box_coordinates[index]['res']:
-                            new_result_list = crop_and_recognize(img, rect, scene_id, new_result_list)
+        for index, img_string in enumerate(img_string_list):
+            cv2.imwrite(os.path.join(save_path, 'test_' + str(index) + '.jpg'), array_list[index])
+            if len(img_string) <= 0:
+                continue
+            img = b64string2array(img_string)
+            cv2.imwrite(file_out, img)
+            scene_id = file_request('upload', {'file': open(file_out, 'rb')})
+            print('scene_id', scene_id)
+            if scene_id is None:
+                continue
+            ret = file_request('save', scene_id)
+            if ret == scene_id:
+                scene_id_list.append(scene_id)
+                os.remove(file_out)
+                if len(box_coordinates[index]['res']) > 0 and len(img_string_list) > 1:
+                    for rect in box_coordinates[index]['res']:
+                        new_result_list = crop_and_recognize(img, rect, scene_id, new_result_list)
         result = {
             'cameraRecognId': cr_id,
             'camera': scene_id_list,
