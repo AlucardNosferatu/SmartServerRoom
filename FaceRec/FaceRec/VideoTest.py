@@ -423,6 +423,8 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
         if len(result['faces']) == 0 and len(result['camera']) > 0:
             result['faces'].append({'camera': result['camera'][0]})
         result['faces'] = remove_duplicated(result['faces'])
+        if len(result['camera']) <= 0:
+            result['camera'] = None
     print('')
     print('')
     print(result)
