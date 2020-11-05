@@ -12,6 +12,15 @@ from VideoTest import snap_per_seconds
 from cfg_FR import save_path
 from utils_FR import b64string2array, file_request
 
+log_path = os.path.join(save_path, 'AtomicFaces.txt')
+logging.basicConfig(
+    level=logging.DEBUG,
+    filename=log_path,
+    datefmt='%Y/%m/%d %H:%M:%S',
+    format='%(asctime)s - %(levelname)s - %(thread)d - %(module)s - %(funcName)s - %(lineno)d - %(message)s'
+)
+logger = logging.getLogger("AtomicFaces")
+
 app = Flask(__name__)
 
 
@@ -22,22 +31,6 @@ def make_dir(make_dir_path):
     return path
 
 
-# log init start
-log_dir_name = "logs"
-log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-log_file_folder = os.path.join(os.getcwd(), log_dir_name)
-make_dir(log_file_folder)
-log_file_str = log_file_folder + os.sep + log_file_name
-log_level = logging.INFO
-handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-# handler.setLevel(log_level)
-app.logger.setLevel(log_level)
-logging_format = logging.Formatter(
-    '%(asctime)s - %(levelname)s - %(filename)s - %(funcName)s - %(lineno)s - %(message)s')
-handler.setFormatter(logging_format)
-app.logger.addHandler(handler)
-
-
 @app.route('/test')
 def img_start():
     return json.dumps({"system": 0}, ensure_ascii=False)
@@ -45,12 +38,6 @@ def img_start():
 
 @app.route('/imr-ai-service/atomic_functions/faces_detect', methods=['POST'])
 def faces_detect():
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
     if request.method == "POST":
         c_da = request.data
         data = json.loads(c_da.decode())
@@ -72,12 +59,6 @@ def faces_detect():
 
 @app.route('/imr-ai-service/atomic_functions/landmarks_detect', methods=['POST'])
 def landmarks_detect():
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
     if request.method == "POST":
         c_da = request.data
         data = json.loads(c_da.decode())
@@ -98,12 +79,6 @@ def landmarks_detect():
 
 @app.route('/imr-ai-service/atomic_functions/recognize', methods=['POST'])
 def recognize():
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
     if request.method == "POST":
         c_da = request.data
         data = json.loads(c_da.decode())
@@ -124,12 +99,6 @@ def recognize():
 
 @app.route('/imr-ai-service/atomic_functions/reload', methods=['POST'])
 def reload():
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
     if request.method == "POST":
         time_take = time.time()
         result = reload_records()
@@ -146,13 +115,6 @@ def reload():
 
 @app.route('/imr-ai-service/atomic_functions/snapshot', methods=['POST'])
 def snapshot():
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
-
     if request.method == "POST":
         c_da = request.data
         data = json.loads(c_da.decode())
@@ -162,6 +124,7 @@ def snapshot():
         multiple_mode = multiple_mode and data['cephId'] is not None
         if multiple_mode:
             print('连续截图模式启动.')
+            logger.info('连续截图模式启动.')
             multiple = data['multiple']
             file_name = file_request('query', data['cephId'])
             rtsp_address = os.path.join(save_path, file_name)
@@ -174,6 +137,7 @@ def snapshot():
             resize = data['resize']
         except Exception as e:
             print(repr(e))
+            logger.error(repr(e))
             resize = True
 
         time_take = time.time()

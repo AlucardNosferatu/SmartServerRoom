@@ -1,5 +1,7 @@
 import base64
 import json
+import logging
+import os
 import re
 
 import cv2
@@ -7,7 +9,16 @@ import numpy as np
 import requests
 
 from cfg_FR import no_found, ATOM_code, CEPH_code, server_ip, server_ip_2, server_ip_3, callback_interface, \
-    download_server
+    download_server, save_path
+
+log_path = os.path.join(save_path, 'UtilsFR.txt')
+logging.basicConfig(
+    level=logging.DEBUG,
+    filename=log_path,
+    datefmt='%Y/%m/%d %H:%M:%S',
+    format='%(asctime)s - %(levelname)s - %(thread)d - %(module)s - %(funcName)s - %(lineno)d - %(message)s'
+)
+logger = logging.getLogger("UtilsFR")
 
 
 def validate_title(title):
@@ -56,7 +67,6 @@ def process_request(function_string, req_dict):
         response = requests.post(server_url, data=json_dict, headers=headers)
     else:
         response = requests.post(server_url, headers=headers)
-    # print("Complete post")
     if response is not None:
         response.raise_for_status()
         result = json.loads(response.content.decode('utf-8'))
@@ -103,7 +113,8 @@ def file_request(function_string, req_id, save_path='Faces_Temp', bName='fries')
         response = retry_post(server_url, data=bucket_dict, files=req_id)
     else:
         response = None
-    print("Complete post")
+    print("Complete post:", function_string)
+    logger.debug("Complete post:" + ' ' + function_string)
     if response is None:
         return None
     else:
@@ -112,6 +123,7 @@ def file_request(function_string, req_id, save_path='Faces_Temp', bName='fries')
             result = json.loads(response.content.decode('utf-8'))
         except Exception as e:
             print(repr(e))
+            logger.error(repr(e))
             result = {'data': None}
         if function_string == 'query':
             if result['data'] is None:
@@ -137,13 +149,14 @@ def file_request(function_string, req_id, save_path='Faces_Temp', bName='fries')
 
 def response_async(result, function):
     print("Start to post")
+    logger.debug("Start to post:" + ' ' + function)
     dic_json = json.dumps(result)
     headers = {
         "Content-Type": "application/json; charset=UTF-8"
     }
     response = requests.post(callback_interface[function], data=dic_json, headers=headers)
     print("Complete post")
+    logger.debug("Complete post:" + ' ' + function)
     response.raise_for_status()
     print(response.content.decode('utf-8'))
-
-
+    logger.debug(response.content.decode('utf-8'))

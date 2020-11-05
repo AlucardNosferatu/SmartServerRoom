@@ -15,6 +15,15 @@ from VideoTest import camera_async
 from cfg_FR import no_found, face_folder_path, save_path
 from utils_FR import process_request, file_request, array2b64string
 
+log_path = os.path.join(save_path, 'AppFaces.txt')
+logging.basicConfig(
+    level=logging.DEBUG,
+    filename=log_path,
+    datefmt='%Y/%m/%d %H:%M:%S',
+    format='%(asctime)s - %(levelname)s - %(thread)d - %(module)s - %(funcName)s - %(lineno)d - %(message)s'
+)
+logger = logging.getLogger("AppFaces")
+
 app = Flask(__name__)
 
 
@@ -25,22 +34,6 @@ def make_dir(make_dir_path):
     return path
 
 
-# log init start
-log_dir_name = "logs"
-log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-log_file_folder = os.path.join(os.getcwd(), log_dir_name)
-make_dir(log_file_folder)
-log_file_str = log_file_folder + os.sep + log_file_name
-log_level = logging.INFO
-handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-# handler.setLevel(log_level)
-app.logger.setLevel(log_level)
-logging_format = logging.Formatter(
-    '%(asctime)s - %(levelname)s - %(filename)s - %(funcName)s - %(lineno)s - %(message)s')
-handler.setFormatter(logging_format)
-app.logger.addHandler(handler)
-
-
 @app.route('/test')
 def img_start():
     return json.dumps({"system": 0}, ensure_ascii=False)
@@ -48,13 +41,6 @@ def img_start():
 
 @app.route('/imr-ai-service/face_features/check/<file_id>', methods=['POST'])
 def check(file_id):
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
-
     if request.method == "POST":
         file_id = file_id.replace("\n", "")
         time_take = time.time()
@@ -102,6 +88,7 @@ def check(file_id):
                 new_result = ','.join(new_result)
                 result = new_result
                 print(new_result)
+                logger.debug(str(new_result))
             else:
                 result = -1
             os.remove('Faces_Temp/' + file_name)
@@ -124,13 +111,6 @@ def check(file_id):
 
 @app.route('/imr-ai-service/face_features/recognize/<file_id>', methods=['POST'])
 def recognize(file_id):
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
-
     if request.method == "POST":
         file_id = file_id.replace("\n", "")
         time_take = time.time()
@@ -146,6 +126,7 @@ def recognize(file_id):
                 given_c = given_c and 'y2' in data
             except Exception as e:
                 print(repr(e))
+                logger.error(repr(e))
                 given_c = False
 
         file_name = file_request(function_string='query', req_id=file_id)
@@ -174,6 +155,7 @@ def recognize(file_id):
                     fr_result_list.append(fr_result)
                 except Exception as e:
                     print(repr(e))
+                    logger.error(repr(e))
                     continue
             result = fr_result_list
         else:
@@ -203,13 +185,6 @@ def recognize(file_id):
 
 @app.route('/imr-ai-service/face_features/locate/<file_id>', methods=['POST'])
 def locate(file_id):
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
-
     if request.method == "POST":
         file_id = file_id.replace("\n", "")
         time_take = time.time()
@@ -242,13 +217,6 @@ def locate(file_id):
 
 @app.route('/imr-ai-service/face_features/add/<file_id>', methods=['POST'])
 def add(file_id):
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
-
     if request.method == "POST":
         file_id = file_id.replace("\n", "")
         time_take = time.time()
@@ -272,13 +240,6 @@ def add(file_id):
 
 @app.route('/imr-ai-service/face_features/delete/<file_name>', methods=['POST'])
 def delete(file_name):
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
-
     if request.method == "POST":
         file_name = file_name.replace("\n", "")
         time_take = time.time()
@@ -312,13 +273,6 @@ def delete(file_name):
 
 @app.route('/imr-ai-service/face_features/query', methods=['POST'])
 def query():
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
-
     if request.method == "POST":
         time_take = time.time()
         result = os.listdir(face_folder_path)
@@ -335,13 +289,6 @@ def query():
 
 @app.route('/imr-ai-service/face_features/reload', methods=['POST'])
 def reload():
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
-
     if request.method == "POST":
         time_take = time.time()
 
@@ -359,31 +306,30 @@ def reload():
 
 @app.route('/imr-ai-service/face_features/camera_recognize', methods=['POST'])
 def camera():
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
     if request.method == "POST":
         c_da = request.data
         print(str(c_da))
+        logger.debug(str(c_da))
         data = json.loads(c_da.decode())
         print(data)
+        logger.debug(str(data))
         req_id = data['CameraRecognId']
         rtsp = data['Rtsp_url']
         print(rtsp)
+        logger.debug(rtsp)
         sync = data['Asyn']
         try:
             video_type = data['VideoType']
         except Exception as e:
             print(repr(e))
+            logger.error(repr(e))
             video_type = None
         try:
             stream_type = data['StreamType']
             assert type(stream_type) is str
         except Exception as e:
             print(repr(e))
+            logger.error(repr(e))
             stream_type = '0'
         if type(sync) is str:
             sync = (sync == 'true')
@@ -408,6 +354,8 @@ def camera():
                     rtsp += '&subtype='
                     rtsp += stream_type
         print("开始截图")
+        logger.info("开始截图")
+
         if sync:
             result = camera_async(
                 callbacl_str='camera',
@@ -449,16 +397,12 @@ def camera():
 
 @app.route('/imr-ai-service/face_features/door_open', methods=['POST'])
 def camera2():
-    print('请求接收时间', str(datetime.datetime.now()))
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
     if request.method == "POST":
+        print('请求接收时间', str(datetime.datetime.now()))
+        logger.debug('请求接收时间' + ' ' + str(datetime.datetime.now()))
         c_da = request.data
         print(str(c_da))
+        logger.debug(str(c_da))
         data = json.loads(c_da.decode())
         req_id = data['MediaFileId']
         rtsp = data['Rtsp_url']
@@ -467,12 +411,14 @@ def camera2():
             video_type = data['VideoType']
         except Exception as e:
             print(repr(e))
+            logger.error(repr(e))
             video_type = None
         try:
             stream_type = data['StreamType']
             assert type(stream_type) is str
         except Exception as e:
             print(repr(e))
+            logger.error(repr(e))
             stream_type = '0'
         if type(sync) is str:
             sync = (sync == 'true')
@@ -497,6 +443,7 @@ def camera2():
                     rtsp += '&subtype='
                     rtsp += stream_type
         print('处理开始时间', str(datetime.datetime.now()))
+        logger.debug('处理开始时间' + ' ' + str(datetime.datetime.now()))
         if sync:
             result = camera_async(
                 callbacl_str='camera2',

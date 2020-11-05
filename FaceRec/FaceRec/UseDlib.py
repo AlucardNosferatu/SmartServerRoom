@@ -1,3 +1,4 @@
+import logging
 import os
 
 import cv2
@@ -5,7 +6,16 @@ import dlib
 import numpy
 from dlib import rectangle
 
-from cfg_FR import test_img_path, predictor_path, face_rc_model_path, face_folder_path
+from cfg_FR import test_img_path, predictor_path, face_rc_model_path, face_folder_path, save_path
+
+log_path = os.path.join(save_path, 'UseDlib.txt')
+logging.basicConfig(
+    level=logging.DEBUG,
+    filename=log_path,
+    datefmt='%Y/%m/%d %H:%M:%S',
+    format='%(asctime)s - %(levelname)s - %(thread)d - %(module)s - %(funcName)s - %(lineno)d - %(message)s'
+)
+logger = logging.getLogger("UseDlib")
 
 
 def init_detectors():
@@ -26,20 +36,25 @@ detector, feature_point, feature_model = init_detectors()
 # 读取人脸集、人脸标签
 def read_data(path):
     print(path)
+    logger.debug(path)
     try:
         pic_name_list = os.listdir(path)
         pic_list = []
         print(pic_name_list)
+        logger.debug((str(pic_name_list)))
         for i in pic_name_list:
             whole_path = os.path.join(path, i)
             img = cv2.imread(whole_path)
             img = cv2.resize(img, (int(img.shape[1] / 4), int(img.shape[0] / 4)))
             pic_list.append(img)
-    except IOError:
+    except IOError as e:
         print('read error')
+        logger.error('read error')
+        logger.error(repr(e))
         return False
     else:
         print('read successfully')
+        logger.info('read successfully')
         return pic_name_list, pic_list
 
 
@@ -101,6 +116,7 @@ def test_single_image():
         for i in descriptors:
             dist_ = numpy.linalg.norm(i - test_feature)
             print('%s : %f' % (name_list[count], dist_))
+            logger.debug('%s : %f' % (name_list[count], dist_))
             dist.append(dist_)
             count += 1
 
@@ -110,6 +126,7 @@ def test_single_image():
         # 截取姓名字符串，去掉末尾的.jpg
         result = name_list[min_dist][:-4]
         print(result)
+        logger.debug(str(result))
 
 
 def test_cam(file_path="Samples/00010001689000000.mp4", file_name='00010001689000000.mp4'):
@@ -121,7 +138,6 @@ def test_cam(file_path="Samples/00010001689000000.mp4", file_name='0001000168900
     while sample.isOpened():
         # k = cv2.waitKey(50)
         current_frame = sample.get(cv2.CAP_PROP_POS_FRAMES)
-        print(current_frame)
         if current_frame == last_frame:
             break
         else:
@@ -169,20 +185,6 @@ def test_cam(file_path="Samples/00010001689000000.mp4", file_name='0001000168900
                 cv2.imshow('cam:', test_img_copy)
                 cv2.imwrite('Outputs/' + file_name.split('.')[0] + '_' + str(f_count) + '_p.jpg',
                             test_img_copy[y1:y2, x1:x2, :])
-                # test_feature = feature_model.compute_face_descriptor(test_img, shape)
-                # test_feature = numpy.array(test_feature)
-                # dist = []
-                # count = 0
-                # for i in descriptors:
-                #     dist_ = numpy.linalg.norm(i - test_feature)
-                #     print('%s : %f' % (name_list[count], dist_))
-                #     dist.append(dist_)
-                #     count += 1
-                # # 返回距离最小的下标
-                # min_dist = numpy.argmin(dist)
-                # # 截取姓名字符串，去掉末尾的.jpg
-                # result = name_list[min_dist][:-4]
-                # print(result)
             cv2.waitKey(1)
     sample.release()
     cv2.destroyAllWindows()
@@ -225,7 +227,6 @@ def test_landmarks(img_array):
 
 
 def test_recognizer(img_array):
-    print(a, b)
     d_rect = rectangle(0, 0, img_array.shape[1] - 1, img_array.shape[0] - 1)
     shape = feature_point(img_array, d_rect)
     test_feature = feature_model.compute_face_descriptor(img_array, shape)
@@ -235,6 +236,7 @@ def test_recognizer(img_array):
     for i in descriptors:
         dist_ = numpy.linalg.norm(i - test_feature)
         print('%s : %f' % (name_list[count], dist_))
+        logger.debug('%s : %f' % (name_list[count], dist_))
         dist.append(dist_)
         count += 1
 
