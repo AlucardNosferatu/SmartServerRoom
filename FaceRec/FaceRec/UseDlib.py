@@ -1,4 +1,3 @@
-import logging
 import os
 
 import cv2
@@ -6,16 +5,8 @@ import dlib
 import numpy
 from dlib import rectangle
 
-from cfg_FR import test_img_path, predictor_path, face_rc_model_path, face_folder_path, save_path
-
-log_path = os.path.join(save_path, 'UseDlib.txt')
-logging.basicConfig(
-    level=logging.DEBUG,
-    filename=log_path,
-    datefmt='%Y/%m/%d %H:%M:%S',
-    format='%(asctime)s - %(levelname)s - %(thread)d - %(module)s - %(funcName)s - %(lineno)d - %(message)s'
-)
-logger = logging.getLogger("UseDlib")
+from cfg_FR import test_img_path, predictor_path, face_rc_model_path, face_folder_path
+from logger_FR import logger
 
 
 def init_detectors():

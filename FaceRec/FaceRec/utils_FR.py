@@ -1,24 +1,13 @@
 import base64
 import json
-import logging
-import os
 import re
 
 import cv2
 import numpy as np
 import requests
-
+from logger_FR import logger
 from cfg_FR import no_found, ATOM_code, CEPH_code, server_ip, server_ip_2, server_ip_3, callback_interface, \
-    download_server, save_path
-
-log_path = os.path.join(save_path, 'UtilsFR.txt')
-logging.basicConfig(
-    level=logging.DEBUG,
-    filename=log_path,
-    datefmt='%Y/%m/%d %H:%M:%S',
-    format='%(asctime)s - %(levelname)s - %(thread)d - %(module)s - %(funcName)s - %(lineno)d - %(message)s'
-)
-logger = logging.getLogger("UtilsFR")
+    download_server
 
 
 def validate_title(title):

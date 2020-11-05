@@ -1,7 +1,6 @@
 import base64
 import datetime
 import json
-import logging
 import os
 import threading
 import time
@@ -13,17 +12,10 @@ from flask import Flask, request
 
 from VideoTest import camera_async
 from cfg_FR import no_found, face_folder_path, save_path
+from logger_FR import logger
 from utils_FR import process_request, file_request, array2b64string
 
-log_path = os.path.join(save_path, 'AppFaces.txt')
-logging.basicConfig(
-    level=logging.DEBUG,
-    filename=log_path,
-    datefmt='%Y/%m/%d %H:%M:%S',
-    format='%(asctime)s - %(levelname)s - %(thread)d - %(module)s - %(funcName)s - %(lineno)d - %(message)s'
-)
-logger = logging.getLogger("AppFaces")
-
+logger.info('AppFaces starts')
 app = Flask(__name__)
 
 

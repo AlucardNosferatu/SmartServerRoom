@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 import threading
 import time
@@ -10,17 +9,10 @@ from flask import Flask, request
 from UseDlib import test_detector, test_landmarks, test_recognizer, reload_records
 from VideoTest import snap_per_seconds
 from cfg_FR import save_path
+from logger_FR import logger
 from utils_FR import b64string2array, file_request
 
-log_path = os.path.join(save_path, 'AtomicFaces.txt')
-logging.basicConfig(
-    level=logging.DEBUG,
-    filename=log_path,
-    datefmt='%Y/%m/%d %H:%M:%S',
-    format='%(asctime)s - %(levelname)s - %(thread)d - %(module)s - %(funcName)s - %(lineno)d - %(message)s'
-)
-logger = logging.getLogger("AtomicFaces")
-
+logger.info('AtomicFaces starts')
 app = Flask(__name__)
 
 
