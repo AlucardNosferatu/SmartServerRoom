@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 
 @app.route('/imr-face-server/callback_listener', methods=['POST'])
-def convert():
+def record():
     if request.method == "POST":
         time_take = time.time()
         c_da = request.data
