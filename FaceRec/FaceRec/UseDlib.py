@@ -45,6 +45,8 @@ def read_data(records_path):
                 face = cv2.resize(face, (int(face.shape[1] / 4), int(face.shape[0] / 4)))
                 pic_list.append(face)
                 new_name_list.append(i)
+        print(str(list(set(pic_name_list).difference(set(new_name_list)))))
+        logger.debug(str(list(set(pic_name_list).difference(set(new_name_list)))))
     except IOError as e:
         print('read error')
         logger.error('read error')
