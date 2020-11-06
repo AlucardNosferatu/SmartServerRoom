@@ -1,28 +1,13 @@
-import logging
+import datetime
+import json
 import os
 import time
-import json
-import datetime
+
 from flask import Flask, request
 
-work_dir = __file__
-if '\\' in work_dir:
-    work_dir = work_dir.split('\\')
-    work_dir = work_dir[:-1]
-    work_dir = '\\'.join(work_dir)
-else:
-    work_dir = work_dir.split('/')
-    work_dir = work_dir[:-1]
-    work_dir = '/'.join(work_dir)
-save_path = os.path.join(work_dir, 'C_Temp')
-log_path = os.path.join(save_path, 'CB.txt')
-logging.basicConfig(
-    level=logging.DEBUG,
-    filename=log_path,
-    datefmt='%Y/%m/%d %H:%M:%S',
-    format='%(asctime)s - %(levelname)s - %(thread)d - %(module)s - %(funcName)s - %(lineno)d - %(message)s'
-)
-logger = logging.getLogger('CB')
+from cfg_CL import save_path
+from logger_FR import logger
+
 app = Flask(__name__)
 
 
