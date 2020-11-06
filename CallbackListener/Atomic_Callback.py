@@ -6,7 +6,7 @@ import time
 from flask import Flask, request
 
 from cfg_CL import save_path
-from logger_FR import logger
+from logger_CL import logger
 
 app = Flask(__name__)
 

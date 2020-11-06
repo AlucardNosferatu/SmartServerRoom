@@ -25,19 +25,26 @@ detector, feature_point, feature_model = init_detectors()
 
 
 # 读取人脸集、人脸标签
-def read_data(path):
-    print(path)
-    logger.debug(path)
+def read_data(records_path):
+    print(records_path)
+    logger.debug(records_path)
     try:
-        pic_name_list = os.listdir(path)
+        pic_name_list = os.listdir(records_path)
         pic_list = []
         print(pic_name_list)
         logger.debug((str(pic_name_list)))
+        new_name_list = []
         for i in pic_name_list:
-            whole_path = os.path.join(path, i)
-            img = cv2.imread(whole_path)
-            img = cv2.resize(img, (int(img.shape[1] / 4), int(img.shape[0] / 4)))
-            pic_list.append(img)
+            valid = i.endswith('.png')
+            valid = valid or i.endswith('.jpg')
+            valid = valid or i.endswith('.PNG')
+            valid = valid or i.endswith('.JPG')
+            if valid:
+                whole_path = os.path.join(records_path, i)
+                face = cv2.imread(whole_path)
+                face = cv2.resize(face, (int(face.shape[1] / 4), int(face.shape[0] / 4)))
+                pic_list.append(face)
+                new_name_list.append(i)
     except IOError as e:
         print('read error')
         logger.error('read error')
@@ -46,7 +53,7 @@ def read_data(path):
     else:
         print('read successfully')
         logger.info('read successfully')
-        return pic_name_list, pic_list
+        return new_name_list, pic_list
 
 
 def get_recorded_features():
