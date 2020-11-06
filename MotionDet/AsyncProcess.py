@@ -26,5 +26,9 @@ def convert_async(file_id, trance_log_id):
         response_async(result, 'convert', url_param=trance_log_id)
         result_with_id = result.copy()
         result_with_id['trance_log_id'] = trance_log_id
-        response_async(result=result_with_id, function='listener')
+        try:
+            response_async(result=result_with_id, function='listener')
+        except Exception as e:
+            print(repr(e))
+            # logger.error(repr(e))
     return result

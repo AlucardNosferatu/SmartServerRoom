@@ -95,5 +95,9 @@ def detect_body_parts(file_id, file_name, recodeId, equipmentId):
     result['recodeId'] = recodeId
     result['equipmentId'] = equipmentId
     response_async(result, 'ped')
-    # response_async(result, 'listener')
+    try:
+        response_async(result, 'listener')
+    except Exception as e:
+        print(repr(e))
+        # logger.error(repr(e))
     return result

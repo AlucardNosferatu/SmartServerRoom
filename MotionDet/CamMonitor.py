@@ -121,7 +121,11 @@ def process_dir(
     assert src_id == request_id
     post_dict = {"ID": request_id, "Src_num": src_num, "Dest_num": dst_num, "cephFiles": id_list}
     response_async(result=post_dict, function='motion')
-    response_async(result=post_dict, function='listener')
+    try:
+        response_async(result=post_dict, function='listener')
+    except Exception as e:
+        print(repr(e))
+        # logger.error(repr(e))
     # post_result(request_id, src_num, dst_num)
 
 

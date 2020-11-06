@@ -470,7 +470,11 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
     print(result)
     logger.debug(str(result))
     response_async(result, callbacl_str)
-    # response_async(result, 'listener')
+    try:
+        response_async(result, 'listener')
+    except Exception as e:
+        print(repr(e))
+        logger.error(repr(e))
     return result
 
 
@@ -523,7 +527,11 @@ def snap_per_seconds(rtsp_address, resize, multiple, multiple_mode, data):
         if os.path.exists(rtsp_address):
             os.remove(rtsp_address)
         response_async(result, 'snap')
-        response_async(result, 'listener')
+        try:
+            response_async(result, 'listener')
+        except Exception as e:
+            print(repr(e))
+            logger.error(repr(e))
     return result
 
 
