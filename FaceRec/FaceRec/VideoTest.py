@@ -70,11 +70,11 @@ def snap(rtsp_address, resize=True, return_multiple=None):
                 before = after
             else:
                 print('跳过该帧，只抓取不解码')
-                logger.info('读取流失败，结束处理')
+                logger.info('跳过该帧，只抓取不解码')
                 time.sleep(0.035)
                 cap.grab()
                 print('抓取完毕')
-                logger.info('读取流失败，结束处理')
+                logger.info('抓取完毕')
             count += 1
             print('当前ret', ret)
             logger.debug('当前ret：' + str(ret))
