@@ -18,9 +18,9 @@ name_list = []
 
 def reload_records():
     global vector_list, name_list
+    prev = len(name_list)
     vector_list.clear()
     name_list.clear()
-    prev = len(name_list)
     face_files = os.listdir(face_folder_path)
     print(face_files)
     logger.debug(str(face_files))
