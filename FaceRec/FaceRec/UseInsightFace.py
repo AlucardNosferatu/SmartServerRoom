@@ -58,7 +58,7 @@ def test_recognizer(img_array):
         dist_list.append(dist)
     then = datetime.datetime.now()
     print(str(then - now))
-    min_dist = min(dist_list)
+    min_dist = float(min(dist_list))
     most_similar = dist_list.index(min_dist)
     name = name_list[most_similar]
     return name, min_dist
