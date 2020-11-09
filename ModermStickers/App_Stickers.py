@@ -1,10 +1,10 @@
+import base64
+import json
+import os
+import time
+
 import requests
 from flask import Flask, request
-import os
-import json
-import time
-import base64
-import logging
 
 from cfg_PF import no_found, CEPH_code, ATOM_code, api_server, download_server, qrc_save_path
 
@@ -83,22 +83,6 @@ def process_request(function_string, req_dict):
     return result
 
 
-# log init start
-log_dir_name = "FaceRec/logs"
-log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-log_file_folder = os.path.join(os.getcwd(), log_dir_name)
-make_dir(log_file_folder)
-log_file_str = log_file_folder + os.sep + log_file_name
-log_level = logging.INFO
-handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-# handler.setLevel(log_level)
-app.logger.setLevel(log_level)
-logging_format = logging.Formatter(
-    '%(asctime)s - %(levelname)s - %(filename)s - %(funcName)s - %(lineno)s - %(message)s')
-handler.setFormatter(logging_format)
-app.logger.addHandler(handler)
-
-
 @app.route('/test')
 def img_start():
     return json.dumps({"system": 0}, ensure_ascii=False)
@@ -106,13 +90,6 @@ def img_start():
 
 @app.route('/imr-ai-service/moderm_stickers/check/<file_id>', methods=['POST'])
 def check(file_id):
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
-
     if request.method == "POST":
         file_id = file_id.replace("\n", "")
         time_take = time.time()

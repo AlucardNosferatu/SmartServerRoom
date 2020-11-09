@@ -17,6 +17,8 @@ name_list = []
 
 
 def reload_records():
+    global vector_list, name_list
+    prev = len(name_list)
     face_files = os.listdir(face_folder_path)
     print(face_files)
     logger.debug(str(face_files))
@@ -36,6 +38,8 @@ def reload_records():
             vector_list.append(vector)
     print(str(list(set(face_files).difference(set(name_list)))))
     logger.debug(str(list(set(face_files).difference(set(name_list)))))
+    now = len(name_list)
+    return now, now - prev
 
 
 reload_records()
