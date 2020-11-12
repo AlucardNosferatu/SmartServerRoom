@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 import threading
 import time
@@ -19,22 +18,6 @@ def make_dir(make_dir_path):
     return path
 
 
-# log init start
-log_dir_name = "logs"
-log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-log_file_folder = os.path.join(os.getcwd(), log_dir_name)
-make_dir(log_file_folder)
-log_file_str = log_file_folder + os.sep + log_file_name
-log_level = logging.INFO
-handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-# handler.setLevel(log_level)
-app.logger.setLevel(log_level)
-logging_format = logging.Formatter(
-    '%(asctime)s - %(levelname)s - %(filename)s - %(funcName)s - %(lineno)s - %(message)s')
-handler.setFormatter(logging_format)
-app.logger.addHandler(handler)
-
-
 @app.route('/test')
 def img_start():
     return json.dumps({"system": 0}, ensure_ascii=False)
@@ -42,13 +25,6 @@ def img_start():
 
 @app.route('/imr-ai-service/motion_detection/convert', methods=['POST'])
 def convert():
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
-
     if request.method == "POST":
         time_take = time.time()
         c_da = request.data

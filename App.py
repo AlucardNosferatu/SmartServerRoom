@@ -1,8 +1,17 @@
+import os
+import path_cfg
 from flask import Flask
-from FaceRec.App_Faces import check as check_fr
-from FaceRec.App_Faces import recognize, locate, add, delete, query, reload, camera, camera2
+from FaceRec.FaceRec.App_Faces import check as check_fr
+from FaceRec.FaceRec.App_Faces import recognize, locate, add, delete, query, reload, camera, camera2
+from MotionDet.App_Motion import convert as convert_md
 
 app = Flask(__name__)
+
+
+@app.route('/imr-ai-service/motion_detection/convert', methods=['POST'])
+def convert():
+    result = convert_md()
+    return result
 
 
 @app.route('/imr-ai-service/face_features/check/<file_id>', methods=['POST'])
@@ -57,3 +66,15 @@ def camera_face():
 def door_open():
     result = camera2()
     return result
+
+
+if __name__ == '__main__':
+    pid = os.getpid()
+    print('pid is:', pid)
+    with open('app_pid.txt', 'w') as f:
+        f.writelines([str(pid)])
+    app.run(
+        host="0.0.0.0",
+        port=int("20290"),
+        debug=False, threaded=True
+    )
