@@ -51,7 +51,20 @@ def test_recognizer(img_array):
     now = datetime.datetime.now()
     img_array = cv2.resize(img_array, (int(img_array.shape[1] / 4), int(img_array.shape[0] / 4)))
     faces = model.get(img_array)
-    face = faces[0]
+    area_list = []
+    for face in faces:
+        bbox = face.bbox
+        x1 = bbox[0]
+        y1 = bbox[1]
+        x2 = bbox[2]
+        y2 = bbox[3]
+        dx = x2 - x1
+        dy = y2 - y1
+        area = dx * dy
+        area_list.append(area)
+    max_area = max(area_list)
+    index = area_list.index(max_area)
+    face = faces[index]
     vector = face.embedding / face.embedding_norm
     dist_list = []
     for index, v in enumerate(vector_list):
@@ -66,4 +79,5 @@ def test_recognizer(img_array):
 
 
 if __name__ == '__main__':
-    pass
+    img = cv2.imread('Samples/test.jpg')
+    test_recognizer(img)
