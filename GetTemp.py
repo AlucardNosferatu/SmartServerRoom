@@ -12,33 +12,28 @@ old_frame = []
 diff = []
 count = 0
 while True:
-    if count % 2 == 0:
+    if count % 1 == 0:
         ret, frame = cap.read()
         if ret:
-            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
             frame = cv2.resize(frame, (1024, 768))
-            temp_digit = frame[140:180, 880:970]
-            # temp_digit = cv2.resize(temp_digit, (600, 250))
-            temp_digit = cv2.convertScaleAbs(temp_digit, alpha=1.2, beta=-50)
+            # cv2.imshow('full', frame)
+            temp_digit = frame[140:180, 880:970, :]
+            temp_digit = cv2.resize(temp_digit, (600, 250))
+            cv2.imshow('color', temp_digit)
+            temp_digit = cv2.convertScaleAbs(temp_digit, alpha=2, beta=-127)
             cv2.imshow('gray', temp_digit)
-            ret_th, thresh = cv2.threshold(temp_digit, 127, 255, cv2.THRESH_BINARY)
-            cv2.imshow('thresh', thresh)
-            if len(old_frame) < 10:
-                diff.append(thresh.copy())
-                old_frame.append(thresh.copy())
-            else:
-                for i in range(len(old_frame)):
-                    diff[i] = thresh - old_frame[i]
-                old_frame.pop(0)
-                old_frame.append(thresh.copy())
-            location = np.ones_like(thresh) == 0
-            for i in range(len(diff)):
-                location = np.logical_or(location, np.abs(diff[i]) > 127)
-            thresh[np.where(location)] = 0
-            # result = pytesseract.image_to_string(thresh)
-            result = reader.recognize(thresh)
-            print(result)
-            cv2.imshow('Thermal', thresh)
+            colorLow = np.array([180, 180, 180])
+            colorHigh = np.array([255, 255, 255])
+            mask = cv2.inRange(temp_digit, colorLow, colorHigh)
+            temp_digit = cv2.cvtColor(cv2.bitwise_and(temp_digit, temp_digit, mask=mask), cv2.COLOR_RGB2GRAY)
+            cv2.imshow('mask-plain', temp_digit)
+            ret_th, temp_digit = cv2.threshold(temp_digit, 127, 255, cv2.THRESH_BINARY)
+            cv2.imshow('thresh', temp_digit)
+            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2, 2))
+            temp_digit = cv2.morphologyEx(temp_digit, cv2.MORPH_CLOSE, kernel, iterations=5)
+            cv2.imshow('closed', temp_digit)
+            result = reader.recognize(temp_digit)
+            print(result[0][1])
             cv2.waitKey(1)
         else:
             break
