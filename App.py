@@ -4,8 +4,15 @@ from flask import Flask
 from FaceRec.FaceRec.App_Faces import check as check_fr
 from FaceRec.FaceRec.App_Faces import recognize, locate, add, delete, query, reload, camera, camera2
 from MotionDet.App_Motion import convert as convert_md
+from PedestrianDet.App_Pedestrian import check as check_pd
 
 app = Flask(__name__)
+
+
+@app.route('/imr-ai-service/pedestrian/check/<file_id>', methods=['POST'])
+def check_pedestrian(file_id):
+    result = check_pd(file_id)
+    return result
 
 
 @app.route('/imr-ai-service/motion_detection/convert', methods=['POST'])
