@@ -34,15 +34,9 @@ def reload_records():
             img_path = os.path.join(face_folder_path, file)
             img = cv2.imread(img_path)
             img = cv2.resize(img, (int(img.shape[1] / 4), int(img.shape[0] / 4)))
-
-            embedding = model.rec_model.get_embedding(img).flatten()
-            embedding_norm = np.linalg.norm(embedding)
-            vector = embedding / embedding_norm
-
-            # faces = model.get(img)
-            # face = faces[0]
-            # vector = face.embedding / face.embedding_norm
-            
+            faces = model.get(img)
+            face = faces[0]
+            vector = face.embedding / face.embedding_norm
             vector_list.append(vector)
     print(str(list(set(face_files).difference(set(name_list)))))
     logger.debug(str(list(set(face_files).difference(set(name_list)))))
@@ -55,14 +49,10 @@ reload_records()
 
 def test_recognizer(img_array):
     now = datetime.datetime.now()
-    # faces = model.get(img_array)
-    # face = faces[0]
-    # vector = face.embedding / face.embedding_norm
-
-    embedding = model.rec_model.get_embedding(img_array).flatten()
-    embedding_norm = np.linalg.norm(embedding)
-    vector = embedding / embedding_norm
-
+    img_array = cv2.resize(img_array, (int(img_array.shape[1] / 4), int(img_array.shape[0] / 4)))
+    faces = model.get(img_array)
+    face = faces[0]
+    vector = face.embedding / face.embedding_norm
     dist_list = []
     for index, v in enumerate(vector_list):
         dist = np.linalg.norm(vector - v)
