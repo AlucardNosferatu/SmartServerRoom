@@ -7,6 +7,7 @@ import numpy as np
 
 from cfg_FR import face_folder_path
 from logger_FR import logger
+from utils_FR import array2b64string, process_request
 
 model = insightface.app.FaceAnalysis()
 ctx_id = -1
@@ -16,7 +17,7 @@ vector_list = []
 name_list = []
 
 
-def reload_records():
+def reload_records(align=False, use_dbf=True):
     global vector_list, name_list
     prev = len(name_list)
     vector_list.clear()
@@ -34,9 +35,26 @@ def reload_records():
             img_path = os.path.join(face_folder_path, file)
             img = cv2.imread(img_path)
             img = cv2.resize(img, (int(img.shape[1] / 4), int(img.shape[0] / 4)))
-            faces = model.get(img)
-            face = faces[0]
-            vector = face.embedding / face.embedding_norm
+            if align:
+                faces = model.get(img)
+                face = faces[0]
+                vector = face.embedding / face.embedding_norm
+            else:
+                if use_dbf:
+                    b64str = array2b64string(img).decode()
+                    result = process_request('fd_dbf', req_dict={'imgString': b64str})
+                    bbox = result['res'][0]
+                else:
+                    result, _ = model.det_model.detect(img, threshold=0.8, scale=1.0)
+                    bbox = result[0, 0:4]
+                x1 = bbox[0]
+                y1 = bbox[1]
+                x2 = bbox[2]
+                y2 = bbox[3]
+                face = img[y1:y2, x1:x2]
+                embedding = model.rec_model.rec_model.get_embedding(face).flatten()
+                embedding_norm = np.linalg.norm(embedding)
+                vector = embedding / embedding_norm
             vector_list.append(vector)
     print(str(list(set(face_files).difference(set(name_list)))))
     logger.debug(str(list(set(face_files).difference(set(name_list)))))
@@ -47,13 +65,30 @@ def reload_records():
 reload_records()
 
 
-def test_recognizer(img_array):
+def test_recognizer(img_array, align=False, use_dbf=True):
     now = datetime.datetime.now()
     img_array = cv2.resize(img_array, (int(img_array.shape[1] / 4), int(img_array.shape[0] / 4)))
-    faces = model.get(img_array)
+    if align:
+        faces = model.get(img_array)
+        length = len(faces)
+    else:
+        if use_dbf:
+            b64str = array2b64string(img).decode()
+            result = process_request('fd_dbf', req_dict={'imgString': b64str})
+            faces = result['res']
+            length = len(faces)
+        else:
+            faces, _ = model.det_model.detect(img, threshold=0.8, scale=1.0)
+            length = faces.shape[0]
     area_list = []
-    for face in faces:
-        bbox = face.bbox
+    for i in range(length):
+        if align:
+            bbox = faces[i].bbox
+        else:
+            if use_dbf:
+                bbox = faces[i]
+            else:
+                bbox = faces[i, 0:4]
         x1 = bbox[0]
         y1 = bbox[1]
         x2 = bbox[2]
@@ -65,8 +100,22 @@ def test_recognizer(img_array):
     if len(area_list) > 0:
         max_area = max(area_list)
         index = area_list.index(max_area)
-        face = faces[index]
-        vector = face.embedding / face.embedding_norm
+        if align:
+            face = faces[index]
+            vector = face.embedding / face.embedding_norm
+        else:
+            if use_dbf:
+                bbox = faces[index]
+            else:
+                bbox = faces[index, 0:4]
+            x1 = bbox[0]
+            y1 = bbox[1]
+            x2 = bbox[2]
+            y2 = bbox[3]
+            face = img[y1:y2, x1:x2]
+            embedding = model.rec_model.rec_model.get_embedding(face).flatten()
+            embedding_norm = np.linalg.norm(embedding)
+            vector = embedding / embedding_norm
         dist_list = []
         for index, v in enumerate(vector_list):
             dist = np.linalg.norm(vector - v)
