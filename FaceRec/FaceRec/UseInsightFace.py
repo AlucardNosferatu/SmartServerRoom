@@ -17,7 +17,7 @@ vector_list = []
 name_list = []
 
 
-def reload_records(align=False, use_dbf=True):
+def reload_records(align=False, use_dbf=False):
     global vector_list, name_list
     prev = len(name_list)
     vector_list.clear()
@@ -47,12 +47,13 @@ def reload_records(align=False, use_dbf=True):
                 else:
                     result, _ = model.det_model.detect(img, threshold=0.8, scale=1.0)
                     bbox = result[0, 0:4]
-                x1 = bbox[0]
-                y1 = bbox[1]
-                x2 = bbox[2]
-                y2 = bbox[3]
-                face = img[y1:y2, x1:x2]
-                embedding = model.rec_model.rec_model.get_embedding(face).flatten()
+                x1 = int(bbox[0])
+                y1 = int(bbox[1])
+                x2 = int(bbox[2])
+                y2 = int(bbox[3])
+                face = img[y1:y2, x1:x2, :]
+                face = cv2.resize(face, (112, 112))
+                embedding = model.rec_model.get_embedding(face).flatten()
                 embedding_norm = np.linalg.norm(embedding)
                 vector = embedding / embedding_norm
             vector_list.append(vector)
@@ -65,7 +66,7 @@ def reload_records(align=False, use_dbf=True):
 reload_records()
 
 
-def test_recognizer(img_array, align=False, use_dbf=True):
+def test_recognizer(img_array, align=False, use_dbf=False):
     now = datetime.datetime.now()
     img_array = cv2.resize(img_array, (int(img_array.shape[1] / 4), int(img_array.shape[0] / 4)))
     if align:
@@ -89,10 +90,10 @@ def test_recognizer(img_array, align=False, use_dbf=True):
                 bbox = faces[i]
             else:
                 bbox = faces[i, 0:4]
-        x1 = bbox[0]
-        y1 = bbox[1]
-        x2 = bbox[2]
-        y2 = bbox[3]
+        x1 = int(bbox[0])
+        y1 = int(bbox[1])
+        x2 = int(bbox[2])
+        y2 = int(bbox[3])
         dx = x2 - x1
         dy = y2 - y1
         area = dx * dy
@@ -108,12 +109,13 @@ def test_recognizer(img_array, align=False, use_dbf=True):
                 bbox = faces[index]
             else:
                 bbox = faces[index, 0:4]
-            x1 = bbox[0]
-            y1 = bbox[1]
-            x2 = bbox[2]
-            y2 = bbox[3]
-            face = img[y1:y2, x1:x2]
-            embedding = model.rec_model.rec_model.get_embedding(face).flatten()
+            x1 = int(bbox[0])
+            y1 = int(bbox[1])
+            x2 = int(bbox[2])
+            y2 = int(bbox[3])
+            face = img[y1:y2, x1:x2, :]
+            face = cv2.resize(face, (112, 112))
+            embedding = model.rec_model.get_embedding(face).flatten()
             embedding_norm = np.linalg.norm(embedding)
             vector = embedding / embedding_norm
         dist_list = []
@@ -134,4 +136,5 @@ def test_recognizer(img_array, align=False, use_dbf=True):
 
 if __name__ == '__main__':
     img = cv2.imread('Samples/test.jpg')
-    test_recognizer(img)
+    result = test_recognizer(img)
+    print(result)
