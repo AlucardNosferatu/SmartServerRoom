@@ -154,7 +154,7 @@ def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None, for_file=Fal
     logger.debug('当前时间：' + str(datetime.datetime.now()))
     while len(result['res']) == 0 and time_elapsed < wait:
         print('截三帧', count, time_elapsed)
-        logger.debug('截三帧：' + str(count) + str(time_elapsed))
+        logger.debug('截三帧：' + str(count) + ' ' + str(time_elapsed))
         current_time = datetime.datetime.now()
         time_elapsed = (current_time - begin_time).seconds
         count += 1

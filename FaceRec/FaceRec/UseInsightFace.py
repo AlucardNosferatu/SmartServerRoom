@@ -135,6 +135,6 @@ def test_recognizer(img_array, align=False, use_dbf=False):
 
 
 if __name__ == '__main__':
-    img = cv2.imread('Samples/test.jpg')
+    img = cv2.imread('Samples/test2.jpg')
     result = test_recognizer(img)
     print(result)
