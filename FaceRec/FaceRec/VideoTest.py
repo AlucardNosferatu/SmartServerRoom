@@ -426,7 +426,12 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
                         'status': '转换失败'
                     }
             else:
-                result = {'mediaFileId': cr_id, 'cephId': None, 'msg': '失败', 'status': '保存失败'}
+                result = {
+                    'mediaFileId': cr_id,
+                    'cephId': None,
+                    'msg': '失败',
+                    'status': '保存失败'
+                }
         if os.path.exists(output_name):
             os.remove(output_name)
         if for_file and os.path.exists(rtsp):

@@ -62,20 +62,25 @@ def test_recognizer(img_array):
         dy = y2 - y1
         area = dx * dy
         area_list.append(area)
-    max_area = max(area_list)
-    index = area_list.index(max_area)
-    face = faces[index]
-    vector = face.embedding / face.embedding_norm
-    dist_list = []
-    for index, v in enumerate(vector_list):
-        dist = np.linalg.norm(vector - v)
-        dist_list.append(dist)
-    then = datetime.datetime.now()
-    print(str(then - now))
-    min_dist = float(min(dist_list))
-    most_similar = dist_list.index(min_dist)
-    name = name_list[most_similar]
-    return name, min_dist
+    if len(area_list) > 0:
+        max_area = max(area_list)
+        index = area_list.index(max_area)
+        face = faces[index]
+        vector = face.embedding / face.embedding_norm
+        dist_list = []
+        for index, v in enumerate(vector_list):
+            dist = np.linalg.norm(vector - v)
+            dist_list.append(dist)
+        min_dist = float(min(dist_list))
+        most_similar = dist_list.index(min_dist)
+        name = name_list[most_similar]
+        then = datetime.datetime.now()
+        print(str(then - now))
+        return name, min_dist
+    else:
+        then = datetime.datetime.now()
+        print(str(then - now))
+        return []
 
 
 if __name__ == '__main__':

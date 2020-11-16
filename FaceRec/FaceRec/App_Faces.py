@@ -60,9 +60,10 @@ def check(file_id):
                         b64_string = b64_string.decode()
                         b64_string = 'data:image/jpeg;base64,' + b64_string
                     points = process_request('ld_dbf', req_dict={'imgString': b64_string})
+                    r = int(sqrt(img.shape[0] * img.shape[1]) / 200)
                     for point in points['res']:
                         p = tuple(point)
-                        img = cv2.circle(img, p, int(sqrt(img.shape[0] * img.shape[1]) / 200), (255, 0, 0), -1)
+                        img = cv2.circle(img=img, center=p, radius=r, color=(255, 0, 0), thickness=-1)
                     cv2.imwrite('Faces_Temp/cropped_' + file_name, img)
                     uploaded_id = file_request(
                         'upload',
