@@ -17,7 +17,7 @@ vector_list = []
 name_list = []
 
 
-def reload_records(align=False, use_dbf=False):
+def reload_records(align=True, use_dbf=True):
     global vector_list, name_list
     prev = len(name_list)
     vector_list.clear()
@@ -66,19 +66,22 @@ def reload_records(align=False, use_dbf=False):
 reload_records()
 
 
-def test_recognizer(img_array, align=False, use_dbf=False):
+def test_recognizer(img_array, align=True, use_dbf=True):
     now = datetime.datetime.now()
     img_array = cv2.resize(img_array, (int(img_array.shape[1] / 4), int(img_array.shape[0] / 4)))
     if align:
+        # end to end process including detection
         faces = model.get(img_array)
         length = len(faces)
     else:
         if use_dbf:
+            # detect face using DBFace
             b64str = array2b64string(img).decode()
             result = process_request('fd_dbf', req_dict={'imgString': b64str})
             faces = result['res']
             length = len(faces)
         else:
+            # use RetinaNet embedded in insightface
             faces, _ = model.det_model.detect(img, threshold=0.8, scale=1.0)
             length = faces.shape[0]
     area_list = []
@@ -99,6 +102,7 @@ def test_recognizer(img_array, align=False, use_dbf=False):
         area = dx * dy
         area_list.append(area)
     if len(area_list) > 0:
+        # get the face with largest area
         max_area = max(area_list)
         index = area_list.index(max_area)
         if align:
@@ -114,6 +118,8 @@ def test_recognizer(img_array, align=False, use_dbf=False):
             x2 = int(bbox[2])
             y2 = int(bbox[3])
             face = img[y1:y2, x1:x2, :]
+            # cv2.imshow('detected largest', face)
+            # cv2.waitKey()
             face = cv2.resize(face, (112, 112))
             embedding = model.rec_model.get_embedding(face).flatten()
             embedding_norm = np.linalg.norm(embedding)
@@ -131,10 +137,13 @@ def test_recognizer(img_array, align=False, use_dbf=False):
     else:
         then = datetime.datetime.now()
         print(str(then - now))
-        return []
+        return 'no_aligned_faces_detected', 99.0
 
 
 if __name__ == '__main__':
-    img = cv2.imread('Samples/test2.jpg')
-    result = test_recognizer(img)
-    print(result)
+    path = 'Samples'
+    file_list = os.listdir(path)
+    for file in file_list:
+        img = cv2.imread(os.path.join('Samples', file))
+        result = test_recognizer(img)
+        print(file, result)

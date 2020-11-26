@@ -209,7 +209,7 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
             sample = cv2.VideoCapture(rtsp)
     fps = sample.get(cv2.CAP_PROP_FPS) / 2
     if fps == 0 or fps == inf:
-        fps = 25
+        fps = 12
     print('保存视频FPS:', fps)
     logger.debug('保存视频FPS：' + str(fps))
     fn = validate_title(cr_id)
@@ -306,6 +306,7 @@ def crop_and_recognize(img, rect, scene_id, new_result_list):
     ret = file_request('save', uploaded_id)
     if ret == uploaded_id:
         result_temp = call_recognize(uploaded_id)['data']
+        print('Recognition has been called')
         if len(result_temp) > 0 and 'res' in result_temp[0]:
             for index in range(len(result_temp)):
                 result_temp[index] = result_temp[index]['res']
@@ -559,7 +560,7 @@ def detect_async(fd_version, cr_id):
 def remove_duplicated(faces):
     name_list = {}
     for index, face in enumerate(faces):
-        if 'fileName' in face:
+        if 'fileName' in face and face['fileName'] != 'no_aligned_faces_detected':
             if face['fileName'] not in name_list:
                 name_list[face['fileName']] = face['distance']
             else:

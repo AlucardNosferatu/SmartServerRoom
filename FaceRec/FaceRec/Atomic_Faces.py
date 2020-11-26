@@ -82,9 +82,6 @@ def recognize():
         else:
             result = test_recognizer(img)
         time_take = time.time() - time_take
-        if "fileName" in data.keys():
-            app.logger.info("recognition  return:{d},use time:{t}".format(d=result, t=time_take))
-            return json.dumps({data['fileName']: [{'value': result}]}, ensure_ascii=False)
         return json.dumps({'res': result, 'timeTake': round(time_take, 4)},
                           ensure_ascii=False)
 
