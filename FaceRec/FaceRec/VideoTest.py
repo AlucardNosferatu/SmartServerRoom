@@ -307,8 +307,13 @@ def crop_and_recognize(img, rect, scene_id, new_result_list):
     if ret == uploaded_id:
         result_temp = call_recognize(uploaded_id)['data']
         print('Recognition has been called')
+        logger.info('Recognition has been called')
         if len(result_temp) > 0 and 'res' in result_temp[0]:
             for index in range(len(result_temp)):
+                print('re-formatting result list')
+                logger.info('re-formatting result list')
+                print(result_temp[index])
+                logger.debug(str(result_temp[index]))
                 result_temp[index] = result_temp[index]['res']
                 result_temp[index].append(uploaded_id)
                 result_temp[index] = {
@@ -317,6 +322,10 @@ def crop_and_recognize(img, rect, scene_id, new_result_list):
                     'head_id': str(result_temp[index][2]),
                     'camera': str(scene_id)
                 }
+                print('result list re-formatted')
+                logger.info('result list re-formatted')
+                print(result_temp[index])
+                logger.debug(str(result_temp[index]))
                 new_result_list.append(result_temp[index])
     os.remove('Faces_Temp/temp.jpg')
     return new_result_list
@@ -461,6 +470,8 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
                 if len(box_coordinates[index]['res']) > 0 and len(img_string_list) > 1:
                     for rect in box_coordinates[index]['res']:
                         new_result_list = crop_and_recognize(img, rect, scene_id, new_result_list)
+        print(new_result_list)
+        logger.debug(str(new_result_list))
         result = {
             'cameraRecognId': cr_id,
             'camera': scene_id_list,
