@@ -15,3 +15,5 @@ Backup/
 .vs/
 FaceRec/FaceRec/Faces_Temp/FR.txt
 FaceRec/DBFace/
+FaceRec/FaceRec/Faces_Temp/app_pid.txt
+FaceRec/FaceRec/Faces_Temp/atomic_pid.txt
