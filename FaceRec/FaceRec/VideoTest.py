@@ -361,7 +361,8 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
                     cr_id,
                     rtsp,
                     wait,
-                    fd_version='fd_dbf',
+                    # fd_version='fd_dbf',
+                    fd_version='fd',
                     prev_video_w=video_w,
                     for_file=for_file,
                     prev_sample=sample
@@ -373,7 +374,8 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
             img_string, result, sample, array, cap_time = loop_until_detected(
                 rtsp=rtsp,
                 wait=wait,
-                fd_version='fd_dbf',
+                # fd_version='fd_dbf',
+                fd_version='fd',
                 prev_cap=sample,
                 for_file=for_file,
                 prev_time=cap_time

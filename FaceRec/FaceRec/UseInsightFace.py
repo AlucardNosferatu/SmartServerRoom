@@ -66,6 +66,38 @@ def reload_records(align=True, use_dbf=True):
 reload_records()
 
 
+def test_detector(img_array):
+    out_d = []
+
+    img_array = cv2.resize(img_array, (int(img_array.shape[1] / 4), int(img_array.shape[0] / 4)))
+
+    detected = model.get(img_array)
+
+    for d in detected:
+        x1 = d.bbox[0]
+        x2 = d.bbox[2]
+        y1 = d.bbox[1]
+        y2 = d.bbox[3]
+        w = x2 - x1
+        h = y2 - y1
+        dw = 0.25 * w
+        dh = 0.25 * h
+        x1 -= dw
+        if x1 < 0:
+            x1 = 0
+        x2 += dw
+        if x2 > img_array.shape[1] - 1:
+            x2 = img_array.shape[1] - 1
+        y1 -= dh
+        if y1 < 0:
+            y1 = 0
+        y2 += dh
+        if y2 > img_array.shape[0] - 1:
+            y2 = img_array.shape[0] - 1
+        out_d.append([int(x1), int(y1), int(x2), int(y2)])
+    return out_d
+
+
 def test_recognizer(img_array, align=True, use_dbf=True):
     now = datetime.datetime.now()
     img_array = cv2.resize(img_array, (int(img_array.shape[1] / 4), int(img_array.shape[0] / 4)))

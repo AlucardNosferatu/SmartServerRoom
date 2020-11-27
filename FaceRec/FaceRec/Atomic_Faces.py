@@ -5,8 +5,8 @@ import time
 from urllib import parse
 
 from flask import Flask, request
-from UseInsightFace import test_recognizer, reload_records
-from UseDlib import test_detector, test_landmarks
+from UseInsightFace import test_detector, test_recognizer, reload_records
+from UseDlib import test_landmarks
 from VideoTest import snap_per_seconds
 from cfg_FR import save_path
 from logger_FR import logger

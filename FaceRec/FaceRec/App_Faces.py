@@ -47,7 +47,7 @@ def check(file_id):
                 b64_string = base64.b64encode(f.read())
                 b64_string = b64_string.decode()
                 b64_string = 'data:image/jpeg;base64,' + b64_string
-            result = process_request('fd_dbf', req_dict={'imgString': b64_string})
+            result = process_request('fd', req_dict={'imgString': b64_string})
             if len(result['res']) > 0:
                 new_result = []
                 for rect in result['res']:
@@ -62,15 +62,6 @@ def check(file_id):
                     points = process_request('ld_dbf', req_dict={'imgString': b64_string})
                     r = int(sqrt(img.shape[0] * img.shape[1]) / 200)
                     logger.debug(str(points['res']))
-                    example = [
-                        [
-                            [481, 737],
-                            [712, 745],
-                            [596, 866],
-                            [477, 982],
-                            [730, 1000]
-                        ]
-                    ]
                     for point in points['res']:
                         p = tuple(point)
                         logger.debug(str(p))
@@ -142,7 +133,8 @@ def recognize(file_id):
             result = {'res': [[x1, y1, x2, y2]]}
         else:
             b64str = array2b64string(img).decode()
-            result = process_request('fd_dbf', req_dict={'imgString': b64str})
+            # result = process_request('fd_dbf', req_dict={'imgString': b64str})
+            result = process_request('fd', req_dict={'imgString': b64str})
         if len(result['res']) > 0:
             img = cv2.imread('Faces_Temp/' + file_name)
             fr_result_list = []
