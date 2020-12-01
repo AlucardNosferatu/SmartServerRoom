@@ -230,8 +230,8 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
     ret = True
     frame_queue = []
     while count < wait:
-        print('当前帧序号', count)
-        logger.debug('当前帧序号：' + str(count))
+        # print('当前帧序号', count)
+        # logger.debug('当前帧序号：' + str(count))
         if ret:
             if count % 2 == 0:
                 ret, frame = sample.read()
@@ -239,8 +239,8 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
                     frame = cv2.resize(frame, (512, 384))
                     # cv2.imshow('inspection', frame)
                     # cv2.waitKey(1)
-                    print('队列状态', detect_dict[cr_id]['idle'])
-                    logger.debug('队列状态：' + str(detect_dict[cr_id]['idle']))
+                    # print('队列状态', detect_dict[cr_id]['idle'])
+                    # logger.debug('队列状态：' + str(detect_dict[cr_id]['idle']))
                     if detect_dict[cr_id]['idle']:
                         result = {'res': detect_dict[cr_id]['rect']}
                         if result['res'] is not None and len(frame_queue) > 0:
@@ -258,8 +258,8 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
                         elif record_flag:
                             no_face += 1
                         while len(frame_queue) > 0:
-                            print('正在写入流，剩余帧数', len(frame_queue))
-                            logger.debug('正在写入流，剩余帧数：' + str(len(frame_queue)))
+                            # print('正在写入流，剩余帧数', len(frame_queue))
+                            # logger.debug('正在写入流，剩余帧数：' + str(len(frame_queue)))
                             video_w.write(frame_queue.pop(0))
                         detect_dict[cr_id]['frame'] = frame
                         # 进行异步检测请求
@@ -274,7 +274,7 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
             else:
                 sample.grab()
                 # print('skip 1 frame')
-                logger.info('skip 1 frame')
+                # logger.info('skip 1 frame')
         elif not for_file:
             print('连接被切断！现在立刻重连')
             logger.info('连接被切断！现在立刻重连')
@@ -398,7 +398,6 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
     if sample is not None:
         sample.release()
     et = str(datetime.datetime.now())
-
     if capture and video_w is not None:
         if video_w.isOpened():
             print('release now')
@@ -422,6 +421,8 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
             if ret == video_id:
                 data = {'trance_log_id': 'LOCAL_USAGE', 'ceph_id': ret}
                 conv_fn = process_request('fc_mdapp', data)
+                print('格式转换调用结束')
+                logger.info('格式转换调用结束')
                 if 'data' in conv_fn and 'ceph_id' in conv_fn['data']:
                     result = {
                         'mediaFileId': cr_id,
@@ -437,6 +438,8 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
                         'msg': '失败',
                         'status': '转换失败'
                     }
+                print(result)
+                logger.debug(str(result))
             else:
                 result = {
                     'mediaFileId': cr_id,
@@ -446,8 +449,12 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
                 }
         if os.path.exists(output_name):
             os.remove(output_name)
+            print('录制文件已删除')
+            logger.info('录制文件已删除')
         if for_file and os.path.exists(rtsp):
             os.remove(rtsp)
+            print('转换后文件已删除')
+            logger.info('转换后文件已删除')
     else:
         print('截取阶段结束')
         logger.info('截取阶段结束')
