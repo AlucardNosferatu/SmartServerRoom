@@ -153,8 +153,8 @@ def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None, for_file=Fal
     print('当前时间', str(datetime.datetime.now()))
     logger.debug('当前时间：' + str(datetime.datetime.now()))
     while len(result['res']) == 0 and time_elapsed < wait:
-        print('截三帧', count, time_elapsed)
-        logger.debug('截三帧：' + str(count) + ' ' + str(time_elapsed))
+        # print('截三帧', count, time_elapsed)
+        # logger.debug('截三帧：' + str(count) + ' ' + str(time_elapsed))
         current_time = datetime.datetime.now()
         time_elapsed = (current_time - begin_time).seconds
         count += 1
@@ -162,8 +162,8 @@ def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None, for_file=Fal
             # ss_result = process_request('ss', {'RTSP_ADDR': rtsp})
             cap_time = datetime.datetime.now()
             ret, frame = cap.read()
-            print('截取帧时间', str(cap_time))
-            logger.debug('截取帧时间：' + str(cap_time))
+            # print('截取帧时间', str(cap_time))
+            # logger.debug('截取帧时间：' + str(cap_time))
             if ret:
                 ss_result = {'result': array2b64string(frame).decode()}
             else:
@@ -186,8 +186,8 @@ def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None, for_file=Fal
                 return img_string, result, cap, array, cap_time
         else:
             cap.grab()
-            print('跳过当前帧', count)
-            logger.debug('跳过当前帧：' + str(count))
+            # print('跳过当前帧', count)
+            # logger.debug('跳过当前帧：' + str(count))
     return img_string, result, cap, array, cap_time
 
 
