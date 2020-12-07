@@ -1,3 +1,4 @@
+import portalocker
 import base64
 import datetime
 import json
@@ -6,14 +7,13 @@ import threading
 import time
 from math import sqrt
 from urllib import parse
-
 import cv2
 from flask import Flask, request
 
 from VideoTest import camera_async
 from cfg_FR import no_found, face_folder_path, save_path
 from logger_FR import logger
-from utils_FR import process_request, file_request, array2b64string
+from utils_FR import process_request, file_request, array2b64string, validate_title
 
 logger.info('AppFaces starts')
 app = Flask(__name__)
@@ -37,14 +37,37 @@ def check(file_id):
         file_id = file_id.replace("\n", "")
         time_take = time.time()
 
+        f_name = os.path.join('../../Tasks', validate_title('check_' + str(datetime.datetime.now()) + '.json'))
+        with open(f_name, 'w') as task_file:
+            portalocker.lock(task_file, portalocker.LOCK_EX)
+            json.dump(
+                {
+                    'func': 'check',
+                    'param_keys': ['file_id'],
+                    'param_dict': {
+                        'file_id': file_id
+                    }
+                },
+                task_file
+            )
+            return json.dumps(
+                {
+                    'func': 'check',
+                    'param_keys': ['file_id'],
+                    'param_dict': {
+                        'file_id': file_id
+                    }
+                }
+            )
+
         file_name = file_request(function_string='query', req_id=file_id)
         if file_name == no_found:
             result = -1
             nf = no_found
         else:
             nf = None
-            with open('Faces_Temp/' + file_name, 'rb') as f:
-                b64_string = base64.b64encode(f.read())
+            with open('Faces_Temp/' + file_name, 'rb') as task_file:
+                b64_string = base64.b64encode(task_file.read())
                 b64_string = b64_string.decode()
                 b64_string = 'data:image/jpeg;base64,' + b64_string
             result = process_request('fd', req_dict={'imgString': b64_string})

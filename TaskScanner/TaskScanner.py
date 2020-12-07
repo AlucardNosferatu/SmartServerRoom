@@ -2,6 +2,7 @@ import os
 import json
 import time
 import datetime
+import portalocker
 
 task_list = {}
 
@@ -9,6 +10,7 @@ task_list = {}
 def task_process(file_name):
     try:
         with open(os.path.join('../Tasks', file_name), 'r') as f:
+            portalocker.lock(f, portalocker.LOCK_EX)
             json_dict = json.load(f)
         print(json_dict)
         return 'OK'
@@ -41,11 +43,16 @@ def task_parse(file_name):
         print('completed')
     else:
         print('failed')
-        with open(os.path.join('../Tasks', file_name), 'r') as fr:
-            lines = fr.readlines()
-            with open(os.path.join('Failed', file_name), 'w') as fw:
-                fw.writelines(lines)
-    os.remove(os.path.join('../Tasks', file_name))
+        try:
+            with open(os.path.join('../Tasks', file_name), 'r') as fr:
+                portalocker.lock(fr, portalocker.LOCK_EX)
+                lines = fr.readlines()
+                with open(os.path.join('Failed', file_name), 'w') as fw:
+                    fw.writelines(lines)
+            os.remove(os.path.join('../Tasks', file_name))
+        except Exception as e:
+            print('error while dumping failed task file:', file_name)
+            print(repr(e))
     del task_list[file_name]
 
 
@@ -54,7 +61,7 @@ def main_loop():
     flag = True
     while flag:
         time.sleep(1)
-        # print('Scan new task files...')
+        print('Scan new task files...')
         current_files = os.listdir('../Tasks')
         new_files = list(set(current_files).difference(set(old_files)))
         for file in new_files:
