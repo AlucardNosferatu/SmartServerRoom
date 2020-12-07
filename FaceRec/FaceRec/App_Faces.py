@@ -50,15 +50,6 @@ def check(file_id):
                 },
                 task_file
             )
-            return json.dumps(
-                {
-                    'func': 'check',
-                    'param_keys': ['file_id'],
-                    'param_dict': {
-                        'file_id': file_id
-                    }
-                }
-            )
 
         file_name = file_request(function_string='query', req_id=file_id)
         if file_name == no_found:
