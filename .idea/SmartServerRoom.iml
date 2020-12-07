@@ -8,6 +8,7 @@
       <sourceFolder url="file://$MODULE_DIR$/FaceRec/FaceRec" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CallbackListener" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/FaceRec/InsightFace" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/TaskScanner" isTestSource="false" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.7 64bits" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
