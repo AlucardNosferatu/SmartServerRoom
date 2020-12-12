@@ -20,3 +20,7 @@ TaskScanner/Failed/
 Tasks/
 TaskScanner/TS.txt
 TaskScanner/console.txt
+FaceRec/DBFace/.idea/
+FaceRec/DBFace/atomic_pid.txt
+FaceRec/DBFace/model/
+FaceRec/DBFace/prj_ncnn/model/

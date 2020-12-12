@@ -1,0 +1,2 @@
+python ./Atomic_DBFace.py > ./full_log_atomic.txt 2>&1 &
+
