@@ -24,3 +24,6 @@ FaceRec/DBFace/.idea/
 FaceRec/DBFace/atomic_pid.txt
 FaceRec/DBFace/model/
 FaceRec/DBFace/prj_ncnn/model/
+ConfInjector/test/injection/build/
+ConfInjector/test/injection/injection.egg-info/
+ConfInjector/test/injection/dist/injection-0.0.0-py3.7-win-amd64.egg
