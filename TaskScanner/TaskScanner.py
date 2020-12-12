@@ -1,31 +1,51 @@
-import os
+import datetime
 import json
+import os
 import threading
 import time
-import datetime
+import traceback
+
 import portalocker
+
+from TaskProcessors.Faces.Check import Check
+from TaskProcessors.Faces.Detect import Detect
+from TaskProcessors.Faces.Recognize import Recognize
 from logger_TS import logger
 
 task_list = {}
+processors = {'face': {'check': Check, 'detect': Detect, 'recognize': Recognize}}
 
 
 # 用于处理单个任务，统一抛出异常
 # 如无异常返回OK
 def task_process(file_name):
+    result = None
     try:
         with open(os.path.join('../Tasks', file_name), 'r') as f:
             portalocker.lock(f, portalocker.LOCK_EX)
             json_dict = json.load(f)
         print(json_dict)
         logger.debug(str(json_dict))
+        if 'task_id' in json_dict:
+            task_id = json_dict['task_id']
+            main_id = task_id['main']
+            sub_id = task_id['sub']
+            result = processors[main_id][sub_id](json_dict)
+        else:
+            raise ValueError('need task_id to identify different tasks')
         ret = 'OK'
+        trace_log = 'OK'
         # Only for test
         # assert ret != 'OK'
     except Exception as e:
-        print(repr(e))
-        logger.error(repr(e))
         ret = repr(e)
-    task_list[file_name]['ret'] = ret
+        print(ret)
+        logger.error(ret)
+        trace_log = '\n'.join(traceback.format_exc().splitlines())
+        print(trace_log)
+        logger.error(trace_log)
+    task_list[file_name]['response'] = result
+    task_list[file_name]['ret'] = trace_log
     task_list[file_name]['status'] = 'stopped'
 
 
@@ -40,7 +60,8 @@ def task_parse(file_name):
             'status': 'wait',
             'start_time': str(datetime.datetime.now()),
             'tried': 0,
-            'ret': ''
+            'ret': '',
+            'response': None
         }
     else:
         print('tried file')
@@ -68,7 +89,7 @@ def task_parse(file_name):
         task_list[file_name]['tried'] += 1
         # ret代表任务单次的结果，之后也用全局变量来进行异步传递
         # 根据任务结果给任务状态赋值
-        if task_list[file_name]['ret'] == 'OK':
+        if task_list[file_name]['ret'] == 'OK' and task_list[file_name]['response'] is not None:
             task_list[file_name]['status'] = 'completed'
             break
             # 如果第一次就成功则退出重试循环
@@ -101,7 +122,7 @@ def task_parse(file_name):
 def main_loop():
     pid = os.getpid()
     print('pid is:', pid)
-    logger.debug('pid is:'+' '+str(pid))
+    logger.debug('pid is:' + ' ' + str(pid))
     with open(os.path.join('console.txt'), 'w') as f:
         f.writelines([str(pid)])
     old_files = []

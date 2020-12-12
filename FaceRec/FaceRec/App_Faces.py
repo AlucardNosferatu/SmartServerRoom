@@ -42,7 +42,10 @@ def check(file_id):
             portalocker.lock(task_file, portalocker.LOCK_EX)
             json.dump(
                 {
-                    'func': 'check',
+                    'task_id': {
+                        'main': 'face',
+                        'sub': 'check'
+                    },
                     'param_keys': ['file_id'],
                     'param_dict': {
                         'file_id': file_id
