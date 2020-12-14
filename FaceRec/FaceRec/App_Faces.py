@@ -1,4 +1,4 @@
-import portalocker
+# import portalocker
 import base64
 import datetime
 import json
@@ -37,22 +37,22 @@ def check(file_id):
         file_id = file_id.replace("\n", "")
         time_take = time.time()
 
-        f_name = os.path.join('../../Tasks', validate_title('check_' + str(datetime.datetime.now()) + '.json'))
-        with open(f_name, 'w') as task_file:
-            portalocker.lock(task_file, portalocker.LOCK_EX)
-            json.dump(
-                {
-                    'task_id': {
-                        'main': 'face',
-                        'sub': 'check'
-                    },
-                    'param_keys': ['file_id'],
-                    'param_dict': {
-                        'file_id': file_id
-                    }
-                },
-                task_file
-            )
+        # f_name = os.path.join('../../Tasks', validate_title('check_' + str(datetime.datetime.now()) + '.json'))
+        # with open(f_name, 'w') as task_file:
+        #     portalocker.lock(task_file, portalocker.LOCK_EX)
+        #     json.dump(
+        #         {
+        #             'task_id': {
+        #                 'main': 'face',
+        #                 'sub': 'check'
+        #             },
+        #             'param_keys': ['file_id'],
+        #             'param_dict': {
+        #                 'file_id': file_id
+        #             }
+        #         },
+        #         task_file
+        #     )
 
         file_name = file_request(function_string='query', req_id=file_id)
         if file_name == no_found:
