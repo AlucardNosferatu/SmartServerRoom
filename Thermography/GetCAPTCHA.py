@@ -14,18 +14,24 @@ def enhance(img):
     return img
 
 
+# 识别函数
+def recognize(path='存放图片的文件夹', file='图片文件名'):
+    img = cv2.imread(os.path.join(path, file))
+    img = enhance(img)
+    result = reader.recognize(img)
+    result_str = result[0][1]
+    new_str_list = []
+    for char in result_str:
+        if char.isalnum():
+            new_str_list.append(char)
+    new_str = ''.join(new_str_list)
+    print(new_str)
+    cv2.imshow(new_str, cv2.resize(img, (200, 100)))
+    return new_str
+
+
 if __name__ == '__main__':
     path = '../Samples/OCR'
     for file in os.listdir(path):
-        img = cv2.imread(os.path.join(path, file))
-        img = enhance(img)
-        result = reader.recognize(img)
-        result_str = result[0][1]
-        new_str_list = []
-        for char in result_str:
-            if char.isalnum():
-                new_str_list.append(char)
-        new_str = ''.join(new_str_list)
-        print(new_str)
-        cv2.imshow(new_str, cv2.resize(img, (200, 100)))
+        recognize(path, file)
     cv2.waitKey()
