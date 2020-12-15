@@ -13,22 +13,10 @@ from flask import Flask, request
 from VideoTest import camera_async
 from cfg_FR import no_found, face_folder_path, save_path
 from logger_FR import logger
-from utils_FR import process_request, file_request, array2b64string, validate_title
+from utils_FR import process_request, file_request, array2b64string
 
 logger.info('AppFaces starts')
 app = Flask(__name__)
-
-
-def make_dir(make_dir_path):
-    path = make_dir_path.strip()
-    if not os.path.exists(path):
-        os.makedirs(path)
-    return path
-
-
-@app.route('/test')
-def img_start():
-    return json.dumps({"system": 0}, ensure_ascii=False)
 
 
 @app.route('/imr-ai-service/face_features/check/<file_id>', methods=['POST'])
@@ -502,5 +490,6 @@ if __name__ == '__main__':
     app.run(
         host="0.0.0.0",
         port=int("20291"),
-        debug=False, threaded=True)
+        debug=False, threaded=True
+    )
     # file_request('query', '2020082710274358500036c4d1')
