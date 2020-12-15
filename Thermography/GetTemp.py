@@ -48,3 +48,7 @@ def process_video(path='Samples/20201010_165228_channelT.dav'):
         else:
             cap.grab()
         count += 1
+
+
+if __name__ == '__main__':
+    process_video()
