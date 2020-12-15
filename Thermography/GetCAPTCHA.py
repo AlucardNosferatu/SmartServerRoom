@@ -15,8 +15,8 @@ def enhance(img):
 
 
 # 识别函数
-def recognize(path='存放图片的文件夹', file='图片文件名'):
-    img = cv2.imread(os.path.join(path, file))
+def recognize(full_path):
+    img = cv2.imread(full_path)
     img = enhance(img)
     result = reader.recognize(img)
     result_str = result[0][1]
@@ -31,7 +31,10 @@ def recognize(path='存放图片的文件夹', file='图片文件名'):
 
 
 if __name__ == '__main__':
-    path = '../Samples/OCR'
-    for file in os.listdir(path):
-        recognize(path, file)
+    # path = '../Samples/OCR'
+    # for file in os.listdir(path):
+    #     full_path = os.path.join(path, file)
+    #     recognize(full_path)
+    # cv2.waitKey()
+    recognize('../Samples/OCR/1.png')
     cv2.waitKey()
