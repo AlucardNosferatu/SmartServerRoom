@@ -13,3 +13,7 @@ Models/
 Samples/
 Backup/
 .vs/
+FaceRec/FaceRec/Faces_Temp/
+FaceRec/DBFace/atomic_pid.txt
+FaceRec/DBFace/model/
+FaceRec/DBFace/prj_ncnn/model/
