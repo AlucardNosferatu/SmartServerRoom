@@ -1,0 +1,278 @@
+C:\Users\16413\Documents\GitHub\UseImageAI\venv\Scripts\python.exe "C:\Program Files\JetBrains\PyCharm Community Edition 2020.1.1\plugins\python-ce\helpers\pydev\pydevd.py" --multiproc --qt-support=auto --client 127.0.0.1 --port 60033 --file C:/Users/16413/Documents/GitHub/UseImageAI/UseImageAI.py
+pydev debugger: process 18500 is connecting
+
+Connected to pydev debugger (build 201.8743.20)
+Using TensorFlow backend.
+WARNING:tensorflow:From C:\Users\16413\Documents\GitHub\UseImageAI\venv\lib\site-packages\keras\backend\tensorflow_backend.py:166: The name tf.get_default_session is deprecated. Please use tf.compat.v1.get_default_session instead.
+
+WARNING:tensorflow:From C:\Users\16413\Documents\GitHub\UseImageAI\venv\lib\site-packages\keras\backend\tensorflow_backend.py:171: The name tf.ConfigProto is deprecated. Please use tf.compat.v1.ConfigProto instead.
+
+WARNING:tensorflow:From C:\Users\16413\Documents\GitHub\UseImageAI\venv\lib\site-packages\keras\backend\tensorflow_backend.py:176: The name tf.Session is deprecated. Please use tf.compat.v1.Session instead.
+
+2020-12-17 11:09:48.683839: I tensorflow/core/platform/cpu_feature_guard.cc:142] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2
+WARNING:tensorflow:From C:\Users\16413\Documents\GitHub\UseImageAI\venv\lib\site-packages\keras\backend\tensorflow_backend.py:180: The name tf.global_variables is deprecated. Please use tf.compat.v1.global_variables instead.
+
+WARNING:tensorflow:From C:\Users\16413\Documents\GitHub\UseImageAI\venv\lib\site-packages\keras\backend\tensorflow_backend.py:68: The name tf.get_default_graph is deprecated. Please use tf.compat.v1.get_default_graph instead.
+
+WARNING:tensorflow:From C:\Users\16413\Documents\GitHub\UseImageAI\venv\lib\site-packages\keras\backend\tensorflow_backend.py:504: The name tf.placeholder is deprecated. Please use tf.compat.v1.placeholder instead.
+
+WARNING:tensorflow:From C:\Users\16413\Documents\GitHub\UseImageAI\venv\lib\site-packages\keras\backend\tensorflow_backend.py:3828: The name tf.random_uniform is deprecated. Please use tf.random.uniform instead.
+
+WARNING:tensorflow:From C:\Users\16413\Documents\GitHub\UseImageAI\venv\lib\site-packages\keras\backend\tensorflow_backend.py:3652: The name tf.nn.max_pool is deprecated. Please use tf.nn.max_pool2d instead.
+
+WARNING:tensorflow:From C:\Users\16413\Documents\GitHub\UseImageAI\venv\lib\site-packages\keras\backend\tensorflow_backend.py:3875: The name tf.truncated_normal is deprecated. Please use tf.random.truncated_normal instead.
+
+WARNING:tensorflow:From C:\Users\16413\Documents\GitHub\UseImageAI\venv\lib\site-packages\keras\backend\tensorflow_backend.py:3805: The name tf.random_normal is deprecated. Please use tf.random.normal instead.
+
+WARNING:tensorflow:From C:\Users\16413\Documents\GitHub\UseImageAI\venv\lib\site-packages\imageai\Detection\keras_retinanet\backend\tensorflow_backend.py:22: The name tf.image.resize_images is deprecated. Please use tf.image.resize instead.
+
+WARNING:tensorflow:From C:\Users\16413\Documents\GitHub\UseImageAI\venv\lib\site-packages\imageai\Detection\keras_retinanet\backend\tensorflow_backend.py:46: where (from tensorflow.python.ops.array_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use tf.where in 2.0, which has the same broadcast rule as np.where
+WARNING:tensorflow:From C:\Users\16413\Documents\GitHub\UseImageAI\venv\lib\site-packages\keras\backend\tensorflow_backend.py:189: The name tf.is_variable_initialized is deprecated. Please use tf.compat.v1.is_variable_initialized instead.
+
+WARNING:tensorflow:From C:\Users\16413\Documents\GitHub\UseImageAI\venv\lib\site-packages\keras\backend\tensorflow_backend.py:196: The name tf.variables_initializer is deprecated. Please use tf.compat.v1.variables_initializer instead.
+
+pic_001.jpg
+pic size: (800, 1200, 3)
+file size: 204785
+elapsed time: 0:00:05.629471
+pic_002.jpg
+pic size: (720, 1280, 3)
+file size: 97883
+elapsed time: 0:00:04.262844
+pic_003.jpg
+pic size: (720, 1080, 3)
+file size: 147261
+elapsed time: 0:00:04.316854
+pic_004.jpg
+pic size: (533, 800, 3)
+file size: 126556
+elapsed time: 0:00:04.317335
+pic_005.jpg
+pic size: (550, 800, 3)
+file size: 73401
+elapsed time: 0:00:04.045810
+pic_006.jpg
+pic size: (511, 750, 3)
+file size: 107289
+elapsed time: 0:00:04.034812
+pic_007.jpg
+pic size: (533, 800, 3)
+file size: 169519
+elapsed time: 0:00:04.055315
+pic_009.jpg
+pic size: (709, 1024, 3)
+file size: 160166
+elapsed time: 0:00:04.023327
+pic_011.jpg
+pic size: (1996, 3000, 3)
+file size: 969593
+elapsed time: 0:00:04.445837
+pic_012.jpg
+pic size: (304, 540, 3)
+file size: 47683
+elapsed time: 0:00:04.415838
+pic_014.jpg
+pic size: (400, 600, 3)
+file size: 99116
+elapsed time: 0:00:04.213825
+pic_015.jpg
+pic size: (300, 600, 3)
+file size: 42984
+elapsed time: 0:00:03.892837
+pic_017.jpg
+pic size: (346, 500, 3)
+file size: 46449
+elapsed time: 0:00:04.235826
+pic_018.jpg
+pic size: (828, 1200, 3)
+file size: 270558
+elapsed time: 0:00:04.138817
+pic_019.jpg
+pic size: (1200, 1200, 3)
+file size: 229161
+elapsed time: 0:00:02.915726
+pic_020.jpg
+pic size: (545, 819, 3)
+file size: 91787
+elapsed time: 0:00:04.266317
+pic_021.jpg
+pic size: (488, 640, 3)
+file size: 57321
+elapsed time: 0:00:03.560265
+pic_022.jpg
+pic size: (810, 1080, 3)
+file size: 210932
+elapsed time: 0:00:03.625098
+pic_023.jpg
+pic size: (606, 950, 3)
+file size: 551602
+elapsed time: 0:00:04.426862
+pic_025.jpg
+pic size: (875, 1500, 3)
+file size: 108472
+elapsed time: 0:00:04.613383
+pic_027.jpg
+pic size: (406, 720, 3)
+file size: 66501
+elapsed time: 0:00:04.342294
+pic_029.jpg
+pic size: (671, 1280, 3)
+file size: 216984
+elapsed time: 0:00:04.091848
+pic_031.jpg
+pic size: (477, 700, 3)
+file size: 109083
+elapsed time: 0:00:04.083343
+pic_032.jpg
+pic size: (400, 600, 3)
+file size: 116291
+elapsed time: 0:00:04.213334
+pic_033.jpg
+pic size: (621, 960, 3)
+file size: 489697
+elapsed time: 0:00:04.155807
+pic_034.jpg
+pic size: (450, 800, 3)
+file size: 50721
+elapsed time: 0:00:04.538847
+pic_035.jpg
+pic size: (450, 600, 3)
+file size: 176439
+elapsed time: 0:00:03.931802
+pic_036.jpg
+pic size: (2400, 1600, 3)
+file size: 364308
+elapsed time: 0:00:04.463345
+pic_037.jpg
+pic size: (359, 500, 3)
+file size: 42609
+elapsed time: 0:00:04.141324
+pic_038.jpg
+pic size: (322, 500, 3)
+file size: 39647
+elapsed time: 0:00:04.707373
+pic_039.jpg
+pic size: (627, 930, 3)
+file size: 118715
+elapsed time: 0:00:04.518846
+pic_040.jpg
+pic size: (367, 550, 3)
+file size: 81583
+elapsed time: 0:00:04.366832
+pic_042.jpg
+pic size: (1397, 804, 3)
+file size: 92078
+elapsed time: 0:00:05.193407
+pic_043.jpg
+pic size: (800, 800, 3)
+file size: 109318
+elapsed time: 0:00:03.147744
+pic_044.jpg
+pic size: (1280, 1707, 3)
+file size: 284780
+elapsed time: 0:00:04.226567
+pic_045.jpg
+pic size: (529, 392, 3)
+file size: 24130
+elapsed time: 0:00:03.961804
+pic_046.jpg
+pic size: (660, 1280, 3)
+file size: 123794
+elapsed time: 0:00:04.100821
+pic_049.jpg
+pic size: (1440, 960, 3)
+file size: 172871
+elapsed time: 0:00:04.155309
+pic_050.jpg
+pic size: (471, 630, 3)
+file size: 131121
+elapsed time: 0:00:03.747791
+pic_051.jpg
+pic size: (400, 600, 3)
+file size: 96446
+elapsed time: 0:00:04.324830
+pic_052.jpg
+pic size: (425, 640, 3)
+file size: 52882
+elapsed time: 0:00:04.482359
+pic_053.jpg
+pic size: (1220, 750, 3)
+file size: 284117
+elapsed time: 0:00:04.732864
+pic_054.jpg
+pic size: (333, 500, 3)
+file size: 19439
+elapsed time: 0:00:04.205823
+pic_055.jpg
+pic size: (1742, 1080, 3)
+file size: 266022
+elapsed time: 0:00:04.602356
+pic_056.jpg
+pic size: (620, 499, 3)
+file size: 55231
+elapsed time: 0:00:03.499280
+pic_057.jpg
+pic size: (339, 510, 3)
+file size: 52496
+elapsed time: 0:00:04.293828
+pic_058.jpg
+pic size: (437, 640, 3)
+file size: 42275
+elapsed time: 0:00:03.980297
+pic_059.jpg
+pic size: (676, 450, 3)
+file size: 294195
+elapsed time: 0:00:04.495336
+pic_061.jpg
+pic size: (648, 1024, 3)
+file size: 690346
+elapsed time: 0:00:04.743895
+pic_062.jpg
+pic size: (1211, 640, 3)
+file size: 120476
+elapsed time: 0:00:04.222333
+pic_063.jpg
+pic size: (1080, 1440, 3)
+file size: 269524
+elapsed time: 0:00:03.786300
+pic_064.jpg
+pic size: (487, 1024, 3)
+file size: 571553
+elapsed time: 0:00:03.728296
+pic_066.jpg
+pic size: (897, 910, 3)
+file size: 184570
+elapsed time: 0:00:02.896214
+pic_067.jpg
+pic size: (451, 680, 3)
+file size: 38292
+elapsed time: 0:00:04.234882
+pic_068.jpg
+pic size: (723, 1024, 3)
+file size: 116081
+elapsed time: 0:00:04.021147
+pic_069.jpg
+pic size: (422, 750, 3)
+file size: 79146
+elapsed time: 0:00:04.742373
+pic_070.jpg
+pic size: (400, 600, 3)
+file size: 19903
+elapsed time: 0:00:04.595398
+pic_072.jpg
+pic size: (480, 640, 3)
+file size: 89569
+elapsed time: 0:00:04.136825
+pic_073.jpg
+pic size: (810, 1080, 3)
+file size: 41797
+elapsed time: 0:00:04.025810
+pic_074.jpg
+pic size: (720, 1280, 3)
+file size: 200190
+elapsed time: 0:00:04.541851
+pic_075.jpg
+
+Process finished with exit code -1
