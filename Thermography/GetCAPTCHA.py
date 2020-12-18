@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 import easyocr
 
-reader = easyocr.Reader(['ch_sim', 'en'])  # need to run only once to load model into memory
+reader = easyocr.Reader(['ch_sim', 'en'], gpu=False)  # need to run only once to load model into memory
 
 
 def enhance(img):
