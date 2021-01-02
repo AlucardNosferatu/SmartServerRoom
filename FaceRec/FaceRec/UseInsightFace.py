@@ -93,7 +93,7 @@ def test_detector(img_array):
         y2 += dh
         if y2 > img_array.shape[0] - 1:
             y2 = img_array.shape[0] - 1
-        out_d.append([int(x1), int(y1), int(x2), int(y2)])
+        out_d.append([int(x1)*2, int(y1)*2, int(x2)*2, int(y2)*2])
     return out_d
 
 

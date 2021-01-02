@@ -145,14 +145,15 @@ def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None, for_file=Fal
     rest_time = span_in_ms - duration.microseconds - (1000000 * duration.seconds)
     print('还剩', rest_time)
     logger.debug('还剩：' + str(rest_time))
-    while rest_time > 0:
-        cap.grab()
-        now_is = datetime.datetime.now()
-        duration = now_is - prev_time
-        rest_time = span_in_ms - duration.microseconds - (1000000 * duration.seconds)
+    if not for_file:
+        while rest_time > 0:
+            cap.grab()
+            now_is = datetime.datetime.now()
+            duration = now_is - prev_time
+            rest_time = span_in_ms - duration.microseconds - (1000000 * duration.seconds)
     print('当前时间', str(datetime.datetime.now()))
     logger.debug('当前时间：' + str(datetime.datetime.now()))
-    while len(result['res']) == 0 and time_elapsed < wait:
+    while len(result['res']) == 0 and (for_file or time_elapsed < wait):
         # print('截三帧', count, time_elapsed)
         # logger.debug('截三帧：' + str(count) + ' ' + str(time_elapsed))
         current_time = datetime.datetime.now()
@@ -172,6 +173,8 @@ def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None, for_file=Fal
                 img_string = ss_result['result']
                 array = b64string2array(img_string)
                 array = cv2.resize(array, (1024, 768))
+                cv2.imshow('d', array)
+                cv2.waitKey(1)
                 resized_string = array2b64string(array)
                 result = process_request(fd_version, req_dict={'imgString': resized_string.decode()})
                 print('face_detec_result', result, str(datetime.datetime.now()))
@@ -275,6 +278,8 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
                         t_detect.start()
                     if record_flag or first_time:
                         frame_queue.append(frame)
+                        if len(frame_queue) > fps:
+                            frame_queue.pop(0)
                 else:
                     break
             else:
@@ -619,12 +624,12 @@ def remove_duplicated(faces):
 
 if __name__ == '__main__':
     result = camera_async(
-        callbacl_str='camera2',
+        callbacl_str='camera',
         rtsp='../../Samples/test.mp4',
         post_result=True,
         cr_id='test',
-        count=5,
-        wait=1500,
-        capture=True,
+        count=3,
+        wait=60,
+        capture=False,
         file_id=None
     )
