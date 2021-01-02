@@ -69,8 +69,7 @@ reload_records()
 def test_detector(img_array):
     out_d = []
 
-    img_array = cv2.resize(img_array, (int(img_array.shape[1] / 4), int(img_array.shape[0] / 4)))
-
+    img_array = cv2.resize(img_array, (int(img_array.shape[1] / 2), int(img_array.shape[0] / 2)))
     detected = model.get(img_array)
 
     for d in detected:

@@ -234,16 +234,22 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
         # logger.debug('当前帧序号：' + str(count))
         if ret:
             if count % 2 == 0:
+                if for_file:
+                    while not detect_dict[cr_id]['idle']:
+                        time.sleep(0.01)
                 ret, frame = sample.read()
                 if ret:
                     frame = cv2.resize(frame, (512, 384))
-                    # cv2.imshow('inspection', frame)
-                    # cv2.waitKey(1)
+
+                    cv2.imshow('inspection', frame)
+                    cv2.waitKey(1)
                     # print('队列状态', detect_dict[cr_id]['idle'])
                     # logger.debug('队列状态：' + str(detect_dict[cr_id]['idle']))
                     if detect_dict[cr_id]['idle']:
                         result = {'res': detect_dict[cr_id]['rect']}
                         if result['res'] is not None and len(frame_queue) > 0:
+                            print("detected:")
+                            print(result['res'])
                             no_face = 0
                             if not record_flag:
                                 record_flag = True
@@ -257,7 +263,7 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
                             )
                         elif record_flag:
                             no_face += 1
-                        while len(frame_queue) > 0:
+                        while record_flag and len(frame_queue) > 0:
                             # print('正在写入流，剩余帧数', len(frame_queue))
                             # logger.debug('正在写入流，剩余帧数：' + str(len(frame_queue)))
                             video_w.write(frame_queue.pop(0))
@@ -347,7 +353,10 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
         file_name = file_request('query', file_id)
         rtsp = os.path.join(save_path, file_name)
     else:
-        for_file = False
+        if not rtsp.endswith('.mp4'):
+            for_file = False
+        else:
+            for_file = True
     while times > 0:
         print('剩余检测次数', times)
         logger.debug('剩余检测次数：' + str(times))
@@ -367,6 +376,7 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
                     for_file=for_file,
                     prev_sample=sample
                 )
+
                 times -= 1
             else:
                 times = 0
@@ -570,11 +580,19 @@ def detect_async(fd_version, cr_id):
     result = process_request(fd_version, req_dict={'imgString': img_string.decode()})
     if len(result['res']) != 0:
         detect_dict[cr_id]['rect'] = result['res']
+        print('检测结束', detect_dict[cr_id]['idle'])
+        logger.debug('检测结束：' + str(detect_dict[cr_id]['idle']))
+        detect_dict[cr_id]['idle'] = True
+        print('检测结束', detect_dict[cr_id]['idle'])
     else:
-        detect_dict[cr_id]['rect'] = None
-    print('检测结束', detect_dict[cr_id]['idle'])
-    logger.debug('检测结束：' + str(detect_dict[cr_id]['idle']))
-    detect_dict[cr_id]['idle'] = True
+        try:
+            detect_dict[cr_id]['rect'] = None
+            print('检测结束', detect_dict[cr_id]['idle'])
+            logger.debug('检测结束：' + str(detect_dict[cr_id]['idle']))
+            detect_dict[cr_id]['idle'] = True
+            print('检测结束', detect_dict[cr_id]['idle'])
+        except KeyError:
+            print("Already purged")
 
 
 def remove_duplicated(faces):
@@ -600,12 +618,13 @@ def remove_duplicated(faces):
 
 
 if __name__ == '__main__':
-    cap = cv2.VideoCapture('rtsp://admin:zww123456.@192.168.56.111:5542')
-    while True:
-        ret, frame = cap.read()
-        if frame is not None:
-            frame = cv2.resize(frame, (1024, 768))
-            cv2.imshow('fuck', frame)
-            cv2.waitKey(1)
-        else:
-            break
+    result = camera_async(
+        callbacl_str='camera2',
+        rtsp='../../Samples/test.mp4',
+        post_result=True,
+        cr_id='test',
+        count=5,
+        wait=1500,
+        capture=True,
+        file_id=None
+    )
