@@ -263,7 +263,7 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
                             )
                         elif record_flag:
                             no_face += 1
-                        while record_flag and len(frame_queue) > 0:
+                        while count > 1 and record_flag and len(frame_queue) > 0:
                             # print('正在写入流，剩余帧数', len(frame_queue))
                             # logger.debug('正在写入流，剩余帧数：' + str(len(frame_queue)))
                             video_w.write(frame_queue.pop(0))
