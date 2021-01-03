@@ -99,7 +99,7 @@ def test_detector(img_array):
 
 def test_recognizer(img_array, align=True, use_dbf=True):
     now = datetime.datetime.now()
-    img_array = cv2.resize(img_array, (int(img_array.shape[1] / 4), int(img_array.shape[0] / 4)))
+    # img_array = cv2.resize(img_array, (int(img_array.shape[1] / 2), int(img_array.shape[0] / 2)))
     if align:
         # end to end process including detection
         faces = model.get(img_array)

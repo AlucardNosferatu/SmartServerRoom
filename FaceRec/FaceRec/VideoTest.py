@@ -303,6 +303,16 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
     return video_w, record_flag, output_name, sample
 
 
+def recognize_local(img, new_result_list):
+    b64str = array2b64string(img).decode()
+    fr_result = process_request('fr', req_dict={'imgString': b64str})
+    cv2.imshow('r', img)
+    print(fr_result)
+    cv2.waitKey()
+    new_result_list.append(fr_result)
+    return new_result_list
+
+
 def crop_and_recognize(img, rect, scene_id, new_result_list):
     # x1 = int(img.shape[1] * rect[0] / 1024)
     # y1 = int(img.shape[0] * rect[1] / 768)
@@ -343,6 +353,8 @@ def crop_and_recognize(img, rect, scene_id, new_result_list):
 
 
 def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, capture=False, file_id=None):
+    local_test = True
+    # 本地测试把这个打开
     bt = str(datetime.datetime.now())
     img_string_list = []
     box_coordinates = []
@@ -482,18 +494,24 @@ def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, captu
                 continue
             img = b64string2array(img_string)
             cv2.imwrite(file_out, img)
-            scene_id = file_request('upload', {'file': open(file_out, 'rb')})
-            print('scene_id', scene_id)
-            logger.debug('scene_id：' + str(scene_id))
-            if scene_id is None:
-                continue
-            ret = file_request('save', scene_id)
-            if ret == scene_id:
-                scene_id_list.append(scene_id)
-                os.remove(file_out)
-                if len(box_coordinates[index]['res']) > 0 and len(img_string_list) > 1:
-                    for rect in box_coordinates[index]['res']:
+            scene_id = ""
+            if not local_test:
+                scene_id = file_request('upload', {'file': open(file_out, 'rb')})
+                print('scene_id', scene_id)
+                logger.debug('scene_id：' + str(scene_id))
+                if scene_id is None:
+                    continue
+                ret = file_request('save', scene_id)
+                if ret == scene_id:
+                    scene_id_list.append(scene_id)
+                    os.remove(file_out)
+
+            if len(box_coordinates[index]['res']) > 0 and len(img_string_list) > 1:
+                for rect in box_coordinates[index]['res']:
+                    if not local_test:
                         new_result_list = crop_and_recognize(img, rect, scene_id, new_result_list)
+                    else:
+                        new_result_list = recognize_local(img, new_result_list)
         print(new_result_list)
         logger.debug(str(new_result_list))
         result = {
