@@ -153,6 +153,7 @@ def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None, for_file=Fal
             rest_time = span_in_ms - duration.microseconds - (1000000 * duration.seconds)
     print('当前时间', str(datetime.datetime.now()))
     logger.debug('当前时间：' + str(datetime.datetime.now()))
+    resized_string=''
     while len(result['res']) == 0 and (for_file or time_elapsed < wait):
         # print('截三帧', count, time_elapsed)
         # logger.debug('截三帧：' + str(count) + ' ' + str(time_elapsed))
@@ -172,7 +173,11 @@ def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None, for_file=Fal
             if type(ss_result) is dict and 'result' in ss_result and ss_result['result'] is not None:
                 img_string = ss_result['result']
                 array = b64string2array(img_string)
-                array = cv2.resize(array, (1024, 768))
+                x = int(array.shape[0] / 2)
+                y1 = int(array.shape[1] / 3)
+                y2 = int(2 * array.shape[1] / 3)
+                array = array[0:x, y1:y2]
+                # array = cv2.resize(array, (1024, 768))
                 cv2.imshow('d', array)
                 cv2.waitKey(1)
                 resized_string = array2b64string(array)
@@ -191,6 +196,7 @@ def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None, for_file=Fal
             cap.grab()
             # print('跳过当前帧', count)
             # logger.debug('跳过当前帧：' + str(count))
+    img_string=resized_string
     return img_string, result, cap, array, cap_time
 
 
