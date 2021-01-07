@@ -178,8 +178,8 @@ def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None, for_file=Fal
                 y2 = int(2 * array.shape[1] / 3)
                 array = array[0:x, y1:y2]
                 # array = cv2.resize(array, (1024, 768))
-                cv2.imshow('d', array)
-                cv2.waitKey(1)
+                # cv2.imshow('d', array)
+                # cv2.waitKey(1)
                 resized_string = array2b64string(array)
                 result = process_request(fd_version, req_dict={'imgString': resized_string.decode()})
                 print('face_detec_result', result, str(datetime.datetime.now()))
@@ -250,8 +250,8 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
                 if ret:
                     frame = cv2.resize(frame, (512, 384))
 
-                    cv2.imshow('inspection', frame)
-                    cv2.waitKey(1)
+                    # cv2.imshow('inspection', frame)
+                    # cv2.waitKey(1)
                     # print('队列状态', detect_dict[cr_id]['idle'])
                     # logger.debug('队列状态：' + str(detect_dict[cr_id]['idle']))
                     if detect_dict[cr_id]['idle']:
@@ -312,9 +312,10 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
 def recognize_local(img, new_result_list):
     b64str = array2b64string(img).decode()
     fr_result = process_request('fr', req_dict={'imgString': b64str})
-    cv2.imshow('r', img)
+    # cv2.imshow('r', img)
     print(fr_result)
-    cv2.waitKey()
+    logger.debug(str(fr_result))
+    # cv2.waitKey()
     new_result_list.append(fr_result)
     return new_result_list
 
@@ -326,13 +327,16 @@ def crop_and_recognize(img, rect, scene_id, new_result_list):
     # y2 = int(img.shape[0] * rect[3] / 768)
     # new_img = img[y1:y2, x1:x2]
     new_img = img
+    b64str = array2b64string(img).decode()
     cv2.imwrite('Faces_Temp/temp.jpg', new_img)
     uploaded_id = file_request('upload', {'file': open('Faces_Temp/temp.jpg', 'rb')})
     if uploaded_id is None:
         return new_result_list
     ret = file_request('save', uploaded_id)
     if ret == uploaded_id:
-        result_temp = call_recognize(uploaded_id)['data']
+        # result_temp = call_recognize(uploaded_id)['data']
+        result_temp = [process_request('fr', req_dict={'imgString': b64str})]
+        logger.debug(str(result_temp))
         print('Recognition has been called')
         logger.info('Recognition has been called')
         if len(result_temp) > 0 and 'res' in result_temp[0]:
@@ -359,7 +363,7 @@ def crop_and_recognize(img, rect, scene_id, new_result_list):
 
 
 def camera_async(callbacl_str, rtsp, post_result, cr_id, count=3, wait=25, capture=False, file_id=None):
-    local_test = True
+    local_test = False
     # 本地测试把这个打开
     bt = str(datetime.datetime.now())
     img_string_list = []

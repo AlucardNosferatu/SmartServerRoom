@@ -46,14 +46,17 @@ def check(file_id):
         if file_name == no_found:
             result = -1
             nf = no_found
+            logger.error("File not found in CEPH")
         else:
             nf = None
             with open('Faces_Temp/' + file_name, 'rb') as task_file:
                 b64_string = base64.b64encode(task_file.read())
                 b64_string = b64_string.decode()
                 b64_string = 'data:image/jpeg;base64,' + b64_string
+            logger.info("Do FD now")
             result = process_request('fd', req_dict={'imgString': b64_string})
             if len(result['res']) > 0:
+                logger.info("Result valid")
                 new_result = []
                 for rect in result['res']:
                     img = cv2.imread('Faces_Temp/' + file_name)
@@ -72,6 +75,7 @@ def check(file_id):
                         logger.debug(str(p))
                         img = cv2.circle(img=img, center=p, radius=r, color=(255, 0, 0), thickness=-1)
                     cv2.imwrite('Faces_Temp/cropped_' + file_name, img)
+                    logger.info("Do upload")
                     uploaded_id = file_request(
                         'upload',
                         {
