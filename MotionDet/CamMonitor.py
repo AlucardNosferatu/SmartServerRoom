@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 from avtk.backends.ffmpeg.convert import FFmpeg, Output, Video, NoAudio
 
+from logger_MD import logger
 from Analysis import start_test_lite, start_test_time, start_test_new
 from HTTPInterface import post_result, MyRequestHandler
 from http.server import HTTPServer
@@ -150,14 +151,18 @@ def specify_index(indices, i):
 
 
 def convert(file_path='M_Temp/20201016080724624_a20a7db5.mp4', codec=None, postfix=None, br=None, new_scale=None):
+    logger.debug('Codec: '+str(codec))
     if codec is None or postfix is None:
         codec = 'libx264'
         postfix = '.flv'
+    logger.debug('BR: '+str(br))
     if br is None:
         br = '1500k'
+    logger.debug('Scale: ' + str(new_scale))
     if new_scale is None:
         new_scale = (-1, 768)
     output_path = file_path.replace('.mp4', '.MP4').replace('.MP4', postfix)
+    logger.debug('Output: ' + str(output_path))
     start = datetime.datetime.now()
     print(codec, postfix, br, new_scale, output_path)
     try:
@@ -174,10 +179,12 @@ def convert(file_path='M_Temp/20201016080724624_a20a7db5.mp4', codec=None, postf
         ).run()
     except Exception as e:
         print(repr(e))
+        logger.error(repr(e))
         output_path = -1
     # convert_to_h264(file_path, 'Outputs/test.mp4', preset='fast')
     end = datetime.datetime.now()
     print(str(end - start))
+    logger.debug(str(end - start))
     return output_path
 
 
