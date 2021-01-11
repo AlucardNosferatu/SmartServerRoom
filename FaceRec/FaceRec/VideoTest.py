@@ -273,8 +273,8 @@ def capture_during_detected(cr_id, rtsp, wait, fd_version='fd', prev_video_w=Non
                         elif record_flag:
                             no_face += 1
                         while count > 1 and record_flag and len(frame_queue) > 0:
-                            # print('正在写入流，剩余帧数', len(frame_queue))
-                            # logger.debug('正在写入流，剩余帧数：' + str(len(frame_queue)))
+                            print('正在写入流，剩余帧数', len(frame_queue))
+                            logger.debug('正在写入流，剩余帧数：' + str(len(frame_queue)))
                             video_w.write(frame_queue.pop(0))
                         detect_dict[cr_id]['frame'] = frame
                         # 进行异步检测请求
@@ -656,8 +656,8 @@ if __name__ == '__main__':
         rtsp='../../Samples/test.mp4',
         post_result=True,
         cr_id='test',
-        count=3,
-        wait=60,
-        capture=False,
+        count=5,
+        wait=1500,
+        capture=True,
         file_id=None
     )
