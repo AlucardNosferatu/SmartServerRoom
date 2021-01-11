@@ -1,11 +1,11 @@
 import json
-import logging
 import os
 import time
 
 import numpy as np
 from flask import Flask, request
 
+from logger_MD import logger
 from Analysis import get_diff, six_histograms, trigger
 from CamMonitor import convert, calc_and_draw_hist
 from MostDifferentFrame import snap_atom
@@ -25,6 +25,7 @@ def img_start():
 def video_convert():
     if request.method == "POST":
         c_da = request.data
+        logger.debug(c_da.decode())
         data = json.loads(c_da.decode())
         video_path = data['file_path']
         video_codec = data['codec']
