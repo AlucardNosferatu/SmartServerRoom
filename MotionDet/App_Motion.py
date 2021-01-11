@@ -5,6 +5,7 @@ import time
 
 from flask import Flask, request
 
+from logger_MD import logger
 from AsyncProcess import convert_async
 from cfg_MD import save_path
 
@@ -30,8 +31,9 @@ def convert():
         c_da = request.data
         data = json.loads(c_da.decode())
         file_id = data['ceph_id']
+        logger.debug("CEPH_ID: " + str(file_id))
         trance_id = data['trance_log_id']
-
+        logger.debug("TRANCE_ID: " + str(trance_id))
         if trance_id != 'LOCAL_USAGE':
             t_conv = threading.Thread(target=convert_async, args=(file_id, trance_id))
             t_conv.start()
