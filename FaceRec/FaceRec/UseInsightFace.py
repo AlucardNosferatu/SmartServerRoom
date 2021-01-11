@@ -22,7 +22,6 @@ vector_list = []
 name_list = []
 
 
-
 def reload_records(align=True, use_dbf=True):
     global vector_list, name_list
     prev = len(name_list)
@@ -75,12 +74,10 @@ def reload_records(align=True, use_dbf=True):
 reload_records()
 
 
+
 def test_detector(img_array):
     out_d = []
-
-    # img_array = cv2.resize(img_array, (int(img_array.shape[1] / 2), int(img_array.shape[0] / 2)))
     detected = model.get(img_array)
-
     for d in detected:
         x1 = d.bbox[0]
         x2 = d.bbox[2]
@@ -102,12 +99,11 @@ def test_detector(img_array):
         y2 += dh
         if y2 > img_array.shape[0] - 1:
             y2 = img_array.shape[0] - 1
-        out_d.append([int(x1) * 2, int(y1) * 2, int(x2) * 2, int(y2) * 2])
+        out_d.append([int(x1), int(y1), int(x2), int(y2)])
     return out_d
 
 
 def test_recognizer(img_array, align=True, use_dbf=True):
-
     now = datetime.datetime.now()
     # img_array = cv2.resize(img_array, (int(img_array.shape[1] / 2), int(img_array.shape[0] / 2)))
     if align:
