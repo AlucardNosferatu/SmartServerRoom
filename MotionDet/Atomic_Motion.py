@@ -16,29 +16,6 @@ from utils_MD import b64string2array, array2b64string, position_map
 app = Flask(__name__)
 
 
-def make_dir(make_dir_path):
-    path = make_dir_path.strip()
-    if not os.path.exists(path):
-        os.makedirs(path)
-    return path
-
-
-# log init start
-log_dir_name = "logs"
-log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-log_file_folder = os.path.join(os.getcwd(), log_dir_name)
-make_dir(log_file_folder)
-log_file_str = log_file_folder + os.sep + log_file_name
-log_level = logging.INFO
-handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-# handler.setLevel(log_level)
-app.logger.setLevel(log_level)
-logging_format = logging.Formatter(
-    '%(asctime)s - %(levelname)s - %(filename)s - %(funcName)s - %(lineno)s - %(message)s')
-handler.setFormatter(logging_format)
-app.logger.addHandler(handler)
-
-
 @app.route('/test')
 def img_start():
     return json.dumps({"system": 0}, ensure_ascii=False)
@@ -46,12 +23,6 @@ def img_start():
 
 @app.route('/imr-ai-service/atomic_functions/convert', methods=['POST'])
 def video_convert():
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
     if request.method == "POST":
         c_da = request.data
         data = json.loads(c_da.decode())
@@ -77,9 +48,6 @@ def video_convert():
         # if video_deletion and os.path.exists(video_path):
         #     os.remove(video_path)
         time_take = time.time() - time_take
-        if "fileName" in data.keys():
-            app.logger.info("recognition  return:{d},use time:{t}".format(d=result, t=time_take))
-            return json.dumps({data['fileName']: [{'value': result}]}, ensure_ascii=False)
         # os.remove(path)
         return json.dumps({'res': result, 'timeTake': round(time_take, 4)},
                           ensure_ascii=False)
@@ -87,12 +55,6 @@ def video_convert():
 
 @app.route('/imr-ai-service/atomic_functions/timestamp', methods=['POST'])
 def timestamp():
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
     if request.method == "POST":
         c_da = request.data
         data = json.loads(c_da.decode())
@@ -104,21 +66,12 @@ def timestamp():
         else:
             result = get_boxes(img)
         time_take = time.time() - time_take
-        if "fileName" in data.keys():
-            app.logger.info("recognition  return:{d},use time:{t}".format(d=result, t=time_take))
-            return json.dumps({data['fileName']: [{'value': result}]}, ensure_ascii=False)
         return json.dumps({'res': result, 'timeTake': round(time_take, 4)},
                           ensure_ascii=False)
 
 
 @app.route('/imr-ai-service/atomic_functions/cut_a_box', methods=['POST'])
 def cut_a_box():
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
     if request.method == "POST":
         c_da = request.data
         data = json.loads(c_da.decode())
@@ -133,21 +86,12 @@ def cut_a_box():
             if type(result) is np.array:
                 result = array2b64string(result)
         time_take = time.time() - time_take
-        if "fileName" in data.keys():
-            app.logger.info("recognition  return:{d},use time:{t}".format(d=result, t=time_take))
-            return json.dumps({data['fileName']: [{'value': result}]}, ensure_ascii=False)
         return json.dumps({'res': result, 'timeTake': round(time_take, 4)},
                           ensure_ascii=False)
 
 
 @app.route('/imr-ai-service/atomic_functions/most_different_frames', methods=['POST'])
 def most_different_frames():
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
     if request.method == "POST":
         c_da = request.data
         data = json.loads(c_da.decode())
@@ -162,21 +106,12 @@ def most_different_frames():
                 frame_b = array2b64string(frame_b)
             result = {'frame_a': frame_a, 'frame_b': frame_b}
         time_take = time.time() - time_take
-        if "fileName" in data.keys():
-            app.logger.info("recognition  return:{d},use time:{t}".format(d=result, t=time_take))
-            return json.dumps({data['fileName']: [{'value': result}]}, ensure_ascii=False)
         return json.dumps({'res': result, 'timeTake': round(time_take, 4)},
                           ensure_ascii=False)
 
 
 @app.route('/imr-ai-service/atomic_functions/difference_between_frames', methods=['POST'])
 def difference_between_frames():
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
     if request.method == "POST":
         c_da = request.data
         data = json.loads(c_da.decode())
@@ -194,21 +129,12 @@ def difference_between_frames():
                 diff = array2b64string(diff)
             result = {'old_frame': frame_a, 'diff': diff}
         time_take = time.time() - time_take
-        if "fileName" in data.keys():
-            app.logger.info("recognition  return:{d},use time:{t}".format(d=result, t=time_take))
-            return json.dumps({data['fileName']: [{'value': result}]}, ensure_ascii=False)
         return json.dumps({'res': result, 'timeTake': round(time_take, 4)},
                           ensure_ascii=False)
 
 
 @app.route('/imr-ai-service/atomic_functions/histograms_3x2', methods=['POST'])
 def histograms_3x2():
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
     if request.method == "POST":
         c_da = request.data
         data = json.loads(c_da.decode())
@@ -229,21 +155,12 @@ def histograms_3x2():
                 'right_bottom': result[5]
             }
         time_take = time.time() - time_take
-        if "fileName" in data.keys():
-            app.logger.info("recognition  return:{d},use time:{t}".format(d=result, t=time_take))
-            return json.dumps({data['fileName']: [{'value': result}]}, ensure_ascii=False)
         return json.dumps({'res': result, 'timeTake': round(time_take, 4)},
                           ensure_ascii=False)
 
 
 @app.route('/imr-ai-service/atomic_functions/hot_zone', methods=['POST'])
 def hot_zone():
-    log_file_name = 'logger-' + time.strftime('%Y-%m-%d', time.localtime(time.time())) + '.log'
-    log_file_str = log_file_folder + os.sep + log_file_name
-    if not os.path.exists(log_file_str):
-        handler = logging.FileHandler(log_file_str, encoding='UTF-8')
-        handler.setFormatter(logging_format)
-        app.logger.addHandler(handler)
     if request.method == "POST":
         c_da = request.data
         data = json.loads(c_da.decode())
@@ -261,9 +178,6 @@ def hot_zone():
                 'request_threshold': threshold
             }
         time_take = time.time() - time_take
-        if "fileName" in data.keys():
-            app.logger.info("recognition  return:{d},use time:{t}".format(d=result, t=time_take))
-            return json.dumps({data['fileName']: [{'value': result}]}, ensure_ascii=False)
         return json.dumps({'res': result, 'timeTake': round(time_take, 4)},
                           ensure_ascii=False)
 
