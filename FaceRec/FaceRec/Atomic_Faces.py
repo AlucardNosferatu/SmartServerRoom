@@ -116,6 +116,7 @@ def snapshot():
             logger.info('连续截图模式启动.')
             multiple = data['multiple']
             file_name = file_request('query', data['cephId'])
+            logger.debug('从ceph查到的文件名:'+str(file_name))
             rtsp_address = os.path.join(save_path, file_name)
         else:
             multiple = None

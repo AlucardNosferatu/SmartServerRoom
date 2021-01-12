@@ -160,7 +160,7 @@ def convert(file_path='M_Temp/20201016080724624_a20a7db5.mp4', codec=None, postf
         br = '1500k'
     logger.debug('Scale: ' + str(new_scale))
     if new_scale is None:
-        new_scale = (-1, 768)
+        new_scale = (1024, 768)
     output_path = file_path.replace('.mp4', '.MP4').replace('.MP4', postfix)
     logger.debug('Output: ' + str(output_path))
     start = datetime.datetime.now()
