@@ -9,7 +9,7 @@ output_path = 'Samples/Output'
 save_path = 'P_Temp'
 
 
-def init_detector(model_path='Models/resnet50_coco_best_v2.0.1.h5'):
+def init_detector(model_path='Models/resnet50_coco_best_v2.1.0.h5'):
     detector = ObjectDetection()
     detector.setModelTypeAsRetinaNet()
     detector.setModelPath(model_path)
