@@ -58,6 +58,7 @@ def check(file_id):
         time_take = time.time()
         print('下载文件', file_id)
         file_name = download(req_id=file_id, from_temp=True)
+        print('下载结果:',file_name)
         if not (file_name.endswith('.jpg') or file_name.endswith('.png')):
             result = file_name
             ret = False

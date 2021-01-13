@@ -83,6 +83,7 @@ def detect_body_parts(file_id, file_name, recodeId, equipmentId):
         b64_string = 'data:image/jpeg;base64,' + b64_string
     print('开始检测')
     result = process_request('pd', req_dict={'imgString': b64_string})
+    print('检测结果:',result)
     print(os.path.join(save_path, file_name))
     print(os.path.exists(os.path.join(save_path, file_name)))
     if os.path.exists(os.path.join(save_path, file_name)):

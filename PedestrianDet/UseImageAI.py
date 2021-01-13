@@ -57,8 +57,9 @@ def test_on_array(img, detector=d):
     )
     for det in detections:
         coordinates.append(det['box_points'])
+
     print('Done')
-    return coordinates
+    return {'boxes': coordinates, 'count': len(coordinates)}
 
 
 if __name__ == '__main__':
