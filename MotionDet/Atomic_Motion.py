@@ -38,6 +38,7 @@ def video_convert():
             result = -1
         else:
             print('start to convert')
+            logger.info('start to convert')
             result = convert(
                 file_path=video_path,
                 codec=video_codec,
@@ -46,6 +47,7 @@ def video_convert():
                 new_scale=video_scale
             )
             print('complete convert')
+            logger.info('complete convert')
         # if video_deletion and os.path.exists(video_path):
         #     os.remove(video_path)
         time_take = time.time() - time_take

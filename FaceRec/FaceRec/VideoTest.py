@@ -176,7 +176,7 @@ def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None, for_file=Fal
                 x = int(array.shape[0] / 2)
                 y1 = int(array.shape[1] / 3)
                 y2 = int(2 * array.shape[1] / 3)
-                array = array[0:x, y1:y2]
+                # array = array[0:x, y1:y2]
                 # array = cv2.resize(array, (1024, 768))
                 # cv2.imshow('d', array)
                 # cv2.waitKey(1)

@@ -17,6 +17,7 @@ def detect_p():
         c_da = request.data
         data = json.loads(c_da.decode())
         img_string = data['imgString']
+        print(img_string[:100])
         img = b64string2array(img_string)
         time_take = time.time()
         if img is None:

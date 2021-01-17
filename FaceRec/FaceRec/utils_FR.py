@@ -110,6 +110,7 @@ def file_request(function_string, req_id, save_path='Faces_Temp', bName='fries')
         response.raise_for_status()
         try:
             result = json.loads(response.content.decode('utf-8'))
+            logger.debug(str(result))
         except Exception as e:
             print(repr(e))
             logger.error(repr(e))

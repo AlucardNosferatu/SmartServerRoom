@@ -74,10 +74,13 @@ def reload_records(align=True, use_dbf=True):
 reload_records()
 
 
-
 def test_detector(img_array):
     out_d = []
-    detected = model.get(img_array)
+    try:
+        detected = model.get(img_array)
+    except Exception as e:
+        logger.error(repr(e))
+        detected = []
     for d in detected:
         x1 = d.bbox[0]
         x2 = d.bbox[2]
@@ -108,7 +111,11 @@ def test_recognizer(img_array, align=True, use_dbf=True):
     # img_array = cv2.resize(img_array, (int(img_array.shape[1] / 2), int(img_array.shape[0] / 2)))
     if align:
         # end to end process including detection
-        faces = model.get(img_array)
+        try:
+            faces = model.get(img_array)
+        except Exception as e:
+            logger.error(repr(e))
+            faces = []
         length = len(faces)
     else:
         if use_dbf:
