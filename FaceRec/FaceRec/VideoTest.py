@@ -9,6 +9,7 @@ from math import inf
 import cv2
 import requests
 
+from GetClarity import get_clarity
 from cfg_FR import save_path
 from logger_FR import logger
 from utils_FR import b64string2array, process_request, file_request, response_async, array2b64string, validate_title
@@ -153,8 +154,9 @@ def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None, for_file=Fal
             rest_time = span_in_ms - duration.microseconds - (1000000 * duration.seconds)
     print('当前时间', str(datetime.datetime.now()))
     logger.debug('当前时间：' + str(datetime.datetime.now()))
-    resized_string=''
-    while len(result['res']) == 0 and (for_file or time_elapsed < wait):
+    resized_string = ''
+    quality_filter = True
+    while len(result['res']) == 0 and quality_filter and (for_file or time_elapsed < wait):
         # print('截三帧', count, time_elapsed)
         # logger.debug('截三帧：' + str(count) + ' ' + str(time_elapsed))
         current_time = datetime.datetime.now()
@@ -173,15 +175,27 @@ def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None, for_file=Fal
             if type(ss_result) is dict and 'result' in ss_result and ss_result['result'] is not None:
                 img_string = ss_result['result']
                 array = b64string2array(img_string)
-                x = int(array.shape[0] / 2)
-                y1 = int(array.shape[1] / 3)
-                y2 = int(2 * array.shape[1] / 3)
-                # array = array[0:x, y1:y2]
-                # array = cv2.resize(array, (1024, 768))
-                # cv2.imshow('d', array)
-                # cv2.waitKey(1)
+                array = cv2.resize(array, (1024, 768))
+                y = int(array.shape[0] / 2)
+                x1 = int(array.shape[1] / 4)
+                x2 = int(3 * array.shape[1] / 4)
+                array = array[0:y, x1:x2]
+
+                cv2.imshow('d', array)
+                cv2.waitKey(1)
                 resized_string = array2b64string(array)
                 result = process_request(fd_version, req_dict={'imgString': resized_string.decode()})
+                if len(result['res']) != 0:
+                    rect = result['res'][0]
+                    x1 = rect[0]
+                    y1 = rect[1]
+                    x2 = rect[2]
+                    y2 = rect[3]
+                    f = array[y1:y2, x1:x2, :].copy()
+                    dbr, clarity = get_clarity(f)
+                    print(dbr, clarity)
+                    cv2.imshow('f', f)
+                    cv2.waitKey()
                 print('face_detec_result', result, str(datetime.datetime.now()))
                 logger.debug('face_detec_result：' + str(result) + str(datetime.datetime.now()))
             elif not for_file:
@@ -196,7 +210,7 @@ def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None, for_file=Fal
             cap.grab()
             # print('跳过当前帧', count)
             # logger.debug('跳过当前帧：' + str(count))
-    img_string=resized_string
+    img_string = resized_string
     return img_string, result, cap, array, cap_time
 
 
@@ -657,7 +671,7 @@ if __name__ == '__main__':
         post_result=True,
         cr_id='test',
         count=5,
-        wait=1500,
-        capture=True,
+        wait=60,
+        capture=False,
         file_id=None
     )

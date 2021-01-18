@@ -1,10 +1,26 @@
 import os
 import cv2
 import numpy as np
-from Obsolete.HistUtil import calc_and_draw_hist
+from HistUtil import calc_and_draw_hist
 
 
-def get_clarity():
+def get_clarity(img):
+    hist_img, hist = calc_and_draw_hist(img, [255, 0, 255], None)
+    dark = np.sum(np.squeeze(hist)[:128])
+    bright = np.sum(np.squeeze(hist)[128:])
+    if bright == 0:
+        bright = np.float32(1.0)
+    dbr = dark / bright
+
+    img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    image_var = cv2.Laplacian(img_gray, cv2.CV_64F).var()  # 图像模糊度
+    res = img.shape[0] * img.shape[1]
+    clarity = int(image_var) * 10000 / res
+
+    return dbr, clarity
+
+
+def test_clarity():
     path = "C:\\Users\\16413\\Downloads\\pic(1)"
     for e, i in enumerate(os.listdir(path)):
         if i.endswith(".PNG"):
@@ -32,5 +48,4 @@ def blurify():
                 blur = cv2.GaussianBlur(img, (size, size), 0)
                 cv2.imwrite(os.path.join(path, i).replace(".jpg", "_blur" + str(size) + ".jpg"), blur)
 
-
-get_clarity()
+# get_clarity()
