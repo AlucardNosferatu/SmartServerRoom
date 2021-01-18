@@ -194,8 +194,11 @@ def loop_until_detected(rtsp, wait, fd_version='fd', prev_cap=None, for_file=Fal
                     f = array[y1:y2, x1:x2, :].copy()
                     dbr, clarity = get_clarity(f)
                     print(dbr, clarity)
-                    cv2.imshow('f', f)
-                    cv2.waitKey()
+                    if dbr > 2000 or clarity < 1500:
+                        result['res'] = []
+                    else:
+                        cv2.imshow('f', f)
+                        cv2.waitKey()
                 print('face_detec_result', result, str(datetime.datetime.now()))
                 logger.debug('face_detec_result：' + str(result) + str(datetime.datetime.now()))
             elif not for_file:
@@ -670,7 +673,7 @@ if __name__ == '__main__':
         rtsp='../../Samples/test.mp4',
         post_result=True,
         cr_id='test',
-        count=5,
+        count=10,
         wait=60,
         capture=False,
         file_id=None
